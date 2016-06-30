@@ -26,7 +26,7 @@ public class InitDimension {
 		DruidDataSource dataSource = new DruidDataSource();
 		dataSource.setUsername("dev");
 		dataSource.setPassword("dev123456");
-		dataSource.setUrl("jdbc:mysql://ms:3306/DW_RealTime?characterEncoding=utf8&useSSL=false");
+		dataSource.setUrl("jdbc:mysql://ms:3306/dw_realtime?characterEncoding=utf8&useSSL=false");
 		dataSource.setMaxActive(100);
 		dataSource.setPoolPreparedStatements(true);
 		dataSource.setMaxPoolPreparedStatementPerConnectionSize(100);
@@ -36,6 +36,12 @@ public class InitDimension {
 	public static void main(String[] args) throws ParseException {
 		String firstDay = "20160101";
 		String dayCount = "1000";
+		if (args.length >= 1) {
+			firstDay = args[0];
+		}
+		if (args.length >= 2) {
+			dayCount = args[1];
+		}
 		// 秒、分、时、日、周、月、季、年、总
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(yyyyMMddSDF.parse(firstDay));
@@ -85,13 +91,13 @@ public class InitDimension {
 			calendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE) + 1);
 		}
 		System.out.println("一共[" + count + "]条记录");
+		System.out.println("截至时间 " + yyyy_MM_dd_HH_mmSDF.format(calendar.getTime()));
 	}
 
 	private static int count = 0;
 
 	private static void execute(String str1, String str2) {
-		String upSql = "insert into DW_RealTime.RT_Time values('" + str1 + "', '" + str2 + "') on duplicate key update TimeKey=values(TimeKey)";
-//		String upSql = "INSERT INTO DW_RealTime.RT_Time SET TimeKey = '"+str1+"', TimeName = '"+str2+"'";
+		String upSql = "insert into dw_realtime.rt_time values('" + str1 + "', '" + str2 + "') on duplicate key update time_key=values(time_key)";
 //		System.out.println(upSql);
 		jdbcTemplate.execute(upSql);
 		count++;
