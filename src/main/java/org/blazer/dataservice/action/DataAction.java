@@ -1,8 +1,9 @@
 package org.blazer.dataservice.action;
 
-import java.util.List;
-import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+import org.blazer.dataservice.body.ConfigBody;
 import org.blazer.dataservice.service.DataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -18,7 +19,9 @@ public class DataAction {
 
 	@ResponseBody
 	@RequestMapping("/getconfig")
-	public List<Map<String, Object>> getConfig() {
+	public ConfigBody getConfig(HttpServletRequest request, HttpServletResponse response) {
+		System.out.println(request.getParameter("id"));
+		System.out.println(request.getParameter("name"));
 		return dataService.getConfigById(0);
 	}
 

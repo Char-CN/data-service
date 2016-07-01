@@ -3,7 +3,6 @@ package org.blazer.dataservice.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 import org.blazer.dataservice.dao.CustomJdbcDao;
@@ -24,10 +23,13 @@ public class InitSystem implements InitializingBean {
 	private static Logger logger = LoggerFactory.getLogger(InitSystem.class);
 
 	@Autowired
-	Properties dataSourceProperties;
+	JdbcTemplate jdbcTemplate;
 
 	@Autowired
-	JdbcTemplate jdbcTemplate;
+	CustomJdbcDao customJdbcDao;
+
+	@Autowired
+	DSConfigDao dsConfigDao;
 
 	@Value("#{dataSourceProperties.url}")
 	public String url;
@@ -57,45 +59,51 @@ public class InitSystem implements InitializingBean {
 				}
 				initDefaultDataSource();
 				defaultSource = true;
+				continue;
 			}
-			CustomJdbcDao.addDataSource(id, database_name, title, url, username, password, remark);
+			customJdbcDao.addDataSource(id, database_name, title, url, username, password, remark);
 		}
 		if (!defaultSource) {
 			initDefaultDataSource();
 		}
+		logger.info("init datasource ids : {}", customJdbcDao.getKeySet());
 		//////////////////////// 加载配置项 ////////////////////////
 		List<Map<String, Object>> configList = jdbcTemplate.queryForList("select id,datasource_id,config_name,config_type from ds_config");
-		for (Map<String, Object> map : configList) {
+		for (Map<String, Object> configMap : configList) {
 			DSConfig config = new DSConfig();
-			config.setId(Integer.parseInt(map.get("id").toString()));
-			if (StringUtils.isBlank((String) map.get("datasource_id"))) {
-				config.setDataSource(CustomJdbcDao.getDao(1));
+			config.setId(Integer.parseInt(configMap.get("id").toString()));
+			// 找不到数据源使用默认数据源
+			if (configMap.get("datasource_id") == null || "".equals(configMap.get("datasource_id").toString())) {
+				config.setDataSource(customJdbcDao.getDao(1));
 			} else {
-				config.setDataSource(CustomJdbcDao.getDao(Integer.parseInt(map.get("datasource_id").toString())));
+				config.setDataSource(customJdbcDao.getDao(Integer.parseInt(configMap.get("datasource_id").toString())));
 			}
-			config.setConfigName(map.get("config_name").toString());
-			config.setConfigType(map.get("config_type").toString());
+			config.setConfigName(configMap.get("config_name").toString());
+			config.setConfigType(configMap.get("config_type").toString());
 			List<DSConfigDetail> detailList = new ArrayList<DSConfigDetail>();
-			List<Map<String, Object>> rstList = jdbcTemplate.queryForList("select id,datasource_id,config_id,key,values from ds_config");
-			for (Map<String, Object> map2 : rstList) {
-				DSConfigDetail configDetail = new DSConfigDetail();
-				configDetail.setId(Integer.parseInt(map2.get("id").toString()));
-				if (StringUtils.isBlank((String) map2.get("datasource_id"))) {
-					configDetail.setDataSource(config.getDataSource());
+			List<Map<String, Object>> rstList = jdbcTemplate
+					.queryForList("select id,datasource_id,config_id,`key`,`values` from ds_config_detail where config_id=?", config.getId());
+			for (Map<String, Object> detailMap : rstList) {
+				DSConfigDetail detail = new DSConfigDetail();
+				detail.setId(Integer.parseInt(detailMap.get("id").toString()));
+				// 找不到数据源使用config的数据源
+				if (detailMap.get("datasource_id") == null || "".equals(detailMap.get("datasource_id").toString())) {
+					detail.setDataSource(config.getDataSource());
 				} else {
-					config.setDataSource(CustomJdbcDao.getDao(Integer.parseInt(map2.get("datasource_id").toString())));
+					detail.setDataSource(customJdbcDao.getDao(Integer.parseInt(detailMap.get("datasource_id").toString())));
 				}
-				configDetail.setKey(map.get("key").toString());
-				configDetail.setValues(map.get("values").toString());
-				detailList.add(configDetail);
+				detail.setKey(detailMap.get("key").toString());
+				detail.setValues(detailMap.get("values").toString());
+				detailList.add(detail);
 			}
 			config.setDetailList(detailList);
-			DSConfigDao.addConfig(config);
+			dsConfigDao.addConfig(config);
 		}
+		logger.info("init config list size : " + configList.size());
 	}
 
 	private void initDefaultDataSource() {
-		CustomJdbcDao.addDataSource(1, "mysql", "default", url, username, password, "");
+		customJdbcDao.addDataSource(1, "mysql", "default", url, username, password, "");
 	}
 
 	public void reload() {
