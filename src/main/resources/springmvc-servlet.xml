@@ -18,7 +18,7 @@
 	</bean>
 
 	<!-- Convert 2 : String2ResponseBody -->
-	<bean id="blazerStringHttpMessageConverter" class="org.blazer.dataservice.util.BlazerStringHttpMessageConverter" />
+	<bean id="blazerStringHttpMessageConverter" class="org.blazer.dataservice.util.UTF8StringHttpMessageConverter" />
 
 	<!-- Spring MVC return @ResponseBody Convert -->
 	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
