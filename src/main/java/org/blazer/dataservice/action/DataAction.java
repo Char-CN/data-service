@@ -20,9 +20,14 @@ public class DataAction {
 	@ResponseBody
 	@RequestMapping("/getconfig")
 	public ConfigBody getConfig(HttpServletRequest request, HttpServletResponse response) {
-		System.out.println(request.getParameter("id"));
-		System.out.println(request.getParameter("name"));
-		return dataService.getConfigById(0);
+		Integer id = 0;
+		try {
+			id = Integer.parseInt(request.getParameter("id"));
+		} catch (Exception e) {
+		}
+//		String referer = request.getHeader("Referer");
+		response.setHeader("Access-Control-Allow-Origin", "*");
+		return dataService.getConfigById(id);
 	}
 
 	@ResponseBody
