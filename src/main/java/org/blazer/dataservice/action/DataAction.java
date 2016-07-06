@@ -26,8 +26,9 @@ public class DataAction {
 		} catch (Exception e) {
 		}
 //		String referer = request.getHeader("Referer");
-		response.setHeader("Access-Control-Allow-Origin", "*");
-		return dataService.getConfigById(id);
+//		response.setHeader("Access-Control-Allow-Origin", "*");
+		ConfigBody cb = dataService.getConfigById(id);
+		return cb;
 	}
 
 	@ResponseBody

@@ -8,9 +8,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.alibaba.druid.pool.DruidDataSource;
 
+@SuppressWarnings("unused")
 public class InitDimension {
 
 	private static SimpleDateFormat yyyySDF = new SimpleDateFormat("yyyy");
+	private static SimpleDateFormat yyyy_SDF = new SimpleDateFormat("yyyy-");
 	private static SimpleDateFormat yyyyMMSDF = new SimpleDateFormat("yyyyMM");
 	private static SimpleDateFormat yyyy_MMSDF = new SimpleDateFormat("yyyy-MM");
 	private static SimpleDateFormat yyyyMMddSDF = new SimpleDateFormat("yyyyMMdd");
@@ -85,9 +87,9 @@ public class InitDimension {
 				execute(hour, yyyy_MM_dd_HHSDF.format(calendar.getTime()));
 			}
 			// 年-月-日 时:分
-			String yyyyMMddHHmm = yyyyMMddHHmmSDF.format(calendar.getTime());
-			String yyyy_MM_dd_HH_mm = yyyy_MM_dd_HH_mmSDF.format(calendar.getTime());
-			execute(yyyyMMddHHmm, yyyy_MM_dd_HH_mm);
+//			String yyyyMMddHHmm = yyyyMMddHHmmSDF.format(calendar.getTime());
+//			String yyyy_MM_dd_HH_mm = yyyy_MM_dd_HH_mmSDF.format(calendar.getTime());
+//			execute(yyyyMMddHHmm, yyyy_MM_dd_HH_mm);
 			calendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE) + 1);
 		}
 		System.out.println("一共[" + count + "]条记录");

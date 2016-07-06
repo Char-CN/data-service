@@ -35,6 +35,12 @@ public class DataService {
 			Dao dao = detail.getDataSource();
 			List<Map<String, Object>> values = dao.find(sql);
 			
+//			for (Map<String, Object> out : values) {
+//				for (String outs : out.keySet()) {
+//					System.out.println("k:" + outs + "v:" + out.get(outs));
+//				}
+//			}
+			
 			cdb.setId(detail.getId());
 			cdb.setKey(detail.getKey());
 			cdb.setValues(values);
