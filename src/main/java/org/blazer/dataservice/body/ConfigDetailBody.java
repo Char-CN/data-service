@@ -6,7 +6,6 @@ import java.util.Map;
 public class ConfigDetailBody {
 
 	private Integer id;
-	private String key;
 	private List<Map<String, Object>> values;
 
 	public Integer getId() {
@@ -15,14 +14,6 @@ public class ConfigDetailBody {
 
 	public void setId(Integer id) {
 		this.id = id;
-	}
-
-	public String getKey() {
-		return key;
-	}
-
-	public void setKey(String key) {
-		this.key = key;
 	}
 
 	public List<Map<String, Object>> getValues() {

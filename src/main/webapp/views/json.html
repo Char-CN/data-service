@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript" src="../js/jquery-3.0.0.min.js" charset="utf-8"></script>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<script>
+		window.onload = function() {
+			$.post("http://localhost:8010/dataservice/getconfig.do?id=1&name=hyy&age=skqos", function(data) {
+				alert(eval(data).list[0].values[0].deal_amount);
+			});
+			$.post("http://10.127.133.91:8080/data/dataservice/getconfig.do?id=10&starttime=20160702", function(data) {
+				alert(eval(data).list[0].values[0].deal_amount);
+			});
+		}
+	</script>
+</body>
+</html>

@@ -1,13 +1,13 @@
 package org.blazer.dataservice.body;
 
-import java.util.List;
+import java.util.HashMap;
 
 public class ConfigBody {
 
 	private Integer id;
 	private String configName;
 	private String configType;
-	private List<ConfigDetailBody> list;
+	private HashMap<String, ConfigDetailBody> details;
 
 	public Integer getId() {
 		return id;
@@ -33,12 +33,12 @@ public class ConfigBody {
 		this.configType = configType;
 	}
 
-	public List<ConfigDetailBody> getList() {
-		return list;
+	public HashMap<String, ConfigDetailBody> getDetails() {
+		return details;
 	}
 
-	public void setList(List<ConfigDetailBody> list) {
-		this.list = list;
+	public void setDetails(HashMap<String, ConfigDetailBody> details) {
+		this.details = details;
 	}
 
 }

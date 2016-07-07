@@ -40,6 +40,14 @@
 	</bean>
 
 	<mvc:annotation-driven />
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/**" />
+			<mvc:exclude-mapping path="/system" />
+			<mvc:exclude-mapping path="/index" />
+			<bean class="org.blazer.dataservice.interceptor.WebRequestInterceptor" />
+		</mvc:interceptor>
+	</mvc:interceptors>
 	<mvc:resources location="/images/" mapping="/images/**" />
 	<mvc:resources location="/css/" mapping="/css/**" />
 	<mvc:resources location="/js/" mapping="/js/**" />

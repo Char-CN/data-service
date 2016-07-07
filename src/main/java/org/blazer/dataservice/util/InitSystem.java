@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.blazer.dataservice.dao.CustomJdbcDao;
 import org.blazer.dataservice.dao.DSConfigDao;
+import org.blazer.dataservice.exception.UnknowDataSourceException;
 import org.blazer.dataservice.model.DSConfig;
 import org.blazer.dataservice.model.DSConfigDetail;
 import org.slf4j.Logger;
@@ -42,32 +43,12 @@ public class InitSystem implements InitializingBean {
 
 	public void afterPropertiesSet() throws Exception {
 		//////////////////////// 加载数据源 ////////////////////////
-		List<Map<String, Object>> dataSourceList = jdbcTemplate.queryForList("select id,database_name,title,url,username,password,remark from ds_datasource");
-		boolean defaultSource = false;
-		for (Map<String, Object> map : dataSourceList) {
-			Integer id = Integer.parseInt(map.get("id").toString());
-			// id为1是系统默认的连接，如果有则覆盖
-			String database_name = map.get("database_name").toString();
-			String title = map.get("title").toString();
-			String url = map.get("url").toString();
-			String username = map.get("username").toString();
-			String password = map.get("password").toString();
-			String remark = map.get("remark").toString();
-			if (id == 1) {
-				if (StringUtils.isNotBlank(url) || StringUtils.isNotBlank(username) || StringUtils.isNotBlank(password)) {
-					logger.info("检测到配置默认数据源中url、username、password不为空，系统将强行覆盖该数据源为系统配置的datasource.properties里的数据源。");
-				}
-				initDefaultDataSource();
-				defaultSource = true;
-				continue;
-			}
-			customJdbcDao.addDataSource(id, database_name, title, url, username, password, remark);
-		}
-		if (!defaultSource) {
-			initDefaultDataSource();
-		}
-		logger.info("init datasource ids : {}", customJdbcDao.getKeySet());
+		initDataSource();
 		//////////////////////// 加载配置项 ////////////////////////
+		initConfigEntity();
+	}
+
+	public void initConfigEntity() throws UnknowDataSourceException {
 		List<Map<String, Object>> configList = jdbcTemplate.queryForList("select id,datasource_id,config_name,config_type from ds_config");
 		for (Map<String, Object> configMap : configList) {
 			DSConfig config = new DSConfig();
@@ -100,6 +81,34 @@ public class InitSystem implements InitializingBean {
 			dsConfigDao.addConfig(config);
 		}
 		logger.info("init config list size : " + configList.size());
+	}
+
+	public void initDataSource() {
+		List<Map<String, Object>> dataSourceList = jdbcTemplate.queryForList("select id,database_name,title,url,username,password,remark from ds_datasource");
+		boolean defaultSource = false;
+		for (Map<String, Object> map : dataSourceList) {
+			Integer id = Integer.parseInt(map.get("id").toString());
+			// id为1是系统默认的连接，如果有则覆盖
+			String database_name = map.get("database_name").toString();
+			String title = map.get("title").toString();
+			String url = map.get("url").toString();
+			String username = map.get("username").toString();
+			String password = map.get("password").toString();
+			String remark = map.get("remark").toString();
+			if (id == 1) {
+				if (StringUtils.isNotBlank(url) || StringUtils.isNotBlank(username) || StringUtils.isNotBlank(password)) {
+					logger.info("检测到配置默认数据源中url、username、password不为空，系统将强行覆盖该数据源为系统配置的datasource.properties里的数据源。");
+				}
+				initDefaultDataSource();
+				defaultSource = true;
+				continue;
+			}
+			customJdbcDao.addDataSource(id, database_name, title, url, username, password, remark);
+		}
+		if (!defaultSource) {
+			initDefaultDataSource();
+		}
+		logger.info("init datasource ids : {}", customJdbcDao.getKeySet());
 	}
 
 	private void initDefaultDataSource() {

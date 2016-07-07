@@ -1,6 +1,6 @@
 package org.blazer.dataservice.service;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +10,8 @@ import org.blazer.dataservice.dao.DSConfigDao;
 import org.blazer.dataservice.dao.Dao;
 import org.blazer.dataservice.model.DSConfig;
 import org.blazer.dataservice.model.DSConfigDetail;
+import org.blazer.dataservice.util.IntegerUtil;
+import org.blazer.dataservice.util.SqlUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,35 +20,35 @@ public class DataService {
 
 	@Autowired
 	DSConfigDao dsConfigDao;
-	
-	public ConfigBody getConfigById(Integer id) {
+
+	public ConfigBody getConfigById(HashMap<String, String> paramMap) {
 		ConfigBody cb = new ConfigBody();
-		DSConfig config = dsConfigDao.getConfig(1);
-		
+		Integer id = IntegerUtil.getInt0(paramMap.get("id"));
+		DSConfig config = dsConfigDao.getConfig(id);
+
 		cb.setId(config.getId());
 		cb.setConfigName(config.getConfigName());
 		cb.setConfigType(config.getConfigType());
-		cb.setList(new ArrayList<ConfigDetailBody>());
-		
+		cb.setDetails(new HashMap<String, ConfigDetailBody>());
+
 		List<DSConfigDetail> detailList = config.getDetailList();
 		for (DSConfigDetail detail : detailList) {
 			ConfigDetailBody cdb = new ConfigDetailBody();
 			String sql = detail.getValues();
+
+			// 替换参数
+			for (String key : paramMap.keySet()) {
+				sql = sql.replace("${" + key + "}", SqlUtil.TransactSQLInjection(paramMap.get(key)));
+			}
+
 			Dao dao = detail.getDataSource();
 			List<Map<String, Object>> values = dao.find(sql);
-			
-//			for (Map<String, Object> out : values) {
-//				for (String outs : out.keySet()) {
-//					System.out.println("k:" + outs + "v:" + out.get(outs));
-//				}
-//			}
-			
+
 			cdb.setId(detail.getId());
-			cdb.setKey(detail.getKey());
 			cdb.setValues(values);
-			cb.getList().add(cdb);
+			cb.getDetails().put(detail.getKey(), cdb);
 		}
-		
+
 		return cb;
 	}
 
