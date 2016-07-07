@@ -12,14 +12,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class Action {
 
 	@RequestMapping("/a")
-	public String a() {
-		return "a.html";
-	}
-
-	@RequestMapping("/b")
 	public String b(HttpServletRequest request, HttpServletResponse response) {
-		request.setAttribute("key", "后台value！");
-		return "b.jsp";
+		request.setAttribute("key", "后台value！" + request.toString());
+		return "a";
 	}
 
 	@ResponseBody

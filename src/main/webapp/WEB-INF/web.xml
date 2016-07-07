@@ -3,6 +3,10 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
 	<display-name>data-service</display-name>
 
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
+
 	<!-- init applicationContext.xml -->
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
@@ -14,17 +18,17 @@
 	</listener>
 
 	<servlet>
-		<servlet-name>springmvc-servlet</servlet-name>
+		<servlet-name>springmvc-default-servlet</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		<init-param>
 			<param-name>contextConfigLocation</param-name>
-			<param-value>classpath:springmvc-servlet.xml</param-value>
+			<param-value>classpath:springmvc-default-servlet.xml</param-value>
 		</init-param>
-		<load-on-startup>2</load-on-startup>
+		<load-on-startup>1</load-on-startup>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>springmvc-servlet</servlet-name>
-		<url-pattern>/*</url-pattern>
+		<servlet-name>springmvc-default-servlet</servlet-name>
+		<url-pattern>*.do</url-pattern>
 	</servlet-mapping>
 
 	<!-- init encoding filter -->
@@ -82,8 +86,4 @@
 		<servlet-name>DruidStatView</servlet-name>
 		<url-pattern>/druid/*</url-pattern>
 	</servlet-mapping>
-
-	<welcome-file-list>
-		<welcome-file>index.html</welcome-file>
-	</welcome-file-list>
 </web-app>
