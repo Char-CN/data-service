@@ -23,11 +23,7 @@ public class DataAction extends BaseAction {
 	@RequestMapping("/getconfig")
 	public ConfigBody getConfig(HttpServletRequest request, HttpServletResponse response) {
 		HashMap<String, String> paramMap = getParamMap(request);
-		for (String key : paramMap.keySet()) {
-			System.out.println(key + ":" + paramMap.get(key));
-		}
 		ConfigBody cb = dataService.getConfigById(paramMap);
-//		response.setHeader("Access-Control-Allow-Origin", "*");
 		return cb;
 	}
 
