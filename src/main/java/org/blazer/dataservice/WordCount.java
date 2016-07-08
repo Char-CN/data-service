@@ -1,4 +1,4 @@
-package org.blazer.report.custom;
+package org.blazer.dataservice;
 
 import java.util.HashMap;
 

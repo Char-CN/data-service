@@ -12,6 +12,7 @@ import org.blazer.dataservice.model.DSConfig;
 import org.blazer.dataservice.model.DSConfigDetail;
 import org.blazer.dataservice.util.IntegerUtil;
 import org.blazer.dataservice.util.SqlUtil;
+import org.blazer.dataservice.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,14 @@ public class DataService {
 	public ConfigBody getConfigById(HashMap<String, String> paramMap) {
 		ConfigBody cb = new ConfigBody();
 		Integer id = IntegerUtil.getInt0(paramMap.get("id"));
+		String detailsId = StringUtil.getStr(paramMap.get("detailsid"));
+		if (detailsId != null) {
+			detailsId = "," + detailsId + ",";
+		}
+		String detailsKey = StringUtil.getStr(paramMap.get("detailskey"));
+		if (detailsKey != null) {
+			detailsKey = "," + detailsKey + ",";
+		}
 		DSConfig config = dsConfigDao.getConfig(id);
 
 		cb.setId(config.getId());
@@ -33,6 +42,14 @@ public class DataService {
 
 		List<DSConfigDetail> detailList = config.getDetailList();
 		for (DSConfigDetail detail : detailList) {
+			// 匹配details id
+			if (detailsId != null && !detailsId.contains("," + detail.getId() + ",")) {
+				continue;
+			}
+			// 匹配details key
+			if (detailsKey != null && !detailsKey.contains("," + detail.getKey() + ",")) {
+				continue;
+			}
 			ConfigDetailBody cdb = new ConfigDetailBody();
 			String sql = detail.getValues();
 

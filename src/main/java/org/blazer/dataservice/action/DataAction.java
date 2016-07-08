@@ -30,7 +30,8 @@ public class DataAction extends BaseAction {
 	@ResponseBody
 	@RequestMapping("/getdetail")
 	public String getDetail(HttpServletRequest request, HttpServletResponse response) {
-		return dataService.getConfigById(getParamMap(request)).toString();
+		HashMap<String, String> paramMap = getParamMap(request);
+		return dataService.getConfigById(paramMap).toString();
 	}
 
 }
