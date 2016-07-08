@@ -28,8 +28,8 @@ public class DataAction extends BaseAction {
 	}
 
 	@ResponseBody
-	@RequestMapping("/getconfig2")
-	public String getConfig2(HttpServletRequest request, HttpServletResponse response) {
+	@RequestMapping("/getdetail")
+	public String getDetail(HttpServletRequest request, HttpServletResponse response) {
 		return dataService.getConfigById(getParamMap(request)).toString();
 	}
 
