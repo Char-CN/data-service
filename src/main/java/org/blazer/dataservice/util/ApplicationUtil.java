@@ -8,6 +8,10 @@ public class ApplicationUtil {
 	private static ApplicationContext ctx = null;
 
 	public static void init() {
+		init("src/main/resources/applicationContext.xml");
+	}
+
+	public static void init(String path) {
 		long l1 = System.currentTimeMillis();
 		if (ctx != null) {
 			long l2 = System.currentTimeMillis();
@@ -15,8 +19,7 @@ public class ApplicationUtil {
 			return;
 		}
 		try {
-			String applicationPath = "src/main/resources/applicationContext.xml";
-			ApplicationUtil.ctx = new FileSystemXmlApplicationContext(applicationPath);
+			ApplicationUtil.ctx = new FileSystemXmlApplicationContext(path);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
