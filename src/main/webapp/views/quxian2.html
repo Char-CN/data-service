@@ -2,13 +2,14 @@
 <html>
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ECharts</title>
 <!-- 引入 echarts.js -->
 <script type="text/javascript" src="../js/echarts.min.js" charset="utf-8"></script>
 </head>
 <body>
 	<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
-	<div id="main" style="width: 300px; height: 400px;"></div>
+	<div id="main" style="width: 300px; height: 200px;"></div>
 	<script type="text/javascript" charset="utf-8">
 		var dom = document.getElementById("main");
 		var myChart = echarts.init(dom);
@@ -39,7 +40,7 @@
 
 		option = {
 			title : {
-				text : ''
+				text : '动态数据'
 			},
 			tooltip : {
 				trigger : 'axis',
@@ -71,14 +72,14 @@
 				showSymbol : false,
 				hoverAnimation : false,
 				data : data
-			}]
+			} ]
 		};
 
 		count = 50;
 		app.timeTicket = setInterval(function() {
 			count++;
 			rst = randomData(count, true);
-			data.splice(count,1,rst);
+			data.splice(count, 1, rst);
 
 			myChart.setOption({
 				series : [ {
@@ -86,7 +87,7 @@
 				} ]
 			});
 		}, 1000);
-		;
+
 		if (option && typeof option === "object") {
 			var startTime = +new Date();
 			myChart.setOption(option, true);
