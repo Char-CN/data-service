@@ -1,5 +1,6 @@
 package org.blazer.dataservice.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,11 +14,15 @@ import org.blazer.dataservice.model.DSConfigDetail;
 import org.blazer.dataservice.util.IntegerUtil;
 import org.blazer.dataservice.util.SqlUtil;
 import org.blazer.dataservice.util.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service(value = "dataService")
 public class DataService {
+
+	private static Logger logger = LoggerFactory.getLogger(DataService.class);
 
 	@Autowired
 	DSConfigDao dsConfigDao;
@@ -59,7 +64,14 @@ public class DataService {
 			}
 
 			Dao dao = detail.getDataSource();
-			List<Map<String, Object>> values = dao.find(sql);
+			List<Map<String, Object>> values = null;
+
+			try {
+				values = dao.find(sql);
+			} catch (Exception e) {
+				values = new ArrayList<Map<String, Object>>();
+				logger.error(e.getMessage(), e);
+			}
 
 			cdb.setId(detail.getId());
 			cdb.setValues(values);
