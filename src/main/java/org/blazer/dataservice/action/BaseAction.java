@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 
 public class BaseAction {
 
-	@SuppressWarnings("unchecked")
 	public HashMap<String, String> getParamMap(HttpServletRequest request) {
 		HashMap<String, String> paramMap = new HashMap<String, String>();
 		Enumeration<String> enumeration = request.getParameterNames();

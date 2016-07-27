@@ -50,10 +50,16 @@
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/tomcat/jasper-runtime -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>tomcat</groupId> -->
+<!-- 			<artifactId>jasper-runtime</artifactId> -->
+<!-- 			<version>5.5.23</version> -->
+<!-- 		</dependency> -->
+		<!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-webapp -->
 		<dependency>
-			<groupId>tomcat</groupId>
-			<artifactId>jasper-runtime</artifactId>
-			<version>5.5.23</version>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-webapp</artifactId>
+			<version>9.3.10.v20160621</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
