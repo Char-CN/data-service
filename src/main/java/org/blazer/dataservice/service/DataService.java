@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.blazer.dataservice.body.ConfigBody;
 import org.blazer.dataservice.body.ConfigDetailBody;
+import org.blazer.dataservice.body.ParamsBody;
 import org.blazer.dataservice.dao.DSConfigDao;
 import org.blazer.dataservice.dao.Dao;
 import org.blazer.dataservice.model.DSConfig;
@@ -79,6 +80,31 @@ public class DataService {
 		}
 
 		return cb;
+	}
+
+	public ParamsBody getParamsById(HashMap<String, String> paramMap) {
+		ParamsBody body = new ParamsBody();
+		Integer id = IntegerUtil.getInt0(paramMap.get("id"));
+		DSConfig config = dsConfigDao.getConfig(id);
+
+		List<DSConfigDetail> detailList = config.getDetailList();
+		body.setParams(new ArrayList<String>());
+		body.setDetails(new HashMap<String, List<String>>());
+		for (DSConfigDetail detail : detailList) {
+			String key = detail.getKey();
+			String sql = detail.getValues();
+			List<String> tmpList = new ArrayList<String>();
+			for (String param : SqlUtil.ExtractParams(sql)) {
+				if (!body.getParams().contains(param)) {
+					body.getParams().add(param);
+				}
+				if (!tmpList.contains(param)) {
+					tmpList.add(param);
+				}
+			}
+			body.getDetails().put(key, tmpList);
+		}
+		return body;
 	}
 
 }

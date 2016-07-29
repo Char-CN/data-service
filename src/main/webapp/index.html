@@ -1,102 +1,126 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"> -->
-<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-<title>Bootstrap 101 Template</title>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<link rel="stylesheet" type="text/css" href="themes/bootstrap/easyui.css">
+<link rel="stylesheet" type="text/css" href="themes/icon.css">
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/jquery.easyui.min.js"></script>
+<script>
+	$(function() {
+		var menu = $('<div></div>');
+		menu.attr('id', 'tree_menu');
+		menu.attr('class', 'easyui-menu');
 
-<!-- Bootstrap -->
-<link href="css/bootstrap.css" rel="stylesheet">
-<link href="css/bootstrap-theme.min.css" rel="stylesheet">
-<!-- Load c3.css -->
-<link href="../css/c3.min.css" rel="stylesheet" type="text/css">
-<!-- Load d3.js and c3.js -->
-<script type="text/javascript" src="../js/d3.min.js" charset="utf-8"></script>
-<script type="text/javascript" src="../js/c3.min.js" charset="utf-8"></script>
-<style>
-</style>
+		// 增加按钮
+		var menu_add = $('<div>新增子目录</div>');
+		menu_add.attr('data-options', "iconCls:'icon-add'");
+		menu_add.bind('click', function() {
+			alert(1);
+		});
+		menu.append(menu_add);
+
+		// 排序按钮
+		var menu_s = $('<div>自定义排序</div>');
+		menu_s.attr('data-options', "iconCls:'icon-edit'");
+		menu_s.bind('click', function() {
+			$("#tree").tree('enableDnd');
+			$("#tree").unbind('contextmenu');
+			$("#tree").bind('contextmenu', function(e) {
+				e.preventDefault();
+				$('#tree_menu_sort').menu('show', {
+					left : e.pageX,
+					top : e.pageY
+				});
+			});
+		});
+		menu.append(menu_s);
+		// 初始化右键菜单
+		menu.menu().appendTo('body');
+
+		// 自定义排序时菜单
+		var menu_sort = $('<div></div>');
+		menu_sort.attr("id", "tree_menu_sort");
+		menu_sort.attr("class", "easyui-menu");
+
+		// 自定义排序时保存按钮
+		var menu_sort_save = $('<div>保存</div>');
+		menu_sort_save.attr("data-options", "iconCls:'icon-save'");
+		menu_sort_save.bind('click', function() {
+			alert('save');
+			$("#tree").tree('disableDnd');
+			$("#tree").unbind('contextmenu');
+			$("#tree").bind('contextmenu', function(e) {
+				e.preventDefault();
+				$('#tree_menu').menu('show', {
+					left : e.pageX,
+					top : e.pageY
+				});
+			});
+		});
+
+		// 自定义排序时取消按钮
+		var menu_sort_cancel = $('<div>取消</div>');
+		menu_sort_cancel.attr("data-options", "iconCls:'icon-cancel'");
+		menu_sort_cancel.bind('click', function() {
+			$("#tree").tree('disableDnd');
+			$("#tree").unbind('contextmenu');
+			$("#tree").bind('contextmenu', function(e) {
+				e.preventDefault();
+				$('#tree_menu').menu('show', {
+					left : e.pageX,
+					top : e.pageY
+				});
+			});
+		});
+
+		menu_sort.append(menu_sort_save);
+		menu_sort.append(menu_sort_cancel);
+		menu_sort.menu().appendTo('body');
+
+		// 初始化树形菜单
+		$("#tree").tree({
+			lines : true,
+			method : 'post',
+			animate : true,
+			url : '/index/getTree.do',
+			method : 'post',
+			/* data : [ {
+				text : 'Item1',
+				state : 'closed',
+				children : [ ]
+			}, {
+				text : 'Item2',
+				state : 'closed'
+			} ], */
+			/* onBeforeCollapse : function(node) {
+				// 改变图标
+				var t = $('#tree');
+				t.tree('update', {
+					target : node.target,
+					iconCls : 'icon-folder'
+				});
+			}, */
+			onContextMenu : function(e, node) {
+				$(this).tree('select', node.target);
+				e.preventDefault();
+				$('#tree_menu').menu('show', {
+					left : e.pageX,
+					top : e.pageY
+				});
+			}
+		});
+	});
+</script>
 </head>
 <body>
-	<nav class="navbar-default">
-		<div class="container-fluid">
-			<!-- Brand and toggle get grouped for better mobile display -->
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-					<span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand" href="#">系统平台-首页</a>
-			</div>
-
-			<!-- Collect the nav links, forms, and other content for toggling -->
-			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-				<ul class="nav navbar-nav">
-					<li class="active"><a href="#">首页</a></li>
-					<li><a href="#">link</a></li>
-					<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown
-							<span class="caret"></span>
-					</a>
-						<ul class="dropdown-menu">
-							<li><a href="#">Action</a></li>
-							<li><a href="#">Another action</a></li>
-							<li><a href="#">Something else here</a></li>
-							<li><a href="#">Separated link</a></li>
-							<li><a href="#">One more separated link</a></li>
-						</ul></li>
-				</ul>
-			</div>
-			<!-- /.navbar-collapse -->
+	<div id="cc" class="easyui-layout" data-options="fit:true">
+		<div data-options="region:'north'" style="height: 80px;"></div>
+		<div class="easyui-panel" data-options="region:'west',split:true" title="West" style="width: 200px;">
+			<ul id="tree" class="easyui-tree"></ul>
 		</div>
-	</nav>
-	<table class="table table-bordered">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>First Name</th>
-          <th>Last Name</th>
-          <th>Username</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="active">
-          <th scope="row">1</th>
-          <td>Mark</td>
-          <td>Otto</td>
-          <td>@mdo</td>
-        </tr>
-        <tr>
-          <th scope="row">2</th>
-          <td>Jacob</td>
-          <td>Thornton</td>
-          <td>@fat</td>
-        </tr>
-        <tr class="active">
-          <th scope="row">3</th>
-          <td>Larry</td>
-          <td>the Bird</td>
-          <td>@twitter</td>
-        </tr>
-      </tbody>
-    </table>
-	<!-- /.container-fluid -->
-	<!-- div class="embed-responsive embed-responsive-16by9">
-		<iframe id="webson" class="well well-lg" src="views/c3.html"></iframe>
-	</div> -->
-	<!-- 4:3 aspect ratio -->
-	<!-- <div id="chart" ></div>
-	<script>
-	var chart = c3.generate({
-		bindto : '#chart',
-		data : {
-			columns : [ [ 'data1', 30, 200, 100, 400, 150, 250 ], [ 'data2', 50, 20, 10, 40, 15, 25 ] ]
-		}
-	});
-</script> -->
-	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-	<script src="js/jquery.min.js"></script>
-	<!-- Include all compiled plugins (below), or include individual files as needed -->
-	<script src="js/bootstrap.min.js"></script>
+		<div data-options="region:'center',title:'Center'"></div>
+	</div>
 </body>
 </html>

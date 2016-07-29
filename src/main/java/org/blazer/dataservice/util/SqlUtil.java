@@ -1,9 +1,28 @@
 package org.blazer.dataservice.util;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class SqlUtil {
 
 	public static String TransactSQLInjection(String sql) {
 		return sql.replaceAll(".*([';]+|(--)+).*", " ");
+	}
+
+	public static List<String> ExtractParams(String sql) {
+		Pattern p = Pattern.compile("[$][{][a-zA-Z0-9:.]*[}]");
+		Matcher m = p.matcher(sql);
+		List<String> result = new ArrayList<String>();
+		while (m.find()) {
+			result.add(m.group());
+		}
+		return result;
+	}
+
+	public static void main(String[] args) {
+		System.out.println(ExtractParams("select * from table where a='${hello}' and b='${hyy}'"));
 	}
 
 }
