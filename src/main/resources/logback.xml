@@ -33,12 +33,12 @@
 		</triggeringPolicy>
 	</appender>
 
-	<logger name="myLogger" additivity="false">
+	<!-- <logger name="myLogger" additivity="false">
 		<level value="info" />
 		<appender-ref ref="fileAppender" />
-	</logger>
+	</logger> -->
 
-	<root level="info">
+	<root level="debug">
 		<appender-ref ref="fileAppender" />
 		<appender-ref ref="consoleAppender" />
 	</root>
