@@ -1,5 +1,5 @@
 $(function() {
-	$.mymessager = {
+	$.dsmessager = {
 		show : function(message) {
 			if (message == undefined || message == null) {
 				message = "";
@@ -8,14 +8,14 @@ $(function() {
 				return;
 			}
 			return $.messager.show({
-				title : $.mymessager.defaults.title,
+				title : $.dsmessager.defaults.title,
 				msg : '' + message,
-				showType : $.mymessager.defaults.showType
+				showType : $.dsmessager.defaults.showType
 			});
 		}
 	};
 
-	$.mymessager.defaults = {
+	$.dsmessager.defaults = {
 		title : '提示',
 		showType : 'fade'
 	};
