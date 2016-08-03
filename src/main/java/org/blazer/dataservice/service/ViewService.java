@@ -66,14 +66,19 @@ public class ViewService {
 		}
 		ViewConfigBody vcb = new ViewConfigBody();
 		vcb.setId(IntegerUtil.getInt0(list.get(0).get("id")));
+		vcb.setDatasourceId(IntegerUtil.getInt0(list.get(0).get("datasource_id")));
 		vcb.setConfigType(StringUtil.getStrEmpty(list.get(0).get("config_type")));
 		vcb.setConfigName(StringUtil.getStrEmpty(list.get(0).get("config_name")));
 		vcb.setList(new ArrayList<ViewConfigDetailBody>());
-		sql = "select * from ds_config_detail where group_id=?";
+		sql = "select * from ds_config_detail where config_id=?";
 		List<Map<String, Object>> list2 = jdbcTemplate.queryForList(sql, vcb.getId());
 		for (Map<String, Object> map : list2) {
 			ViewConfigDetailBody vcdb = new ViewConfigDetailBody();
 			vcdb.setId(IntegerUtil.getInt0(map.get("id")));
+			vcdb.setDatasourceId(IntegerUtil.getInt0(map.get("datasource_id")));
+			if (vcdb.getDatasourceId() == 0) {
+				vcdb.setDatasourceId(vcb.getDatasourceId());
+			}
 			vcdb.setKey(StringUtil.getStrEmpty(map.get("key")));
 			vcdb.setValues(StringUtil.getStrEmpty(map.get("values")));
 			vcb.getList().add(vcdb);

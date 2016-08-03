@@ -1,12 +1,16 @@
 package org.blazer.dataservice.action;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.blazer.dataservice.body.DataSourceBody;
 import org.blazer.dataservice.body.GroupBody;
 import org.blazer.dataservice.body.view.ViewConfigBody;
+import org.blazer.dataservice.dao.CustomJdbcDao;
+import org.blazer.dataservice.exception.UnknowDataSourceException;
 import org.blazer.dataservice.service.ViewService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +27,9 @@ public class ViewAction extends BaseAction {
 
 	@Autowired
 	ViewService viewService;
+
+	@Autowired
+	CustomJdbcDao customJdbcDao;
 
 	@ResponseBody
 	@RequestMapping("/getTree")
@@ -45,10 +52,26 @@ public class ViewAction extends BaseAction {
 	}
 
 	@ResponseBody
-	@RequestMapping("/getConfigsById")
-	public ViewConfigBody getConfigsById(HttpServletRequest request, HttpServletResponse response) {
+	@RequestMapping("/getConfigById")
+	public ViewConfigBody getConfigById(HttpServletRequest request, HttpServletResponse response) {
 		logger.debug("map : " + getParamMap(request));
 		return viewService.getConfigById(getParamMap(request));
+	}
+
+	@ResponseBody
+	@RequestMapping("/getDataSourceAll")
+	public List<DataSourceBody> getDataSourceAll(HttpServletRequest request, HttpServletResponse response) throws UnknowDataSourceException {
+		logger.debug("map : " + getParamMap(request));
+		List<DataSourceBody> list = new ArrayList<DataSourceBody>();
+		for (Integer i : customJdbcDao.getKeySet()) {
+			DataSourceBody dsb = new DataSourceBody();
+			dsb.setId(i);
+			dsb.setDatabaseName(customJdbcDao.getDataSourceBean(i).getDatabase_name());
+			dsb.setTitle(customJdbcDao.getDataSourceBean(i).getTitle());
+			dsb.setRemark(customJdbcDao.getDataSourceBean(i).getRemark());
+			list.add(dsb);
+		}
+		return list;
 	}
 
 }

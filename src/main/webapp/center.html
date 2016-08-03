@@ -1,0 +1,181 @@
+<ul id="center_ul" class="dsul"></ul>
+<script>
+	$(function() {
+		var queryString = '$queryString';
+		var windowId = '$windowId';
+		var id = $.ds.getQueryString(queryString, "id");
+		// 新增
+		if (id == null) {
+		}
+		// 修改
+		else {
+			var url = $.ds.url.configs_by_group_id + "id=" + id;
+			$.post(url, function(data) {
+				$("#center_ul").html('');
+				var rst = eval(data);
+				if (rst.length != 0) {
+					for ( var i in rst) {
+						var li = $('<li class="dsli">');
+						li.append('<span class="tree-file"></span>');
+						li.append('<span>' + rst[i].configName + '</span>');
+						li.bind('dblclick', { id:rst[i].id, title:rst[i].configName }, function(d){
+							openConfig(d.data.id, d.data.title);
+						});
+						$("#center_ul").append(li);
+					}
+				}
+				return $.dsmessager.show('加载[' + rst.length + ']条配置。');
+			});
+		}
+
+		var sortable = Sortable.create(document.getElementById("center_ul"), {"disabled" : true});
+		var openConfig = function(id, title) {
+			appendWindow("center_add_config_" + id, title, "addconfig.html", "id=" + id);
+		};
+
+		var appendWindow = function(id, title, url, queryString) {
+			if ($("#" + id).length != 0) {
+				return $.dsmessager.show(title + "已经存在。");
+			}
+			var _window = $('<div></div>');
+			_window.attr("id", id);
+			_window.attr("title", title);
+			_window.attr("class", "easyui-window");
+			_window.attr("style", "padding:20px 40px;");
+			_window.window({
+				href : url,
+				top : $.ds.getHeadHeight(),
+				left : 0,
+				height : $.ds.getCenterHeight() < $.ds.getDefaultWindowHeight() ? $.ds.getCenterHeight() : $.ds.getDefaultWindowHeight(),
+				width : $.ds.getDefaultWindowWidth(),
+				closed : false,
+				modal : false,
+				loadingMessage : '请稍等，正在读取服务器内容，加载数据。。。',
+				// collapsible : false,
+				// minimizable : false,
+				maximizable : false,
+				extractor : function(data) {
+					//alert(id);
+					//alert(data.replace(new RegExp("[$]queryString","gm"), queryString));
+//					return data.replace(new RegExp("[$]queryString","gm"), queryString);
+					data = $.ds.replaceAll(data, "[$]queryString", queryString);
+					data = $.ds.replaceAll(data, "[$]windowId", id);
+					return data;
+				},
+				onClose : function(forceDestroy) {
+					$(this).window('destroy');
+				},
+				onDestroy : function() {
+					//$("#foot").find("[window_id='" + this.id + "']").remove();
+					$.ds.commons.removeFootTask(this.id);
+				},
+				onLoad : function() {
+					//$(this).append("<input>");
+				}
+			}).window('center');
+//			window.window('refresh', url);
+//			window.append("<input>");
+			$.ds.commons.addFootTask(id, title);
+		};
+
+// 		var appendFoot = function(window_id, text) {
+// 			var a = $('<a style="margin:2px;"></a>');
+// 			// a.attr("id", id);
+// 			a.attr("window_id", window_id);
+// 			a.attr("data-options", "plain:false");
+// 			a.html(text.length > 10 ? text.substr(0,10) + '...' : text);
+// 			a.linkbutton();
+// 			a.click(function() {
+// 				var window_id = $(this).attr("window_id");
+// 				$('#' + window_id).window('open');
+// 			});
+// 			$("#foot").append(a);
+// 		};
+
+		var center_menu = $('<div id="center_menu"></div>');
+		center_menu.appendTo('body');
+		center_menu.menu({
+			onHide : function() {
+				rp_center_block = false;
+			}
+		});
+
+		var add_count = 10;
+		center_menu.menu('appendItem', {
+			text : '新增配置项',
+			iconCls : 'icon-add',
+			disabled : false,
+			onclick : function() {
+// 				$("#center_ul").append('<li class="dsli"><span class="tree-file"></span><span>中文字符'+add_count+'</span></li>');
+// 				add_count++;
+				if ($("#center_add_config").length != 0) {
+					return;
+				}
+				appendWindow("center_add_config", "新增配置项", "addconfig.html");
+			}
+		});
+
+		center_menu.append($('<div class="menu-sep"></div>'));
+
+		center_menu.menu('appendItem', {
+			text : '自定义排序',
+			iconCls : 'icon-edit',
+			onclick : function() {
+				var c = $("#center");
+				c.unbind('contextmenu');
+				c.bind('contextmenu', function(e) {
+					e.preventDefault();
+					$('#center_menu_save_cancel').menu('show', {
+						left : e.pageX,
+						top : e.pageY
+					});
+				});
+				sortable.option("disabled", false);
+			}
+		});
+
+		center_menu.menu('appendItem', {
+			text : '刷新',
+			iconCls : 'icon-reload',
+			onclick : function() {
+				return $.dsmessager.show('刷新!');
+			}
+		});
+
+		var menuSaveCancel = $('<div id="center_menu_save_cancel"></div>');
+		menuSaveCancel.appendTo('body').menu({});
+		menuSaveCancel.menu('appendItem', {
+			text : '保存',
+			iconCls : 'icon-save',
+			onclick : function() {
+				var c = $("#center");
+				c.unbind('contextmenu');
+				c.bind('contextmenu', function(e) {
+					e.preventDefault();
+					$('#center_menu').menu('show', {
+						left : e.pageX,
+						top : e.pageY
+					});
+				});
+				sortable.option("disabled", true);
+				return $.dsmessager.show('您保存了本次自定义排序操作!');
+			}
+		}).menu('appendItem', {
+			text : '取消',
+			iconCls : 'icon-remove',
+			onclick : function() {
+				var c = $("#center");
+				c.unbind('contextmenu');
+				c.bind('contextmenu', function(e) {
+					e.preventDefault();
+					$('#center_menu').menu('show', {
+						left : e.pageX,
+						top : e.pageY
+					});
+				});
+				sortable.option("disabled", true);
+				return $.dsmessager.show('您取消了本次自定义排序操作!');
+			}
+		});
+	});
+</script>

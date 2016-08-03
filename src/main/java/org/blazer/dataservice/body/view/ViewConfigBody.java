@@ -5,9 +5,18 @@ import java.util.List;
 public class ViewConfigBody {
 
 	private Integer id;
+	private Integer datasourceId;
 	private String configName;
 	private String configType;
 	private List<ViewConfigDetailBody> list;
+
+	public Integer getDatasourceId() {
+		return datasourceId;
+	}
+
+	public void setDatasourceId(Integer datasourceId) {
+		this.datasourceId = datasourceId;
+	}
 
 	public Integer getId() {
 		return id;

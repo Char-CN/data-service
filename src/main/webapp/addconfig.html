@@ -1,7 +1,67 @@
+<form method="post">
+	<div style="padding: 10px;">
+        <span style="display:inline-block; width:100px;">数据源:</span>
+		<select name="datasource" style="width:255px"></select>
+	</div>
+	<div style="padding: 10px;">
+        <span style="display:inline-block; width:100px;">名称:</span>
+        <input name="name" style="width:250px;" class="easyui-validatebox" type="text" data-options="required:true,validType:['nospace']" />
+    </div>
+	<div class="details" style="padding: 10px;">
+    </div>
+</form>
 <script>
-
+	$(function() {
+		var queryString = '$queryString';
+		var windowId = '$windowId';
+		var id = $.ds.getQueryString(queryString, "id");
+		// 新增
+		if (id == null) {
+			$.dsmessager.show("您正在新增配置项。");
+		}
+		// 修改
+		else {
+			$.dsmessager.show("您正在修改配置项。");
+			var url = $.ds.url.config_by_id + "id=" + id;
+			$.post(url, function(data) {
+				$("#" + windowId).find(" form input[name='name']").val(data.configName).validatebox('isValid');
+				for (var i in data.list) {
+					var details = $("#" + windowId).find(" form .details");
+					var te = $('<input style="width:100%;">');
+					var te2 = $('<input style="width:100%;height:200px;">');
+					var pan = $('<div>').panel({width: details.width()});
+					details.append(pan);
+					pan.append(te);
+					pan.append(te2);
+					te.textbox({multiline : false, value : data.list[i].key});
+					te2.textbox({multiline : true, value : data.list[i].values});
+				}
+				for (var i in data.list) {
+					var details = $("#" + windowId).find(" form .details");
+					var te = $('<input style="width:100%;">');
+					var te2 = $('<input style="width:100%;height:200px;">');
+					var pan = $('<div>').panel({width: details.width()});
+					details.append(pan);
+					pan.append(te);
+					pan.append(te2);
+					te.textbox({multiline : false, value : data.list[i].key});
+					te2.textbox({multiline : true, value : data.list[i].values});
+				}
+				$.post($.ds.url.datasource_all, function(data2) {
+					for (var i in data2) {
+						var sel = "";
+						if (data2[i].id == data.datasourceId) {
+							sel = "selected"
+						}
+						var op = $('<option value="' + data2[i].id + '" ' + sel +'>' + data2[i].databaseName + '[' + data2[i].title + ']</option>');
+						$("#" + windowId).find(" form select[name='datasource']").append(op);
+					}
+					$("#" + windowId).find(" form select[name='datasource']").combobox({
+						editable : false,
+						panelHeight : 88
+					});
+				});
+			});
+		}
+	});
 </script>
-
-<div>
-	asdasd
-</div>
