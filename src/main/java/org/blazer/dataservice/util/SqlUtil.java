@@ -22,6 +22,7 @@ public class SqlUtil {
 	}
 
 	public static void main(String[] args) {
+		System.out.println(SqlUtil.TransactSQLInjection("asd';select * from a; '"));
 		System.out.println(ExtractParams("select * from table where a='${hello}' and b='${hyy}'"));
 		System.out.println(ExtractParams("select * from table where a='${aaa}' and b='${hyy}'"));
 	}

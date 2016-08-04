@@ -61,6 +61,7 @@ public class DataService {
 
 			// 替换参数
 			for (String key : paramMap.keySet()) {
+				// 防止SQL注入
 				sql = sql.replace("${" + key + "}", SqlUtil.TransactSQLInjection(paramMap.get(key)));
 			}
 

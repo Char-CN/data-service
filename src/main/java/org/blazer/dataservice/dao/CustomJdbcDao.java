@@ -41,21 +41,26 @@ public class CustomJdbcDao {
 			dsDataSource.setPassword(password);
 			dsDataSource.setRemark(remark);
 			DruidDataSource dataSource = new DruidDataSource();
-			// dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-			// System.out.println("<<<<<<<<<<<<<<<<" + url);
-			// System.out.println("<<<<<<<<<<<<<<<<" + username);
-			// System.out.println("<<<<<<<<<<<<<<<<" + password);
+			// 设置连接信息
 			dataSource.setUsername(username);
 			dataSource.setUrl(url);
 			dataSource.setPassword(password);
 			// 配置参数，需要后期优化
-			dataSource.setInitialSize(2);
-			dataSource.setMinIdle(2);
-			dataSource.setMaxActive(50);
+			dataSource.setInitialSize(10);
+			dataSource.setMinIdle(10);
+			dataSource.setMaxActive(100);
+			// 对于长时间不使用的连接强制关闭
+			dataSource.setRemoveAbandoned(true);
+			// 数据库链接超过多少分钟开始关闭空闲连接,秒为单位
+			dataSource.setRemoveAbandonedTimeout(300);
+			// 获取连接时最大等待时间，单位毫秒
 			dataSource.setMaxWait(60000);
+			// Destroy线程会检测连接的间隔时间，testWhileIdle的判断依据，详细看testWhileIdle属性的说明
 			dataSource.setTimeBetweenEvictionRunsMillis(60000);
+			// 配置一个连接在池中最小生存的时间，单位是毫秒
 			dataSource.setMinEvictableIdleTimeMillis(300000);
 			dataSource.setValidationQuery("SELECT 'x'");
+			// 建议配置为true，不影响性能，并且保证安全性。申请连接的时候检测，如果空闲时间大于timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效。
 			dataSource.setTestWhileIdle(true);
 			dataSource.setTestOnBorrow(false);
 			dataSource.setTestOnReturn(false);

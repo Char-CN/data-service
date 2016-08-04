@@ -1,67 +1,203 @@
 <form method="post">
-	<div style="padding: 10px;">
-        <span style="display:inline-block; width:100px;">数据源:</span>
-		<select name="datasource" style="width:255px"></select>
-	</div>
-	<div style="padding: 10px;">
-        <span style="display:inline-block; width:100px;">名称:</span>
-        <input name="name" style="width:250px;" class="easyui-validatebox" type="text" data-options="required:true,validType:['nospace']" />
-    </div>
-	<div class="details" style="padding: 10px;">
-    </div>
+	<table style="border-collapse: separate; border-spacing: 10px; width:100%;">
+		<tr>
+			<td width="20%">数据源:</td>
+			<td width="80%" class="td_datasource"></td>
+		</tr>
+		<tr>
+			<td width="20%">名称:</td>
+			<td width="80%" class="td_name"></td>
+		</tr>
+		<tr>
+			<td colspan="2">以下是配置所有的详细信息：</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<div class="details">
+					<ul class="dsul"></ul>
+				</div>
+			</td>
+		</tr>
+	</table>
 </form>
 <script>
 	$(function() {
+		// 初始化参数
 		var queryString = '$queryString';
 		var windowId = '$windowId';
 		var id = $.ds.getQueryString(queryString, "id");
-		// 新增
+		var this_window = $("#" + windowId);
 		if (id == null) {
 			$.dsmessager.show("您正在新增配置项。");
+		} else {
+			$.dsmessager.show('您正在修改[' + this_window.window('options').title + "]");
 		}
-		// 修改
-		else {
-			$.dsmessager.show("您正在修改配置项。");
-			var url = $.ds.url.config_by_id + "id=" + id;
-			$.post(url, function(data) {
-				$("#" + windowId).find(" form input[name='name']").val(data.configName).validatebox('isValid');
-				for (var i in data.list) {
-					var details = $("#" + windowId).find(" form .details");
-					var te = $('<input style="width:100%;">');
-					var te2 = $('<input style="width:100%;height:200px;">');
-					var pan = $('<div>').panel({width: details.width()});
-					details.append(pan);
-					pan.append(te);
-					pan.append(te2);
-					te.textbox({multiline : false, value : data.list[i].key});
-					te2.textbox({multiline : true, value : data.list[i].values});
+
+		var sortable = Sortable.create(this_window.find(" form .details .dsul")[0]);
+		// 增加window的tool
+		// 刷新
+		var a_reload = $('<a href="javascript:void(0)" class="icon-reload"></a>');
+		this_window.parent().find(" .panel-tool").prepend(a_reload);
+		a_reload.click(function() {
+			$.dsmessager.show('您正在刷新[' + this_window.window('options').title + ']');
+			init();
+		});
+		// 排序
+		var a_sort = $('<a href="javascript:void(0)" class="icon-orderby"></a>');
+		this_window.parent().find(" .panel-tool").prepend(a_sort);
+		a_sort.click(function() {
+			sortable.option("disabled", false);
+			$.messager.confirm('确定', '您确定要开启排序功能吗？开启后，请拖拽详情面板，排序后请保存。', function(r){
+				if (r){
+					$.dsmessager.show('您已经开启排序功能，请拖动配置详情。');
+				} else {
+					$.dsmessager.show('您已经取消排序。');
 				}
-				for (var i in data.list) {
-					var details = $("#" + windowId).find(" form .details");
-					var te = $('<input style="width:100%;">');
-					var te2 = $('<input style="width:100%;height:200px;">');
-					var pan = $('<div>').panel({width: details.width()});
-					details.append(pan);
-					pan.append(te);
-					pan.append(te2);
-					te.textbox({multiline : false, value : data.list[i].key});
-					te2.textbox({multiline : true, value : data.list[i].values});
-				}
-				$.post($.ds.url.datasource_all, function(data2) {
-					for (var i in data2) {
+			});
+		});
+		// 保存
+		var a_save = $('<a href="javascript:void(0)" class="icon-save"></a>');
+		this_window.parent().find(" .panel-tool").prepend(a_save);
+		a_save.click(function() {
+			sortable.option("disabled", true);
+			$.dsmessager.show('保存');
+			
+		});
+
+		// 初始化
+		var init = function() {
+			sortable.option("disabled", true);
+			// 新增文本框
+			this_window.find(" form .td_datasource").empty();
+			this_window.find(" form .td_datasource").append('<select name="datasource" style="width: 100%"></select>');
+			this_window.find(" form .td_name").empty();
+			this_window.find(" form .td_name").append('<input name="name" style="width: 100%;" class="easyui-validatebox" type="text" data-options="required:true,validType:[\'nospace\']" />');
+			$.ajax({
+				url : $.ds.url.datasource_all,
+				type : 'post',
+				async : false,
+				success : function(data) {
+					//this_window.find(" form select[name='datasource']").empty();
+					for ( var i in data) {
 						var sel = "";
-						if (data2[i].id == data.datasourceId) {
-							sel = "selected"
-						}
-						var op = $('<option value="' + data2[i].id + '" ' + sel +'>' + data2[i].databaseName + '[' + data2[i].title + ']</option>');
-						$("#" + windowId).find(" form select[name='datasource']").append(op);
+						var op = $('<option value="' + data[i].id + '" ' + sel +'>' + data[i].databaseName + '[' + data[i].title + ']</option>');
+						this_window.find(" form select[name='datasource']").append(op);
 					}
-					$("#" + windowId).find(" form select[name='datasource']").combobox({
+					this_window.find(" form select[name='datasource']").combobox({
 						editable : false,
 						panelHeight : 88
 					});
-				});
+				},
+				fail : function() {
+					$.dsmessager.show("出现莫名失败。");
+				}
 			});
-		}
+			// 新增
+			if (id == null) {
+				//$.dsmessager.show("您正在新增配置项。");
+			}
+			// 修改
+			else {
+				//$.dsmessager.show("您正在修改配置项。");
+				var url = $.ds.url.config_by_id + "id=" + id;
+				$.post(url,function(data) {
+					this_window.find(" form .details .dsul").empty();
+					this_window.find(" form input[name='name']").val(data.configName).validatebox('isValid');
+// 					var details = this_window.find(" form .details .dsul");
+					for ( var i in data.list) {
+// 						var te = $('<input>');
+// 						var te2 = $('<input>');
+// 						var pan = $('<div></div>');
+// 						details.append($('<li class=""></li>').append(pan));
+// 						pan.panel({
+// 							border : true,
+// 							//	 						bodyCls: 'padding-10px',
+// 							cls : 'margin-top-10px',
+// 							collapsible : true,
+// 							title : '配置详情' + (parseInt(i) + 1),
+// 							width : details.width(),
+// 							tools : [ {
+// 								iconCls : 'icon-add',
+// 								handler : function() {
+// 								}
+// 							} ]
+// 						});
+// 						//	 					pan.append(te);
+// 						//	 					pan.append(te2);
+// 						var tb = $('<table style="width:100%;"><tr style="width:100%;"><td style="width:20%;">key</td><td style="width:80%;"></td></tr><tr style="width:100%;"><td style="width:20%;">values</td><td style="width:80%;"></td></tr><table>');
+// 						pan.append(tb);
+// 						tb.find("tr").eq(0).find("td").eq(1).append(te);
+// 						tb.find("tr").eq(1).find("td").eq(1).append(te2);
+// 						te.textbox({
+// 							width : "100%",
+// 							multiline : false,
+// 							value : data.list[i].key
+// 						});
+// 						te2.textbox({
+// 							width : "100%",
+// 							height : 200,
+// 							multiline : true,
+// 							value : data.list[i].values
+// 						});
+						addDetailPanel((parseInt(i) + 1), data.list[i].key, data.list[i].values);
+					}
+				});
+			}
+		};
+		
+		var addDetailCount = 1;
+		var addDetailPanel = function(count, key, values) {
+			if (count == undefined) {
+				count = "_新增_" + addDetailCount;
+				addDetailCount ++;
+			}
+			var details = this_window.find(" form .details .dsul");
+			var te = $('<input>');
+			var te2 = $('<input>');
+			var pan = $('<div></div>');
+			details.append($('<li class=""></li>').append(pan));
+			pan.panel({
+				border : true,
+				//	 						bodyCls: 'padding-10px',
+				cls : 'margin-top-10px',
+				collapsible : true,
+				title : '配置详情' + count,
+				width : details.width(),
+				tools : [ {
+					iconCls : 'icon-add',
+					handler : function() {
+						sortable.option("disabled", false);
+						addDetailPanel();
+					}
+				}, {
+					iconCls : 'icon-remove',
+					handler : function() {
+						var dom = $(this);
+						$.messager.confirm('确定', '您确定要删除该详情吗?', function(r){
+							if (r) {
+								pan.panel('destroy');
+							}
+						});
+					}
+				} ]
+			});
+			var tb = $('<table style="width:100%;"><tr style="width:100%;"><td style="width:20%;">key</td><td style="width:80%;"></td></tr><tr style="width:100%;"><td style="width:20%;">values</td><td style="width:80%;"></td></tr><table>');
+			pan.append(tb);
+			tb.find("tr").eq(0).find("td").eq(1).append(te);
+			tb.find("tr").eq(1).find("td").eq(1).append(te2);
+			te.textbox({
+				width : "100%",
+				multiline : false,
+				value : key
+			});
+			te2.textbox({
+				width : "100%",
+				height : 200,
+				multiline : true,
+				value : values
+			});
+		};
+		
+		init();
 	});
 </script>

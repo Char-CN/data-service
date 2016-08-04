@@ -40,7 +40,7 @@ $(function() {
 			return 600;
 		},
 		getDefaultWindowWidth : function() {
-			return 500;
+			return 888;
 		},
 		getWindowHeight : function() {
 			return $(window).height();
