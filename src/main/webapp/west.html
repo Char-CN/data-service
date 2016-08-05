@@ -73,7 +73,7 @@
 
 		// 初始化树形菜单
 		$("#tree").tree({
-			lines : true,
+// 			lines : true,
 			method : 'post',
 			animate : true,
 			url : $.ds.url.tree + 'id=-1',
@@ -84,6 +84,13 @@
 					left : e.pageX,
 					top : e.pageY
 				});
+			},
+			onClick : function(node) {
+				if (node.state == "closed") {
+					$(this).tree('expand', node.target);
+				} else {
+					$(this).tree('collapse', node.target);
+				}
 			},
 			onDblClick : function(node) {
 				if (node.state == "closed") {

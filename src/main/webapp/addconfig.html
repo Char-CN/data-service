@@ -1,20 +1,20 @@
 <form method="post">
-	<table style="border-collapse: separate; border-spacing: 10px; width:100%;">
+	<table style="border-collapse: separate; border-spacing: 10px; width: 100%;">
 		<tr>
 			<td width="20%">数据源:</td>
-			<td width="80%" class="td_datasource"></td>
+			<td width="80%" ds_index="td_datasource"></td>
 		</tr>
 		<tr>
 			<td width="20%">名称:</td>
-			<td width="80%" class="td_name"></td>
+			<td width="80%" ds_index="td_name"></td>
 		</tr>
 		<tr>
 			<td colspan="2">以下是配置所有的详细信息：</td>
 		</tr>
 		<tr>
 			<td colspan="2">
-				<div class="details">
-					<ul class="dsul"></ul>
+				<div>
+					<ul ds_index="details" class="dsul"></ul>
 				</div>
 			</td>
 		</tr>
@@ -33,7 +33,7 @@
 			$.dsmessager.show('您正在修改[' + this_window.window('options').title + "]");
 		}
 
-		var sortable = Sortable.create(this_window.find(" form .details .dsul")[0]);
+		var sortable = Sortable.create(this_window.DSFind("details")[0]);
 		// 增加window的tool
 		// 刷新
 		var a_reload = $('<a href="javascript:void(0)" class="icon-reload"></a>');
@@ -60,32 +60,60 @@
 		this_window.parent().find(" .panel-tool").prepend(a_save);
 		a_save.click(function() {
 			sortable.option("disabled", true);
+			// 保存前的检查
+			if (!this_window.find(" form").form('validate')) {
+				$.dsmessager.show('您填写的内容不正确，请检查。');
+				return false;
+			}
+			// 不允相同key
+// 			var lis = this_window.DSFind("details").find(" li");
+// 			var map = new $.ds.HashMap();
+// 			for (var i in lis) {
+// 				var key = $(lis[i]).DSFind("key").textbox("getValue");
+// 				var values = $(lis[i]).DSFind("values").textbox("getValue");
+// 				if (map.containsKey(key)) {
+// 					return $.dsmessager.show('有相同的key，请删除后再保存');
+// 				}
+// 				map.put(key, { values : values , datasourceId : 1});
+// 			}
 			$.dsmessager.show('保存');
-			
 		});
 
 		// 初始化
 		var init = function() {
 			sortable.option("disabled", true);
 			// 新增文本框
-			this_window.find(" form .td_datasource").empty();
-			this_window.find(" form .td_datasource").append('<select name="datasource" style="width: 100%"></select>');
-			this_window.find(" form .td_name").empty();
-			this_window.find(" form .td_name").append('<input name="name" style="width: 100%;" class="easyui-validatebox" type="text" data-options="required:true,validType:[\'nospace\']" />');
+			this_window.DSFind("td_datasource").empty();
+			this_window.DSFind("td_datasource").append($('<select style="width: 100%"></select>').DSAdd('datasource'));
+			this_window.DSFind("td_name").empty();
+// 			var te = $("<input>");
+// 			this_window.find(" form .td_name").append('<input name="name" style="width: 100%;" class="easyui-validatebox" type="text" data-options="required:true,validType:[\'nospace\']" />');
+			var te = $('<input>').DSAdd('name');
+			this_window.DSFind("td_name").append(te);
+			te.textbox({
+				required : true,
+				validateOnCreate : false,
+				validateOnBlur : true,
+				validType : ['nospace'],
+				width : "100%",
+				multiline : false
+			});
 			$.ajax({
 				url : $.ds.url.datasource_all,
 				type : 'post',
 				async : false,
 				success : function(data) {
-					//this_window.find(" form select[name='datasource']").empty();
+// 					var select = this_window.find(" form .td_datasource select[ds_index='datasource']");
+// 					var select = $.DSFind(this_window, "datasource");
+					var select = this_window.DSFind("datasource");
 					for ( var i in data) {
 						var sel = "";
 						var op = $('<option value="' + data[i].id + '" ' + sel +'>' + data[i].databaseName + '[' + data[i].title + ']</option>');
-						this_window.find(" form select[name='datasource']").append(op);
+						select.append(op);
 					}
-					this_window.find(" form select[name='datasource']").combobox({
+					select.combobox({
 						editable : false,
-						panelHeight : 88
+						panelMaxHeight : 88
 					});
 				},
 				fail : function() {
@@ -95,73 +123,45 @@
 			// 新增
 			if (id == null) {
 				//$.dsmessager.show("您正在新增配置项。");
+				addDetailPanel();
 			}
 			// 修改
 			else {
 				//$.dsmessager.show("您正在修改配置项。");
 				var url = $.ds.url.config_by_id + "id=" + id;
-				$.post(url,function(data) {
-					this_window.find(" form .details .dsul").empty();
-					this_window.find(" form input[name='name']").val(data.configName).validatebox('isValid');
-// 					var details = this_window.find(" form .details .dsul");
+				$.post(url, function(data) {
+					this_window.DSFind("details").empty();
+// 					this_window.find(" form input[name='name']").val(data.configName).validatebox('isValid');
+					this_window.DSFind("datasource").combobox('select', data.datasourceId);
+					this_window.DSFind("name").textbox('initValue', data.configName);
 					for ( var i in data.list) {
-// 						var te = $('<input>');
-// 						var te2 = $('<input>');
-// 						var pan = $('<div></div>');
-// 						details.append($('<li class=""></li>').append(pan));
-// 						pan.panel({
-// 							border : true,
-// 							//	 						bodyCls: 'padding-10px',
-// 							cls : 'margin-top-10px',
-// 							collapsible : true,
-// 							title : '配置详情' + (parseInt(i) + 1),
-// 							width : details.width(),
-// 							tools : [ {
-// 								iconCls : 'icon-add',
-// 								handler : function() {
-// 								}
-// 							} ]
-// 						});
-// 						//	 					pan.append(te);
-// 						//	 					pan.append(te2);
-// 						var tb = $('<table style="width:100%;"><tr style="width:100%;"><td style="width:20%;">key</td><td style="width:80%;"></td></tr><tr style="width:100%;"><td style="width:20%;">values</td><td style="width:80%;"></td></tr><table>');
-// 						pan.append(tb);
-// 						tb.find("tr").eq(0).find("td").eq(1).append(te);
-// 						tb.find("tr").eq(1).find("td").eq(1).append(te2);
-// 						te.textbox({
-// 							width : "100%",
-// 							multiline : false,
-// 							value : data.list[i].key
-// 						});
-// 						te2.textbox({
-// 							width : "100%",
-// 							height : 200,
-// 							multiline : true,
-// 							value : data.list[i].values
-// 						});
-						addDetailPanel((parseInt(i) + 1), data.list[i].key, data.list[i].values);
+						addDetailPanel(data.list[i].key, data.list[i].values);
 					}
 				});
 			}
 		};
 		
 		var addDetailCount = 1;
-		var addDetailPanel = function(count, key, values) {
-			if (count == undefined) {
-				count = "_新增_" + addDetailCount;
-				addDetailCount ++;
+		var addDetailPanel = function(key, values) {
+			var index = addDetailCount;
+			var title = "";
+			if (key == undefined) {
+				title = "新增配置_" + addDetailCount;
+			} else {
+				title = '配置详情_' + addDetailCount;
 			}
-			var details = this_window.find(" form .details .dsul");
-			var te = $('<input>');
-			var te2 = $('<input>');
+			addDetailCount ++;
+			var details = this_window.DSFind("details");
+			var te = $('<input ds_index="key" index="' + index + '">');
+			var te2 = $('<input ds_index="values">');
 			var pan = $('<div></div>');
-			details.append($('<li class=""></li>').append(pan));
+			details.append($('<li ds_index="' + index + '"></li>').append(pan));
 			pan.panel({
 				border : true,
-				//	 						bodyCls: 'padding-10px',
+				// bodyCls: 'padding-10px',
 				cls : 'margin-top-10px',
 				collapsible : true,
-				title : '配置详情' + count,
+				title : title,
 				width : details.width(),
 				tools : [ {
 					iconCls : 'icon-add',
@@ -186,11 +186,22 @@
 			tb.find("tr").eq(0).find("td").eq(1).append(te);
 			tb.find("tr").eq(1).find("td").eq(1).append(te2);
 			te.textbox({
+				required : true,
+				validateOnCreate : false,
+				validateOnBlur : true,
+				validType : ['nospace', 'onlyValue["index","ds_index","key"]'],
 				width : "100%",
 				multiline : false,
-				value : key
+				value : key,
+				onChange : function(newValue, oldValue) {
+					$(this).textbox('validate');
+				}
 			});
 			te2.textbox({
+				required : true,
+				validateOnCreate : false,
+				validateOnBlur : true,
+				validType : [],
 				width : "100%",
 				height : 200,
 				multiline : true,

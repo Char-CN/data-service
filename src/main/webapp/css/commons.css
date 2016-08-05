@@ -17,3 +17,23 @@
 .padding-2px {
 	padding: 2px;
 }
+
+.dsul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.dsli {
+	padding: 5px;
+	float: left;
+	cursor: pointer;
+	width: 24%;
+}
+
+.dsli_sort {
+	padding: 5px;
+	float: left;
+	cursor: move;
+	width: 24%;
+}

@@ -39,7 +39,36 @@ $(function() {
 			validator : function(value) {
 				return !/\s/g.test(value);
 			},
-			message : '该项不能包含空白字符!'
+			message : '您填写的值不能包含空白字符!'
+		},
+		// 一组textbox的唯一值验证
+		onlyValue : {
+			// 例如一组标签 ：
+			// <input seconds_name="key" index="1"> ...
+			// <input seconds_name="key" index="2"> ..
+			// <input seconds_name="key" index="3"> ..
+			// 传入参数就为：index, seconds_name, key
+			// 参数一：唯一的索引值的属性名称
+			// 参数二：能表示是同一组的属性名称，切记不能用name，easyui生成插件的特殊原因，textbox会分成3个input，因此无法定位到该元素
+			// 参数三：参数二的属性值
+			validator : function(value, params) {
+				var index_name = params[0];
+				var ds_index_name = params[1];
+				var ds_index_value = params[2];
+				var val = $(this).parent().parent().find('[' + ds_index_name + '="' + ds_index_value + '"]').textbox('getValue');
+				var index = $(this).parent().parent().find('[' + ds_index_name + '="' + ds_index_value + '"]').attr(index_name);
+				var rst = true;
+				$('[' + ds_index_name + '="' + ds_index_value + '"]').each(function() {
+					if ($(this).attr(index_name) == index) {
+						return;
+					}
+					if (val == $(this).textbox('getValue')) {
+						rst = false;
+					}
+				});
+				return rst;
+			},
+			message : '您填写的值不是唯一的，请检查!'
 		}
 	});
 	// 自定义提示
@@ -57,5 +86,23 @@ $(function() {
 				showType : 'fade'
 			});
 		}
+	};
+	// 自定义查询
+	$.extend({
+		DSFindByRoot : function(CONT) {
+			return $.find('[ds_index="' + CONT + '"]');
+		}
+	});
+	$.fn.DSAdd = function(CONT) {
+		return $(this).attr('ds_index', CONT);
+	};
+	$.fn.DSFind = function(CONT) {
+		return $(this).find('[ds_index="' + CONT + '"]');
+	};
+	$.fn.DSAll = function() {
+		return $(this).find('*[ds_index]');
+	};
+	$.fn.DSGetIndex = function() {
+		return $(this).attr('ds_index');
 	};
 });

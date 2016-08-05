@@ -13,57 +13,56 @@
 <script type="text/javascript" src="js/jquery.easyui.commons.js"></script>
 <script type="text/javascript" src="js/Sortable.js"></script>
 <script type="text/javascript" src="js/jquery.binding.js"></script>
-<script type="text/javascript" src="js/index.js"></script>
 <script type="text/javascript" src="js/locale/easyui-lang-zh_CN.js"></script>
 <script>
 	$(function() {
-// 		var sortable = Sortable.create(document.getElementById("foo"), {sort : true});
-// 		sortable.option({sort : true});
-// 		sortable.sort = false;
-// 		var state = sortable.option("disabled");
-// 		alert(state);
-// 		sortable.option({disabled : !state});
-// 		$("#foo").sortable({sort: false});
+		$.ds.commons.referCenterByMenuId = function(id) {
+			var c = $("#center");
+			c.unbind('contextmenu');
+			c.bind('contextmenu', function(e) {
+				e.preventDefault();
+				$('#center_menu').menu('show', {
+					left : e.pageX,
+					top : e.pageY
+				});
+				rp_center_block = true;
+			});
+			c.panel({
+				href : 'center.html',
+				extractor : function(data) {
+					data = $.ds.replaceAll(data, "[$]queryString", "id=" + id);
+					data = $.ds.replaceAll(data, "[$]windowId", "center");
+					return data;
+				}
+			});
+		};
+
+		$.ds.commons.addFootTask = function(window_id, text) {
+			var a = $('<a style="margin:2px;"></a>');
+			// a.attr("id", id);
+			a.attr("window_id", window_id);
+			a.attr("data-options", "plain:false");
+			a.html(text.length > 10 ? text.substr(0, 10) + '...' : text);
+			a.linkbutton();
+			a.click(function() {
+				var window_id = $(this).attr("window_id");
+				$('#' + window_id).window('open');
+			});
+			$("#foot").append(a);
+		};
+
+		$.ds.commons.removeFootTask = function(window_id) {
+			$("#foot").find("[window_id='" + window_id + "']").remove();
+		};
+
 	});
 </script>
-<style>
-.dsul {
-	margin: 0;
-	padding: 0;
-	list-style: none;
-}
-
-.dsli {
-	padding: 5px;
-	float: left;
-	cursor: pointer;
-	width:24%;
-}
-.dsli_sort {
-	padding: 5px;
-	float: left;
-	cursor: move;
-	width:24%;
-}
-</style>
 </head>
 <body>
 	<div id="main" class="easyui-layout" data-options="fit:true">
 		<div id="head" data-options="region:'north'" style="height: 80px;"></div>
-		<div id="west" class="easyui-panel" data-options="region:'west',split:true, href:'west.html'" title="目录" style="width: 200px;">
-		</div>
-		<div id="center" class="easyui-panel" data-options="region:'center',title:' '">
-<!-- 			<ul id="center_ul" class="dsul"> -->
-<!-- 				<li ><span class="tree-file"></span><span>中文字符4</span></li>
-<!-- 				<li ><span class="tree-file"></span><span>中文字符1</span></li> -->
-<!-- 				<li ><span class="tree-file"></span><span>中文字符2</span></li> -->
-<!-- 				<li ><span class="tree-file"></span><span>中文字符3</span></li> -->
-<!-- 				<li ><span class="tree-file"></span><span>中文字符5</span></li> -->
-<!-- 				<li ><span class="tree-file"></span><span>中文字符6</span></li> -->
-<!-- 				<li ><span class="tree-file"></span><span>中文字符7</span></li> -->
-<!-- 				<li ><span class="tree-file"></span><span>中文字符8</span></li> -->
-<!-- 			</ul> -->
-		</div>
+		<div id="west" class="easyui-panel" data-options="region:'west',split:true, href:'west.html'" title="目录" style="width: 200px;"></div>
+		<div id="center" class="easyui-panel" data-options="region:'center',title:' '"></div>
 		<div id="foot" data-options="region:'south'" style="height: 31px;"></div>
 	</div>
 </body>
