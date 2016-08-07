@@ -35,6 +35,12 @@
 
 		var sortable = Sortable.create(this_window.DSFind("details")[0]);
 		// 增加window的tool
+		// 执行
+		var a_play = $('<a href="javascript:void(0)" class="icon-play"></a>');
+		this_window.parent().find(" .panel-tool").prepend(a_play);
+		a_play.click(function() {
+			$.dsmessager.show('执行');
+		});
 		// 刷新
 		var a_reload = $('<a href="javascript:void(0)" class="icon-reload"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_reload);
