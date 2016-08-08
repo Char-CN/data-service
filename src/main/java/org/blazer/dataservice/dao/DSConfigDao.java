@@ -13,7 +13,7 @@ public class DSConfigDao {
 	private Map<Integer, DSConfig> configMap = new HashMap<Integer, DSConfig>();
 
 	/**
-	 * 新增一个数据源，如果存在则覆盖。
+	 * 新增一个配置，如果存在则覆盖。
 	 */
 	public void addConfig(DSConfig config) throws UnknowDataSourceException {
 		configMap.put(config.getId(), config);

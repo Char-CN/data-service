@@ -17,6 +17,7 @@
 <script>
 	$(function() {
 		$.ds.commons.referCenterByMenuId = function(id) {
+			$.ds.commons.chooseTreeId = id;
 			var c = $("#center");
 			c.unbind('contextmenu');
 			c.bind('contextmenu', function(e) {

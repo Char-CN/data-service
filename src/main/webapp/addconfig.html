@@ -1,25 +1,27 @@
-<form method="post">
-	<table style="border-collapse: separate; border-spacing: 10px; width: 100%;">
-		<tr>
-			<td width="20%">数据源:</td>
-			<td width="80%" ds_index="td_datasource"></td>
-		</tr>
-		<tr>
-			<td width="20%">名称:</td>
-			<td width="80%" ds_index="td_name"></td>
-		</tr>
-		<tr>
-			<td colspan="2">以下是配置所有的详细信息：</td>
-		</tr>
-		<tr>
-			<td colspan="2">
-				<div>
-					<ul ds_index="details" class="dsul"></ul>
-				</div>
-			</td>
-		</tr>
-	</table>
-</form>
+<div style="width: 98%;">
+	<form method="post" ds_index="form">
+		<table style="border-collapse: separate; border-spacing: 10px; width: 100%;">
+			<tr>
+				<td width="20%">数据源:</td>
+				<td width="80%" ds_index="td_datasource"></td>
+			</tr>
+			<tr>
+				<td width="20%">名称:</td>
+				<td width="80%" ds_index="td_name"></td>
+			</tr>
+			<tr>
+				<td colspan="2">以下是配置所有的详细信息：</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<div>
+						<ul ds_index="details" class="dsul"></ul>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
 <script>
 	$(function() {
 		// 初始化参数
@@ -71,17 +73,37 @@
 				$.dsmessager.show('您填写的内容不正确，请检查。');
 				return false;
 			}
-			// 不允相同key
-// 			var lis = this_window.DSFind("details").find(" li");
-// 			var map = new $.ds.HashMap();
-// 			for (var i in lis) {
-// 				var key = $(lis[i]).DSFind("key").textbox("getValue");
-// 				var values = $(lis[i]).DSFind("values").textbox("getValue");
-// 				if (map.containsKey(key)) {
-// 					return $.dsmessager.show('有相同的key，请删除后再保存');
-// 				}
-// 				map.put(key, { values : values , datasourceId : 1});
-// 			}
+			// 组装json对象
+			var json = { };
+			json.id = this_window.DSFind("id").val();
+			json.groupId = $.ds.commons.chooseTreeId;
+			json.datasourceId = this_window.DSFind("datasource").combobox('getValue');
+			json.configName = this_window.DSFind("name").textbox("getValue");
+			json.configType = "1";
+			
+			var details = [];
+			var detail = { };
+			detail.id = 1;
+			detail.datasourceId = 2;
+			detail.key = "kkk";
+			detail.values = "vvvvvvvvvvvv";
+			details.push(detail);
+			json.list = details;
+			configBody = json;
+			$.ajax({
+				type : "post", // 请求方式
+				url : $.ds.url.save_config, // url地址
+				data : JSON.stringify(json), // 数据
+				contentType : "application/json",
+				dataType : "json",
+				success : function(response, ifo) {
+					alert("success");
+				},
+				error : function(e) {
+					alert("error");
+				}
+			});
+			// 执行
 			$.dsmessager.show('保存');
 		});
 
@@ -92,15 +114,17 @@
 			this_window.DSFind("td_datasource").empty();
 			this_window.DSFind("td_datasource").append($('<select style="width: 100%"></select>').DSAdd('datasource'));
 			this_window.DSFind("td_name").empty();
-// 			var te = $("<input>");
-// 			this_window.find(" form .td_name").append('<input name="name" style="width: 100%;" class="easyui-validatebox" type="text" data-options="required:true,validType:[\'nospace\']" />');
+			// 			var te = $("<input>");
+			// 			this_window.find(" form .td_name").append('<input name="name" style="width: 100%;" class="easyui-validatebox" type="text" data-options="required:true,validType:[\'nospace\']" />');
+			var input_id = $('<input type="hidden">').DSAdd('id');
+			this_window.DSFind("td_name").append(input_id);
 			var te = $('<input>').DSAdd('name');
 			this_window.DSFind("td_name").append(te);
 			te.textbox({
 				required : true,
 				validateOnCreate : false,
 				validateOnBlur : true,
-				validType : ['nospace'],
+				validType : [ 'nospace' ],
 				width : "100%",
 				multiline : false
 			});
@@ -109,8 +133,8 @@
 				type : 'post',
 				async : false,
 				success : function(data) {
-// 					var select = this_window.find(" form .td_datasource select[ds_index='datasource']");
-// 					var select = $.DSFind(this_window, "datasource");
+					// 					var select = this_window.find(" form .td_datasource select[ds_index='datasource']");
+					// 					var select = $.DSFind(this_window, "datasource");
 					var select = this_window.DSFind("datasource");
 					for ( var i in data) {
 						var sel = "";
@@ -128,17 +152,16 @@
 			});
 			// 新增
 			if (id == null) {
-				//$.dsmessager.show("您正在新增配置项。");
 				addDetailPanel();
 			}
 			// 修改
 			else {
-				//$.dsmessager.show("您正在修改配置项。");
 				var url = $.ds.url.config_by_id + "id=" + id;
 				$.post(url, function(data) {
 					this_window.DSFind("details").empty();
-// 					this_window.find(" form input[name='name']").val(data.configName).validatebox('isValid');
+					// 					this_window.find(" form input[name='name']").val(data.configName).validatebox('isValid');
 					this_window.DSFind("datasource").combobox('select', data.datasourceId);
+					this_window.DSFind("id").val(data.id);
 					this_window.DSFind("name").textbox('initValue', data.configName);
 					for ( var i in data.list) {
 						addDetailPanel(data.list[i].key, data.list[i].values);
@@ -146,7 +169,7 @@
 				});
 			}
 		};
-		
+
 		var addDetailCount = 1;
 		var addDetailPanel = function(key, values) {
 			var index = addDetailCount;
@@ -156,7 +179,7 @@
 			} else {
 				title = '配置详情_' + addDetailCount;
 			}
-			addDetailCount ++;
+			addDetailCount++;
 			var details = this_window.DSFind("details");
 			var te = $('<input ds_index="key" index="' + index + '">');
 			var te2 = $('<input ds_index="values">');
@@ -179,7 +202,7 @@
 					iconCls : 'icon-remove',
 					handler : function() {
 						var dom = $(this);
-						$.messager.confirm('确定', '您确定要删除该详情吗?', function(r){
+						$.messager.confirm('确定', '您确定要删除该详情吗?', function(r) {
 							if (r) {
 								pan.panel('destroy');
 							}
@@ -195,7 +218,7 @@
 				required : true,
 				validateOnCreate : false,
 				validateOnBlur : true,
-				validType : ['nospace', 'onlyValue["index","ds_index","key"]'],
+				validType : [ 'nospace', 'onlyValue["index","ds_index","key"]' ],
 				width : "100%",
 				multiline : false,
 				value : key,
@@ -214,7 +237,7 @@
 				value : values
 			});
 		};
-		
+
 		init();
 	});
 </script>

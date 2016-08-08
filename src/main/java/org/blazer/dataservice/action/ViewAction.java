@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -56,6 +57,18 @@ public class ViewAction extends BaseAction {
 	public ViewConfigBody getConfigById(HttpServletRequest request, HttpServletResponse response) {
 		logger.debug("map : " + getParamMap(request));
 		return viewService.getConfigById(getParamMap(request));
+	}
+
+	@ResponseBody
+	@RequestMapping("/saveConfig")
+	public String saveConfig(HttpServletRequest request, HttpServletResponse response, @RequestBody ViewConfigBody viewConfigBody) {
+		try {
+			viewService.saveConfig(viewConfigBody);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return "fail";
+		}
+		return "success";
 	}
 
 	@ResponseBody

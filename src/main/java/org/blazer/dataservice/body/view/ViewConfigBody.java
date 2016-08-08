@@ -5,10 +5,19 @@ import java.util.List;
 public class ViewConfigBody {
 
 	private Integer id;
+	private Integer groupId;
 	private Integer datasourceId;
 	private String configName;
 	private String configType;
 	private List<ViewConfigDetailBody> list;
+
+	public Integer getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(Integer groupId) {
+		this.groupId = groupId;
+	}
 
 	public Integer getDatasourceId() {
 		return datasourceId;

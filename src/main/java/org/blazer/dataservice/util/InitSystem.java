@@ -49,7 +49,7 @@ public class InitSystem implements InitializingBean {
 	}
 
 	public void initConfigEntity() throws UnknowDataSourceException {
-		List<Map<String, Object>> configList = jdbcTemplate.queryForList("select id,datasource_id,config_name,config_type from ds_config");
+		List<Map<String, Object>> configList = jdbcTemplate.queryForList("select id,datasource_id,config_name,config_type from ds_config where enable=1");
 		for (Map<String, Object> configMap : configList) {
 			DSConfig config = new DSConfig();
 			config.setId(IntegerUtil.getInt0(configMap.get("id")));
@@ -63,7 +63,7 @@ public class InitSystem implements InitializingBean {
 			config.setConfigType(StringUtil.getStrEmpty(configMap.get("config_type")));
 			List<DSConfigDetail> detailList = new ArrayList<DSConfigDetail>();
 			List<Map<String, Object>> rstList = jdbcTemplate
-					.queryForList("select id,datasource_id,config_id,`key`,`values` from ds_config_detail where config_id=?", config.getId());
+					.queryForList("select id,datasource_id,config_id,`key`,`values` from ds_config_detail where config_id=? and enable=1", config.getId());
 			for (Map<String, Object> detailMap : rstList) {
 				DSConfigDetail detail = new DSConfigDetail();
 				detail.setId(IntegerUtil.getInt0(detailMap.get("id")));
