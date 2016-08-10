@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 @Service(value = "viewService")
 public class ViewService {
 
-	private static Logger logger = LoggerFactory.getLogger(DataService.class);
+	private static Logger logger = LoggerFactory.getLogger(ViewService.class);
 
 	@Autowired
 	JdbcTemplate jdbcTemplate;
@@ -66,9 +66,11 @@ public class ViewService {
 		}
 		ViewConfigBody vcb = new ViewConfigBody();
 		vcb.setId(IntegerUtil.getInt0(list.get(0).get("id")));
+		vcb.setGroupId(IntegerUtil.getInt0(list.get(0).get("group_id")));
 		vcb.setDatasourceId(IntegerUtil.getInt0(list.get(0).get("datasource_id")));
 		vcb.setConfigType(StringUtil.getStrEmpty(list.get(0).get("config_type")));
 		vcb.setConfigName(StringUtil.getStrEmpty(list.get(0).get("config_name")));
+		vcb.setEnable(IntegerUtil.getInt0(list.get(0).get("enable")));
 		vcb.setList(new ArrayList<ViewConfigDetailBody>());
 		sql = "select * from ds_config_detail where config_id=? and enable=1";
 		List<Map<String, Object>> list2 = jdbcTemplate.queryForList(sql, vcb.getId());
@@ -90,8 +92,11 @@ public class ViewService {
 		// 应该加入事务，暂未处理
 		// 新增config
 		if (config.getId() == null) {
+			// 强制设置configType和enable
+			config.setConfigType("1");
+			config.setEnable(1);
 			String insertConfig = "insert into ds_config(group_id,datasource_id,config_name,config_type,enable) values(?,?,?,?,?)";
-			int code = jdbcTemplate.update(insertConfig, config.getGroupId(), config.getDatasourceId(), config.getConfigName(), "1", 1);
+			int code = jdbcTemplate.update(insertConfig, config.getGroupId(), config.getDatasourceId(), config.getConfigName(), config.getConfigType(), config.getEnable());
 			logger.debug("inset code : " + code);
 			String selectMaxId = "select max(id) as max_id from ds_config";
 			Integer maxId = IntegerUtil.getInt0(jdbcTemplate.queryForList(selectMaxId).get(0).get("max_id"));
@@ -102,9 +107,12 @@ public class ViewService {
 			HashMap<String, String> params = new HashMap<String, String>();
 			params.put("id", "" + maxId);
 			ViewConfigBody maxConfigBody = getConfigById(params);
-			if (config.getId() != maxConfigBody.getId() || config.getGroupId() != maxConfigBody.getGroupId()
-					|| config.getDatasourceId() != maxConfigBody.getDatasourceId() || !config.getConfigName().equals(maxConfigBody.getConfigName())
-					|| !config.getConfigType().equals(maxConfigBody.getConfigType())) {
+			if (config.getId() != maxConfigBody.getId() 
+					|| config.getGroupId() != maxConfigBody.getGroupId()
+					|| config.getDatasourceId() != maxConfigBody.getDatasourceId() 
+					|| !config.getConfigName().equals(maxConfigBody.getConfigName())
+					|| !config.getConfigType().equals(maxConfigBody.getConfigType())
+					|| config.getEnable() != maxConfigBody.getEnable()) {
 				throw new RuntimeException("insert data error!");
 			}
 		}
@@ -128,6 +136,7 @@ public class ViewService {
 			logger.debug("update detail code : " + code);
 		}
 
+		logger.debug("save config [" + config.getId() + "] over.");
 	}
 
 }

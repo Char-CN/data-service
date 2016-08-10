@@ -4,178 +4,211 @@
 		var queryString = '$queryString';
 		var windowId = '$windowId';
 		var id = $.ds.getQueryString(queryString, "id");
+		var this_window = $("#" + windowId);
+		var this_ul = this_window.find("#center_ul");
+
+		var lock_menu = false;
+		var center_choose_li_id = "";
+		var sortable = Sortable.create(this_ul[0]);
+
+		this_window.bind('contextmenu', function(e) {
+			e.preventDefault();
+			$('#center_menu').menu('show', {
+				left : e.pageX,
+				top : e.pageY
+			});
+			lock_menu = true;
+		});
+		var center_menu = $('<div id="center_menu"></div>');
+		center_menu.appendTo('body');
+		center_menu.menu({
+			onHide : function() {
+				lock_menu = false;
+			}
+		});
+
+		center_menu.menu('appendItem', {
+			text : '执行',
+			iconCls : 'icon-run',
+			onclick : function() {
+				if (center_choose_li_id == "") {
+					return $.dsmessager.show('请选择一项配置执行!');
+				}
+				var id = center_choose_li_id;
+				var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
+				$.ds.commons.openWindow("center_run_config_" + id, title, "runconfig.html", "id=" + id);
+				return $.dsmessager.show('执行 ' + title);
+			}
+		});
+
+		center_menu.menu('appendItem', {
+			text : '新增配置项',
+			iconCls : 'icon-add',
+			disabled : false,
+			onclick : function() {
+				if ($("#center_add_config").length != 0) {
+					return;
+				}
+				$.ds.commons.openWindow("center_add_config", "新增配置项", "addconfig.html");
+			}
+		});
+
+		center_menu.menu('appendItem', {
+			text : '修改',
+			iconCls : 'icon-edit',
+			onclick : function() {
+				if (center_choose_li_id == "") {
+					return $.dsmessager.show('请选择一项配置进行修改!');
+				}
+				var id = center_choose_li_id;
+				var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
+				openConfig(id, title);
+				return $.dsmessager.show('修改!');
+			}
+		});
+
+		center_menu.append($('<div class="menu-sep"></div>'));
+
+		center_menu.menu('appendItem', {
+			text : '自定义排序',
+			iconCls : 'icon-orderby',
+			onclick : function() {
+				this_window.unbind('contextmenu');
+				this_window.bind('contextmenu', function(e) {
+					e.preventDefault();
+					$('#center_menu_save_cancel').menu('show', {
+						left : e.pageX,
+						top : e.pageY
+					});
+				});
+				sortable.option("disabled", false);
+				return $.dsmessager.show('您已经开启了自定义排序功能，请拖动列表，然后右键→保存!');
+			}
+		});
+
+		center_menu.menu('appendItem', {
+			text : '刷新',
+			iconCls : 'icon-reload',
+			onclick : function() {
+				//alert(center_choose_li_id);
+				//return $.dsmessager.show('刷新!');
+				init();
+			}
+		});
+
+		var menuSaveCancel = $('<div id="center_menu_save_cancel"></div>');
+		menuSaveCancel.appendTo('body').menu({});
+		menuSaveCancel.menu('appendItem', {
+			text : '保存',
+			iconCls : 'icon-save',
+			onclick : function() {
+				this_window.unbind('contextmenu');
+				this_window.bind('contextmenu', function(e) {
+					e.preventDefault();
+					$('#center_menu').menu('show', {
+						left : e.pageX,
+						top : e.pageY
+					});
+				});
+				sortable.option("disabled", true);
+				return $.dsmessager.show('您保存了本次自定义排序操作!');
+			}
+		}).menu('appendItem', {
+			text : '取消',
+			iconCls : 'icon-remove',
+			onclick : function() {
+				this_window.unbind('contextmenu');
+				this_window.bind('contextmenu', function(e) {
+					e.preventDefault();
+					$('#center_menu').menu('show', {
+						left : e.pageX,
+						top : e.pageY
+					});
+				});
+				sortable.option("disabled", true);
+				return $.dsmessager.show('您取消了本次自定义排序操作!');
+			}
+		});
+
+		var openConfig = function(id, title) {
+			$.ds.commons.openWindow("center_add_config_" + id, title, "addconfig.html", "id=" + id);
+		};
+
+// 		var appendWindow = function(id, title, url, queryString) {
+// 			if ($("#" + id).length != 0) {
+// 				return $.dsmessager.show(title + "已经存在。");
+// 			}
+// 			var _window = $('<div></div>');
+// 			_window.attr("id", id);
+// 			_window.attr("title", title);
+// 			_window.attr("class", "easyui-window");
+// 			_window.window({
+// 				href : url,
+// 				top : $.ds.getHeadHeight(),
+// 				left : 0,
+// 				height : $.ds.getCenterHeight() < $.ds.getDefaultWindowHeight() ? $.ds.getCenterHeight() : $.ds.getDefaultWindowHeight(),
+// 				width : $.ds.getDefaultWindowWidth(),
+// 				closed : false,
+// 				modal : false,
+// 				loadingMessage : '请稍等，正在读取服务器内容，加载数据。。。',
+// 				doSize : false,
+// 				maximizable : false,
+// 				minimizable : true,
+// 				extractor : function(data) {
+// 					data = $.ds.replaceAll(data, "[$]queryString", queryString);
+// 					data = $.ds.replaceAll(data, "[$]windowId", id);
+// 					return data;
+// 				},
+// 				onClose : function(forceDestroy) {
+// 					$(this).window('destroy');
+// 				},
+// 				onDestroy : function() {
+// 					$.ds.commons.removeFootTask(this.id);
+// 				}
+// 			}).window('center');
+// 			$.ds.commons.addFootTask(id, title);
+// 		};
 
 		var init = function() {
-			var url = $.ds.url.configs_by_group_id + "id=" + id;
+			sortable.option("disabled", true);
+			var url = $.ds.url.configs_by_group_id + "?id=" + id;
 			$.post(url, function(data) {
-				$("#center_ul").html('');
+				this_ul.empty();
 				var rst = eval(data);
 				if (rst.length != 0) {
 					for ( var i in rst) {
-						var li = $('<li class="dsli">');
+						var li = $('<li class="dsli" ds_index="'+rst[i].id+'" ds_title="'+rst[i].configName+'">');
 						li.append('<span class="tree-file"></span>');
 						li.append('<span>' + rst[i].configName + '</span>');
-						li.bind('dblclick', { id:rst[i].id, title:rst[i].configName }, function(d){
+						li.bind('dblclick', {
+							id : rst[i].id,
+							title : rst[i].configName
+						}, function(d) {
 							openConfig(d.data.id, d.data.title);
 						});
-						$("#center_ul").append(li);
+						li.bind('click', {
+							id : rst[i].id,
+							title : rst[i].configName
+						}, function(d) {
+							openConfig(d.data.id, d.data.title);
+						});
+						li.hover(function() {
+							$(this).css("background", "#e6e6e6");
+							$(this).css("color", "00438a");
+							center_choose_li_id = $(this).attr('ds_index');
+						}, function() {
+							$(this).css("background", "");
+							$(this).css("color", "");
+							if (lock_menu == false)
+								center_choose_li_id = "";
+						});
+						this_ul.append(li);
 					}
 				}
 				return $.dsmessager.show('加载[' + rst.length + ']条配置。');
 			});
-			var sortable = Sortable.create(document.getElementById("center_ul"), {"disabled" : true});
-			var openConfig = function(id, title) {
-				appendWindow("center_add_config_" + id, title, "addconfig.html", "id=" + id);
-			};
-
-			var appendWindow = function(id, title, url, queryString) {
-				if ($("#" + id).length != 0) {
-					return $.dsmessager.show(title + "已经存在。");
-				}
-				var _window = $('<div></div>');
-				_window.attr("id", id);
-				_window.attr("title", title);
-				_window.attr("class", "easyui-window");
-// 				_window.attr("style", "padding:10px 10px;");
-				_window.window({
-					href : url,
-					top : $.ds.getHeadHeight(),
-					left : 0,
-					height : $.ds.getCenterHeight() < $.ds.getDefaultWindowHeight() ? $.ds.getCenterHeight() : $.ds.getDefaultWindowHeight(),
-					width : $.ds.getDefaultWindowWidth(),
-					closed : false,
-					modal : false,
-					loadingMessage : '请稍等，正在读取服务器内容，加载数据。。。',
-					// collapsible : false,
-					// minimizable : false,
-					doSize : false,
-					maximizable : false,
-					minimizable : true,
-					extractor : function(data) {
-						//alert(id);
-						//alert(data.replace(new RegExp("[$]queryString","gm"), queryString));
-//						return data.replace(new RegExp("[$]queryString","gm"), queryString);
-						data = $.ds.replaceAll(data, "[$]queryString", queryString);
-						data = $.ds.replaceAll(data, "[$]windowId", id);
-						return data;
-					},
-					onClose : function(forceDestroy) {
-						$(this).window('destroy');
-					},
-					onDestroy : function() {
-						//$("#foot").find("[window_id='" + this.id + "']").remove();
-						$.ds.commons.removeFootTask(this.id);
-					},
-					onLoad : function() {
-						//$(this).append("<input>");
-					}
-				}).window('center');
-//				window.window('refresh', url);
-//				window.append("<input>");
-				$.ds.commons.addFootTask(id, title);
-			};
-
-//	 		var appendFoot = function(window_id, text) {
-//	 			var a = $('<a style="margin:2px;"></a>');
-//	 			// a.attr("id", id);
-//	 			a.attr("window_id", window_id);
-//	 			a.attr("data-options", "plain:false");
-//	 			a.html(text.length > 10 ? text.substr(0,10) + '...' : text);
-//	 			a.linkbutton();
-//	 			a.click(function() {
-//	 				var window_id = $(this).attr("window_id");
-//	 				$('#' + window_id).window('open');
-//	 			});
-//	 			$("#foot").append(a);
-//	 		};
-
-			var center_menu = $('<div id="center_menu"></div>');
-			center_menu.appendTo('body');
-			center_menu.menu({
-				onHide : function() {
-					rp_center_block = false;
-				}
-			});
-
-			var add_count = 10;
-			center_menu.menu('appendItem', {
-				text : '新增配置项',
-				iconCls : 'icon-add',
-				disabled : false,
-				onclick : function() {
-//	 				$("#center_ul").append('<li class="dsli"><span class="tree-file"></span><span>中文字符'+add_count+'</span></li>');
-//	 				add_count++;
-					if ($("#center_add_config").length != 0) {
-						return;
-					}
-					appendWindow("center_add_config", "新增配置项", "addconfig.html");
-				}
-			});
-
-			center_menu.append($('<div class="menu-sep"></div>'));
-
-			center_menu.menu('appendItem', {
-				text : '自定义排序',
-				iconCls : 'icon-edit',
-				onclick : function() {
-					var c = $("#center");
-					c.unbind('contextmenu');
-					c.bind('contextmenu', function(e) {
-						e.preventDefault();
-						$('#center_menu_save_cancel').menu('show', {
-							left : e.pageX,
-							top : e.pageY
-						});
-					});
-					sortable.option("disabled", false);
-				}
-			});
-
-			center_menu.menu('appendItem', {
-				text : '刷新',
-				iconCls : 'icon-reload',
-				onclick : function() {
-					return $.dsmessager.show('刷新!');
-				}
-			});
-
-			var menuSaveCancel = $('<div id="center_menu_save_cancel"></div>');
-			menuSaveCancel.appendTo('body').menu({});
-			menuSaveCancel.menu('appendItem', {
-				text : '保存',
-				iconCls : 'icon-save',
-				onclick : function() {
-					var c = $("#center");
-					c.unbind('contextmenu');
-					c.bind('contextmenu', function(e) {
-						e.preventDefault();
-						$('#center_menu').menu('show', {
-							left : e.pageX,
-							top : e.pageY
-						});
-					});
-					sortable.option("disabled", true);
-					return $.dsmessager.show('您保存了本次自定义排序操作!');
-				}
-			}).menu('appendItem', {
-				text : '取消',
-				iconCls : 'icon-remove',
-				onclick : function() {
-					var c = $("#center");
-					c.unbind('contextmenu');
-					c.bind('contextmenu', function(e) {
-						e.preventDefault();
-						$('#center_menu').menu('show', {
-							left : e.pageX,
-							top : e.pageY
-						});
-					});
-					sortable.option("disabled", true);
-					return $.dsmessager.show('您取消了本次自定义排序操作!');
-				}
-			});
 		};
-		
+
 		init();
 	});
 </script>

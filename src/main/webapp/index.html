@@ -57,6 +57,44 @@
 			$("#foot").find("[window_id='" + window_id + "']").remove();
 		};
 
+		$.ds.commons.openWindow = function(id, title, url, queryString) {
+			if ($("#" + id).length != 0) {
+				return $.dsmessager.show(title + "已经存在。");
+			}
+			var _window = $('<div></div>');
+			_window.attr("id", id);
+			_window.attr("title", title);
+			_window.attr("class", "easyui-window");
+			_window.window({
+				href : url,
+				top : $.ds.getHeadHeight(),
+				left : 0,
+				height : $.ds.getCenterHeight() < $.ds.getDefaultWindowHeight() ? $.ds.getCenterHeight() : $.ds.getDefaultWindowHeight(),
+				width : $.ds.getDefaultWindowWidth(),
+				closed : false,
+				modal : false,
+				loadingMessage : '请稍等，正在读取服务器内容，加载数据。。。',
+				doSize : false,
+				maximizable : false,
+				minimizable : true,
+				extractor : function(data) {
+					data = $.ds.replaceAll(data, "[$]queryString", queryString);
+					data = $.ds.replaceAll(data, "[$]windowId", id);
+					return data;
+				},
+				onClose : function(forceDestroy) {
+					$(this).window('destroy');
+				},
+				onDestroy : function() {
+					$.ds.commons.removeFootTask(this.id);
+				}
+			}).window('center');
+			$.ds.commons.addFootTask(id, title);
+		};
+
+		$.ds.commons.configRun = function(id) {
+			
+		};
 	});
 </script>
 </head>

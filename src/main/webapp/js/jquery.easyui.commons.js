@@ -1,20 +1,27 @@
 $(function() {
 	$.ds = {
 		url : {
-			tree : "view/getTree.do?",
-			configs_by_group_id : "view/getConfigsByGroupId.do?",
-			config_by_id : "view/getConfigById.do?",
+			get_params : "dataservice/getparams.do",
+			get_config : "dataservice/getconfig.do",
+			tree : "view/getTree.do",
+			configs_by_group_id : "view/getConfigsByGroupId.do",
+			config_by_id : "view/getConfigById.do",
 			datasource_all : "view/getDataSourceAll.do",
+			run_config : "view/runConfig.do",
 			save_config : "view/saveConfig.do"
 		},
 		commons : {
+			chooseTreeId : "",
 			referCenterByMenuId : function(id) {
 			},
 			addFootTask : function(window_id, text) {
 			},
 			removeFootTask : function(window_id) {
 			},
-			chooseTreeId : ""
+			openWindow : function(id, title, url, queryString) {
+			},
+			configRun : function(id) {
+			}
 		},
 		getBytesLength : function(str) {
 			// 在GBK编码里，除了ASCII字符，其它都占两个字符宽
@@ -49,6 +56,13 @@ $(function() {
 		},
 		getWindowWidth : function() {
 			return $(window).width();
+		},
+		getKeys : function(obj) {
+			var arr = [ ];
+			for ( var i in obj) {
+				arr.push(i);
+			}
+			return arr;
 		},
 		getQueryString : function(queryString, name) {
 			var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');

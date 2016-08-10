@@ -43,9 +43,9 @@
 
 		// 增加window的tool
 		// 执行
-		var a_play = $('<a href="javascript:void(0)" class="icon-play"></a>');
-		this_window.parent().find(" .panel-tool").prepend(a_play);
-		a_play.click(function() {
+		var a_run = $('<a href="javascript:void(0)" class="icon-run"></a>');
+		this_window.parent().find(" .panel-tool").prepend(a_run);
+		a_run.click(function() {
 			$.dsmessager.show('执行');
 		});
 		// 刷新
@@ -111,6 +111,7 @@
 							this_window.DSFind('details').find('li').each(function(i, o){
 								$(this).DSFind("panel").panel('expand');
 							});
+							$.ds.commons.referCenter();
 						},
 						error : function(XMLHttpRequest, textStatus, errorThrown) {
 							this_window.DSFind('details').find('li').each(function(i, o){
@@ -168,7 +169,7 @@
 			}
 			// 修改
 			else {
-				var url = $.ds.url.config_by_id + "id=" + id;
+				var url = $.ds.url.config_by_id + "?id=" + id;
 				$.post(url, function(data) {
 					this_window.DSFind("details").empty();
 					// 					this_window.find(" form input[name='name']").val(data.configName).validatebox('isValid');

@@ -9,6 +9,16 @@ public class ViewConfigBody {
 	private Integer datasourceId;
 	private String configName;
 	private String configType;
+	private Integer enable;
+
+	public Integer getEnable() {
+		return enable;
+	}
+
+	public void setEnable(Integer enable) {
+		this.enable = enable;
+	}
+
 	private List<ViewConfigDetailBody> list;
 
 	public Integer getGroupId() {

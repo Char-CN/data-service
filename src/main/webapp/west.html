@@ -76,7 +76,7 @@
 // 			lines : true,
 			method : 'post',
 			animate : true,
-			url : $.ds.url.tree + 'id=-1',
+			url : $.ds.url.tree + '?id=-1',
 			onContextMenu : function(e, node) {
 				$(this).tree('select', node.target);
 				e.preventDefault();
@@ -100,12 +100,12 @@
 				}
 			},
 			onBeforeCollapse : function(node) {
-				$('#tree').tree('options').url = $.ds.url.tree + 'id=' + node.id;
+				$('#tree').tree('options').url = $.ds.url.tree + '?id=' + node.id;
 				$("#main").layout('panel', 'center').panel('setTitle', node.text);
 				$.ds.commons.referCenterByMenuId(node.id);
 			},
 			onBeforeExpand : function(node) {
-				$('#tree').tree('options').url = $.ds.url.tree + 'id=' + node.id;
+				$('#tree').tree('options').url = $.ds.url.tree + '?id=' + node.id;
 				$("#main").layout('panel', 'center').panel('setTitle', node.text);
 				$.ds.commons.referCenterByMenuId(node.id);
 			}
