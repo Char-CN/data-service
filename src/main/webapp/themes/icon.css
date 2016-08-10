@@ -67,19 +67,6 @@
 .icon-more{
 	background:url('icons/more.png') no-repeat center center;
 }
-.icon-up{
-	background:url('icons/up_16x16.gif') no-repeat center center;
-}
-.icon-down{
-	background:url('icons/down_16x16.gif') no-repeat center center;
-}
-.icon-orderby{
-	background:url('icons/ordered_list_16x16.gif') no-repeat center center;
-}
-.icon-play{
-	background:url('icons/play.png') no-repeat center center;
-}
-
 
 .icon-mini-add{
 	background:url('icons/mini_add.png') no-repeat center center;

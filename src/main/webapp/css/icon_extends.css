@@ -1,0 +1,15 @@
+.icon-up {
+	background: url('icons_extends/up_16x16.gif') no-repeat center center;
+}
+
+.icon-down {
+	background: url('icons_extends/down_16x16.gif') no-repeat center center;
+}
+
+.icon-orderby {
+	background: url('icons_extends/ordered_list_16x16.gif') no-repeat center center;
+}
+
+.icon-play {
+	background: url('icons_extends/play.png') no-repeat center center;
+}
