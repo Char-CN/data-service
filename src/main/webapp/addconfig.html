@@ -2,11 +2,11 @@
 	<form method="post" ds_index="form">
 		<table style="border-collapse: separate; border-spacing: 10px; width: 100%;">
 			<tr>
-				<td width="20%">数据源:</td>
+				<td width="20%"><span>数据源:</span></td>
 				<td width="80%" ds_index="td_datasource"></td>
 			</tr>
 			<tr>
-				<td width="20%">名称:</td>
+				<td width="20%"><span>名称:</span></td>
 				<td width="80%" ds_index="td_name"></td>
 			</tr>
 			<tr>
@@ -24,18 +24,23 @@
 </div>
 <script>
 	$(function() {
-		// 初始化参数
+		// 初始化参数、定义参数
 		var queryString = '$queryString';
 		var windowId = '$windowId';
 		var id = $.ds.getQueryString(queryString, "id");
 		var this_window = $("#" + windowId);
+		
+		
+		// 提示
 		if (id == null) {
 			$.dsmessager.show("您正在新增配置项。");
 		} else {
 			$.dsmessager.show('您正在修改[' + this_window.window('options').title + "]");
 		}
 
+		// 详情拖拽初始化
 		var sortable = Sortable.create(this_window.DSFind("details")[0]);
+
 		// 增加window的tool
 		// 执行
 		var a_play = $('<a href="javascript:void(0)" class="icon-play"></a>');
@@ -56,6 +61,9 @@
 		a_sort.click(function() {
 			sortable.option("disabled", false);
 			$.messager.confirm('确定', '您确定要开启排序功能吗？开启后，请拖拽详情面板，排序后请保存。', function(r){
+				this_window.DSFind('details').find('li').each(function(i, o){
+					$(this).DSFind("panel").panel('collapse');
+				});
 				if (r){
 					$.dsmessager.show('您已经开启排序功能，请拖动配置详情。');
 				} else {
@@ -67,44 +75,52 @@
 		var a_save = $('<a href="javascript:void(0)" class="icon-save"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_save);
 		a_save.click(function() {
-			sortable.option("disabled", true);
-			// 保存前的检查
-			if (!this_window.find(" form").form('validate')) {
-				$.dsmessager.show('您填写的内容不正确，请检查。');
-				return false;
-			}
-			// 组装json对象
-			var json = { };
-			json.id = this_window.DSFind("id").val();
-			json.groupId = $.ds.commons.chooseTreeId;
-			json.datasourceId = this_window.DSFind("datasource").combobox('getValue');
-			json.configName = this_window.DSFind("name").textbox("getValue");
-			json.configType = "1";
-			
-			var details = [];
-			var detail = { };
-			detail.id = 1;
-			detail.datasourceId = 2;
-			detail.key = "kkk";
-			detail.values = "vvvvvvvvvvvv";
-			details.push(detail);
-			json.list = details;
-			configBody = json;
-			$.ajax({
-				type : "post", // 请求方式
-				url : $.ds.url.save_config, // url地址
-				data : JSON.stringify(json), // 数据
-				contentType : "application/json",
-				dataType : "json",
-				success : function(response, ifo) {
-					alert("success");
-				},
-				error : function(e) {
-					alert("error");
+			$.messager.confirm('确定', '您确定要保存该配置项吗?', function(r) {
+				if (r) {
+					sortable.option("disabled", true);
+					// 保存前的检查
+					if (!this_window.find(" form").form('validate')) {
+						$.dsmessager.show('您填写的内容不正确，请检查。');
+						return false;
+					}
+					// 组装json对象
+					var configBody = { };
+					configBody.id = this_window.DSFind("id").val();
+					configBody.groupId = $.ds.commons.chooseTreeId;
+					configBody.datasourceId = this_window.DSFind("datasource").combobox('getValue');
+					configBody.configName = this_window.DSFind("name").textbox("getValue");
+					configBody.configType = "1";
+					configBody.list = [ ];
+					
+					this_window.DSFind('details').find('li').each(function(i, o){
+						var key = $(this).DSFind('key').textbox('getValue');
+						var values = $(this).DSFind('values').textbox('getValue');
+						var detail = { };
+						detail.key = key;
+						detail.values = values;
+						configBody.list.push(detail);
+					});
+					$.ajax({
+						type : "post", // 请求方式
+						url : $.ds.url.save_config, // url地址
+						data : JSON.stringify(configBody), // 数据
+						contentType : "application/json",
+						dataType : "json",
+						success : function(data) {
+							$.dsmessager.show(data.message);
+							this_window.DSFind('details').find('li').each(function(i, o){
+								$(this).DSFind("panel").panel('expand');
+							});
+						},
+						error : function(XMLHttpRequest, textStatus, errorThrown) {
+							this_window.DSFind('details').find('li').each(function(i, o){
+								$(this).DSFind("panel").panel('expand');
+							});
+							$.dsmessager.show('保存失败！<br>status：' + XMLHttpRequest.status + '<br>state：' + XMLHttpRequest.readyState + '<br>text：' + (textStatus || errorThrown));
+						}
+					});
 				}
 			});
-			// 执行
-			$.dsmessager.show('保存');
 		});
 
 		// 初始化
@@ -114,8 +130,6 @@
 			this_window.DSFind("td_datasource").empty();
 			this_window.DSFind("td_datasource").append($('<select style="width: 100%"></select>').DSAdd('datasource'));
 			this_window.DSFind("td_name").empty();
-			// 			var te = $("<input>");
-			// 			this_window.find(" form .td_name").append('<input name="name" style="width: 100%;" class="easyui-validatebox" type="text" data-options="required:true,validType:[\'nospace\']" />');
 			var input_id = $('<input type="hidden">').DSAdd('id');
 			this_window.DSFind("td_name").append(input_id);
 			var te = $('<input>').DSAdd('name');
@@ -133,8 +147,6 @@
 				type : 'post',
 				async : false,
 				success : function(data) {
-					// 					var select = this_window.find(" form .td_datasource select[ds_index='datasource']");
-					// 					var select = $.DSFind(this_window, "datasource");
 					var select = this_window.DSFind("datasource");
 					for ( var i in data) {
 						var sel = "";
@@ -163,13 +175,18 @@
 					this_window.DSFind("datasource").combobox('select', data.datasourceId);
 					this_window.DSFind("id").val(data.id);
 					this_window.DSFind("name").textbox('initValue', data.configName);
-					for ( var i in data.list) {
-						addDetailPanel(data.list[i].key, data.list[i].values);
+					if (data.list.length == 0) {
+						addDetailPanel();
+					} else {
+						for (var i in data.list) {
+							addDetailPanel(data.list[i].key, data.list[i].values);
+						}
 					}
 				});
 			}
 		};
 
+		// 增加详情面板
 		var addDetailCount = 1;
 		var addDetailPanel = function(key, values) {
 			var index = addDetailCount;
@@ -177,13 +194,13 @@
 			if (key == undefined) {
 				title = "新增配置_" + addDetailCount;
 			} else {
-				title = '配置详情_' + addDetailCount;
+				title = '配置详情_' + key;
 			}
 			addDetailCount++;
 			var details = this_window.DSFind("details");
 			var te = $('<input ds_index="key" index="' + index + '">');
 			var te2 = $('<input ds_index="values">');
-			var pan = $('<div></div>');
+			var pan = $('<div ds_index="panel"></div>');
 			details.append($('<li ds_index="' + index + '"></li>').append(pan));
 			pan.panel({
 				border : true,

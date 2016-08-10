@@ -6,6 +6,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.blazer.dataservice.body.Body;
 import org.blazer.dataservice.body.DataSourceBody;
 import org.blazer.dataservice.body.GroupBody;
 import org.blazer.dataservice.body.view.ViewConfigBody;
@@ -61,14 +62,14 @@ public class ViewAction extends BaseAction {
 
 	@ResponseBody
 	@RequestMapping("/saveConfig")
-	public String saveConfig(HttpServletRequest request, HttpServletResponse response, @RequestBody ViewConfigBody viewConfigBody) {
+	public Body saveConfig(HttpServletRequest request, HttpServletResponse response, @RequestBody ViewConfigBody viewConfigBody) {
 		try {
 			viewService.saveConfig(viewConfigBody);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			return "fail";
+			return fail().setMessage(e.getMessage());
 		}
-		return "success";
+		return success().setMessage("保存成功！");
 	}
 
 	@ResponseBody

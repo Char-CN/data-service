@@ -92,7 +92,7 @@ public class ViewService {
 		if (config.getId() == null) {
 			String insertConfig = "insert into ds_config(group_id,datasource_id,config_name,config_type,enable) values(?,?,?,?,?)";
 			int code = jdbcTemplate.update(insertConfig, config.getGroupId(), config.getDatasourceId(), config.getConfigName(), "1", 1);
-			System.out.println("inset code : " + code);
+			logger.debug("inset code : " + code);
 			String selectMaxId = "select max(id) as max_id from ds_config";
 			Integer maxId = IntegerUtil.getInt0(jdbcTemplate.queryForList(selectMaxId).get(0).get("max_id"));
 			if (maxId == null) {
@@ -112,19 +112,20 @@ public class ViewService {
 		else {
 			String updateConfig = "update ds_config set group_id=?,datasource_id=?,config_name=?,config_type=? where id=?";
 			int code = jdbcTemplate.update(updateConfig, config.getGroupId(), config.getDatasourceId(), config.getConfigName(), "1", config.getId());
-			System.out.println("update code : " + code);
+			logger.debug("update code : " + code);
 		}
 
 		// 软删除该configId的details
-		String deleteDetail = "update ds_config_detail set enable=0 where config_id=?";
+		String deleteDetail = "update ds_config_detail set enable=0 where config_id=? and enable=1";
 		int code = jdbcTemplate.update(deleteDetail, config.getId());
-		System.out.println("delete code : " + code);
+		logger.debug("delete code : " + code);
 
 		// 增加detials
 		for (int i = 0; i < config.getList().size(); i++) {
 			ViewConfigDetailBody detail = config.getList().get(i);
-			String insertDetail = "insert into ds_config_detail(datasource_id,config_id,key,values,order_asc,enable) values(?,?,?,?,?,?)";
-			jdbcTemplate.update(insertDetail, config.getDatasourceId(), config.getId(), detail.getKey(), detail.getValues(), (i + 1), 1);
+			String insertDetail = "insert into ds_config_detail(datasource_id,config_id,`key`,`values`,order_asc,enable) values(?,?,?,?,?,?)";
+			code = jdbcTemplate.update(insertDetail, config.getDatasourceId(), config.getId(), detail.getKey(), detail.getValues(), (i + 1), 1);
+			logger.debug("update detail code : " + code);
 		}
 
 	}
