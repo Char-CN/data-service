@@ -7,6 +7,15 @@ public class ConfigDetailBody {
 
 	private Integer id;
 	private List<Map<String, Object>> values;
+	private String errorMessage;
+
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
+	}
 
 	public Integer getId() {
 		return id;

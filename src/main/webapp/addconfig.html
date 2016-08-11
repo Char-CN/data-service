@@ -111,7 +111,7 @@
 							this_window.DSFind('details').find('li').each(function(i, o){
 								$(this).DSFind("panel").panel('expand');
 							});
-							$.ds.commons.referCenter();
+							setTimeout("$.ds.commons.referCenterByMenuId("+$.ds.commons.chooseTreeId+")", 3000);
 						},
 						error : function(XMLHttpRequest, textStatus, errorThrown) {
 							this_window.DSFind('details').find('li').each(function(i, o){
@@ -197,7 +197,6 @@
 			} else {
 				title = '配置详情_' + key;
 			}
-			addDetailCount++;
 			var details = this_window.DSFind("details");
 			var te = $('<input ds_index="key" index="' + index + '">');
 			var te2 = $('<input ds_index="values">');
@@ -206,7 +205,7 @@
 			pan.panel({
 				border : true,
 				// bodyCls: 'padding-10px',
-				cls : 'margin-top-10px',
+				cls : addDetailCount == 1 ? 'margin-top-10px' : 'margin-top-30px',
 				collapsible : true,
 				title : title,
 				width : details.width(),
@@ -254,6 +253,7 @@
 				multiline : true,
 				value : values
 			});
+			addDetailCount++;
 		};
 
 		init();

@@ -178,19 +178,24 @@
 				if (rst.length != 0) {
 					for ( var i in rst) {
 						var li = $('<li class="dsli" ds_index="'+rst[i].id+'" ds_title="'+rst[i].configName+'">');
-						li.append('<span class="tree-file"></span>');
+						li.append('<i class="fa fa-github-alt fa-3x" aria-hidden="true"></i>');
 						li.append('<span>' + rst[i].configName + '</span>');
+	                    var _time = null;
 						li.bind('dblclick', {
 							id : rst[i].id,
 							title : rst[i].configName
 						}, function(d) {
+							clearTimeout(_time);
 							openConfig(d.data.id, d.data.title);
 						});
 						li.bind('click', {
 							id : rst[i].id,
 							title : rst[i].configName
 						}, function(d) {
-							openConfig(d.data.id, d.data.title);
+							clearTimeout(_time);
+							_time = setTimeout(function(){
+								$.ds.commons.openWindow("center_run_config_" + d.data.id, d.data.title, "runconfig.html", "id=" + d.data.id);
+	                        }, 300);
 						});
 						li.hover(function() {
 							$(this).css("background", "#e6e6e6");

@@ -13,6 +13,7 @@ import org.blazer.dataservice.body.view.ViewConfigBody;
 import org.blazer.dataservice.dao.CustomJdbcDao;
 import org.blazer.dataservice.exception.UnknowDataSourceException;
 import org.blazer.dataservice.service.ViewService;
+import org.blazer.dataservice.util.InitSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,9 @@ public class ViewAction extends BaseAction {
 
 	@Autowired
 	CustomJdbcDao customJdbcDao;
+
+	@Autowired
+	InitSystem initSystem;
 
 	@ResponseBody
 	@RequestMapping("/getTree")
@@ -65,6 +69,7 @@ public class ViewAction extends BaseAction {
 	public Body saveConfig(HttpServletRequest request, HttpServletResponse response, @RequestBody ViewConfigBody viewConfigBody) {
 		try {
 			viewService.saveConfig(viewConfigBody);
+			initSystem.initConfigEntity();
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			return fail().setMessage(e.getMessage());

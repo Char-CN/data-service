@@ -14,6 +14,8 @@ $(function() {
 		}
 		var width = $(this).panel('options').width;
 		var height = $(this).panel('options').height;
+//		var width = $(window).width();
+//		var height = $(window).height();
 		var right = left + width;
 		var buttom = top + height;
 		var parentWidth = parentObj.width();

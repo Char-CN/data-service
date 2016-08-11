@@ -68,13 +68,16 @@ public class DataService {
 			Dao dao = detail.getDataSource();
 			List<Map<String, Object>> values = null;
 
+			String errorMessage = "";
 			try {
 				values = dao.find(sql);
 			} catch (Exception e) {
 				values = new ArrayList<Map<String, Object>>();
 				logger.error(e.getMessage(), e);
+				errorMessage = e.getMessage();
 			}
 
+			cdb.setErrorMessage(errorMessage);
 			cdb.setId(detail.getId());
 			cdb.setValues(values);
 			cb.getDetails().put(detail.getKey(), cdb);

@@ -1,7 +1,5 @@
 package org.blazer.dataservice.action;
 
-import java.util.HashMap;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -23,23 +21,19 @@ public class DataAction extends BaseAction {
 	@ResponseBody
 	@RequestMapping("/getconfig")
 	public ConfigBody getConfig(HttpServletRequest request, HttpServletResponse response) {
-		HashMap<String, String> paramMap = getParamMap(request);
-		ConfigBody cb = dataService.getConfigById(paramMap);
-		return cb;
+		return dataService.getConfigById(getParamMap(request));
 	}
 
 	@ResponseBody
 	@RequestMapping("/getparams")
 	public ParamsBody getparams(HttpServletRequest request, HttpServletResponse response) {
-		HashMap<String, String> paramMap = getParamMap(request);
-		return dataService.getParamsById(paramMap);
+		return dataService.getParamsById(getParamMap(request));
 	}
 
 	@ResponseBody
 	@RequestMapping("/getdetail")
 	public String getDetail(HttpServletRequest request, HttpServletResponse response) {
-		HashMap<String, String> paramMap = getParamMap(request);
-		return dataService.getConfigById(paramMap).toString();
+		return dataService.getConfigById(getParamMap(request)).toString();
 	}
 
 }

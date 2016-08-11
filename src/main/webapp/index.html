@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <title>IIIIIIIIIIIIII</title>
-<link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
+<link rel="stylesheet" type="text/css" href="css/font-awesome.css">
 <link rel="stylesheet" type="text/css" href="themes/bootstrap/easyui.css">
 <link rel="stylesheet" type="text/css" href="css/commons.css">
 <link rel="stylesheet" type="text/css" href="themes/icon.css">
 <link rel="stylesheet" type="text/css" href="css/icon_extends.css">
 <script type="text/javascript" src="js/jquery.min.js"></script>
 <script type="text/javascript" src="js/jquery.easyui.min.js"></script>
-<script type="text/javascript" src="js/jquery.easyui.extends.js"></script>
 <script type="text/javascript" src="js/jquery.easyui.commons.js"></script>
+<script type="text/javascript" src="js/jquery.easyui.extends.js"></script>
 <script type="text/javascript" src="js/Sortable.js"></script>
 <script type="text/javascript" src="js/jquery.binding.js"></script>
 <script type="text/javascript" src="js/locale/easyui-lang-zh_CN.js"></script>
@@ -64,11 +64,12 @@
 			var _window = $('<div></div>');
 			_window.attr("id", id);
 			_window.attr("title", title);
-			_window.attr("class", "easyui-window");
+// 			_window.attr("class", "easyui-window");
 			_window.window({
 				href : url,
 				top : $.ds.getHeadHeight(),
 				left : 0,
+				resizable : false,
 				height : $.ds.getCenterHeight() < $.ds.getDefaultWindowHeight() ? $.ds.getCenterHeight() : $.ds.getDefaultWindowHeight(),
 				width : $.ds.getDefaultWindowWidth(),
 				closed : false,

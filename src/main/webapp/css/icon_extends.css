@@ -13,3 +13,7 @@
 .icon-run {
 	background: url('icons_extends/run.png') no-repeat center center;
 }
+
+.icon-adapter {
+	padding-top: 3px;
+}

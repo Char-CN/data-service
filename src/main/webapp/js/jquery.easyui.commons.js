@@ -1,6 +1,7 @@
 $(function() {
 	$.ds = {
 		url : {
+			root : "http://" + window.location.host + "/",
 			get_params : "dataservice/getparams.do",
 			get_config : "dataservice/getconfig.do",
 			tree : "view/getTree.do",
@@ -63,6 +64,9 @@ $(function() {
 				arr.push(i);
 			}
 			return arr;
+		},
+		getCustomKey : function(key) {
+			return key.replace('${', '').replace('}', '');
 		},
 		getQueryString : function(queryString, name) {
 			var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
