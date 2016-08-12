@@ -8,6 +8,7 @@
 <link rel="stylesheet" type="text/css" href="css/commons.css">
 <link rel="stylesheet" type="text/css" href="themes/icon.css">
 <link rel="stylesheet" type="text/css" href="css/icon_extends.css">
+<link rel="stylesheet" type="text/css" href="css/easyui_extends.css">
 <script type="text/javascript" src="js/jquery.min.js"></script>
 <script type="text/javascript" src="js/jquery.easyui.min.js"></script>
 <script type="text/javascript" src="js/jquery.easyui.commons.js"></script>
@@ -64,11 +65,11 @@
 			var _window = $('<div></div>');
 			_window.attr("id", id);
 			_window.attr("title", title);
-// 			_window.attr("class", "easyui-window");
+			// 			_window.attr("class", "easyui-window");
 			_window.window({
 				href : url,
-				top : $.ds.getHeadHeight(),
-				left : 0,
+				// 				top : $.ds.getHeadHeight(),
+				// 				left : 0,
 				resizable : false,
 				height : $.ds.getCenterHeight() < $.ds.getDefaultWindowHeight() ? $.ds.getCenterHeight() : $.ds.getDefaultWindowHeight(),
 				width : $.ds.getDefaultWindowWidth(),
@@ -94,15 +95,18 @@
 		};
 
 		$.ds.commons.configRun = function(id) {
-			
+
 		};
+
+		// 初始化west
+		$("#west").panel('refresh', 'west.html');
 	});
 </script>
 </head>
 <body>
 	<div id="main" class="easyui-layout" data-options="fit:true">
 		<div id="head" data-options="region:'north'" style="height: 80px;"></div>
-		<div id="west" class="easyui-panel" data-options="region:'west',split:true, href:'west.html'" title="目录" style="width: 200px;"></div>
+		<div id="west" class="easyui-panel" data-options="region:'west',split:true" title="目录" style="width: 200px;"></div>
 		<div id="center" class="easyui-panel" data-options="region:'center',title:' '"></div>
 		<div id="foot" data-options="region:'south'" style="height: 31px;"></div>
 	</div>

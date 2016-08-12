@@ -14,9 +14,16 @@
 					<td width="20%"><span>接口地址:</span></td>
 					<td width="80%" ds_index="td_interface"></td>
 				</tr>
+<!-- 				<tr> -->
+<!-- 					<td width="20%"></td> -->
+<!-- 					<td width="80%" style="color:blue">说明： -->
+<!-- 						<br><br>&nbsp;&nbsp;&nbsp;&nbsp;1.接口参数后面加上detailskey=key，则只返回该key的数据 -->
+<!-- 						<br><br>&nbsp;&nbsp;&nbsp;&nbsp;2.JavaScript获取某个key的值：eval(data).details.key.values，获得的是一个对象数组。 -->
+<!-- 					</td> -->
+<!-- 				</tr> -->
 				<tr>
-					<td width="20%"></td>
-					<td width="80%" style="color:blue">说明：接口参数后面加上detailskey=key，则只返回该key的数据</td>
+					<td width="20%">接口说明：</td>
+					<td width="80%" style="color:blue">a.参数加detailskey=key,则只返回某key的数据.b.js获取某key的值:eval(data).details.key.values,返回对象数组.</td>
 				</tr>
 				<tr>
 					<td colspan="2">以下是配置所有的参数信息：</td>
@@ -58,10 +65,10 @@
 		var a_run = $('<a href="javascript:void(0)" class="icon-run"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_run);
 		a_run.click(function() {
-			$.messager.confirm('确定', '您确定要保存该配置项吗?', function(r) {
+			$.messager.confirm('确定', '您确定执行吗?', function(r) {
 				if (r) {
 					run();
-					$.dsmessager.show('执行');
+					$.dsmessager.show('执行成功,如果数据量大请您耐心等待');
 				}
 			});
 		});
@@ -75,9 +82,12 @@
 			// 获取参数
 			var params = "?id=" + id;
 			this_window.DSFind('params').find('tr').each(function() {
-				var key = $(this).find('td:eq(0)').text();
-				var value = $(this).find('td:eq(1)').DSFind('key_value').textbox('getValue');
-				params += "&" + $.ds.getCustomKey(key) + "=" + value;
+				try {
+					var key = $(this).find('td:eq(0)').text();
+					var value = $(this).find('td:eq(1)').DSFind('key_value').textbox('getValue');
+					params += "&" + $.ds.getCustomKey(key) + "=" + value;
+				} catch (e) {
+				}
 			});
 
 			var url = $.ds.url.get_config + params;
@@ -206,7 +216,10 @@
 						width : "100%",
 						multiline : false
 					});
-					params_str += "&" + rst.params[i] + "=?";
+					params_str += "&" + $.ds.getCustomKey(rst.params[i]) + "=?";
+				}
+				if (rst.params.length == 0) {
+					tbody.append('<tr><td width="20%"></td><td width="80%">没有任何参数。</td></tr>');
 				}
 				// 接口地址
 				this_window.DSFind("td_interface").empty();

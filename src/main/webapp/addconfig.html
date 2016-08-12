@@ -28,6 +28,7 @@
 		var queryString = '$queryString';
 		var windowId = '$windowId';
 		var id = $.ds.getQueryString(queryString, "id");
+		var group_id = $.ds.getQueryString(queryString, "group_id");
 		var this_window = $("#" + windowId);
 		
 		
@@ -86,7 +87,7 @@
 					// 组装json对象
 					var configBody = { };
 					configBody.id = this_window.DSFind("id").val();
-					configBody.groupId = $.ds.commons.chooseTreeId;
+					configBody.groupId = group_id;
 					configBody.datasourceId = this_window.DSFind("datasource").combobox('getValue');
 					configBody.configName = this_window.DSFind("name").textbox("getValue");
 					configBody.configType = "1";
@@ -111,7 +112,7 @@
 							this_window.DSFind('details').find('li').each(function(i, o){
 								$(this).DSFind("panel").panel('expand');
 							});
-							setTimeout("$.ds.commons.referCenterByMenuId("+$.ds.commons.chooseTreeId+")", 3000);
+							setTimeout("$.ds.commons.referCenterByMenuId("+group_id+")", 3000);
 						},
 						error : function(XMLHttpRequest, textStatus, errorThrown) {
 							this_window.DSFind('details').find('li').each(function(i, o){
@@ -193,9 +194,9 @@
 			var index = addDetailCount;
 			var title = "";
 			if (key == undefined) {
-				title = "新增配置_" + addDetailCount;
+				title = "【新增配置】" + addDetailCount;
 			} else {
-				title = '配置详情_' + key;
+				title = '【配置详情】' + key;
 			}
 			var details = this_window.DSFind("details");
 			var te = $('<input ds_index="key" index="' + index + '">');

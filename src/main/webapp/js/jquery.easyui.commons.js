@@ -1,7 +1,7 @@
 $(function() {
 	$.ds = {
 		url : {
-			root : "http://" + window.location.host + "/",
+			root : window.location.href,
 			get_params : "dataservice/getparams.do",
 			get_config : "dataservice/getconfig.do",
 			tree : "view/getTree.do",
@@ -24,6 +24,23 @@ $(function() {
 			configRun : function(id) {
 			}
 		},
+		icon : {
+			run_cls : 'fa fa-play-circle fa-1x',
+			run : '<i class="fa fa-play-circle fa-1x"></i>',
+			add_cls : 'fa fa-car fa-1x',
+			add : '<i class="fa fa-car fa-1x"></i>',
+			edit_cls : 'fa fa-fighter-jet fa-1x',
+			edit : '<i class="fa fa-fighter-jet fa-1x"></i>',
+			list_cls : 'fa fa-list fa-1x',
+			list : '<i class="fa fa-list fa-1x"></i>',
+			refresh_cls : 'fa fa-refresh fa-1x',
+			refresh : '<i class="fa fa-refresh fa-1x"></i>',
+			save_cls : 'fa fa-save fa-1x',
+			save : '<i class="fa fa-save fa-1x"></i>',
+			remove_cls : 'fa fa-remove fa-1x',
+			remove : '<i class="fa fa-remove fa-1x"></i>'
+		},
+		
 		getBytesLength : function(str) {
 			// 在GBK编码里，除了ASCII字符，其它都占两个字符宽
 			return str.replace(/[^\x00-\xff]/g, 'xx').length;

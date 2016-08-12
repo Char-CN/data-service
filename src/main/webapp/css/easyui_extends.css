@@ -1,0 +1,17 @@
+.tree-folder {
+  background: url('');
+}
+.tree-folder:before {
+  padding-top:3px;
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  content: "\f135";
+  font-size: 1em;
+}
+.tree-folder-open {
+  background: url('');
+}
