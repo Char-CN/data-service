@@ -45,7 +45,7 @@
 				}
 				var id = center_choose_li_id;
 				var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
-				$.ds.commons.openWindow("center_run_config_" + id, "【执行】" + title, "runconfig.html", "id=" + id);
+				$.ds.commons.openWindow("center_run_config_" + id, $.ds.icon.run, title, "runconfig.html", "id=" + id);
 				return $.dsmessager.show('执行 ' + title);
 			}
 		});
@@ -55,7 +55,7 @@
 			iconCls : 'fa fa-plus-circle fa-1x',
 			disabled : false,
 			onclick : function() {
-				$.ds.commons.openWindow("center_add_config", "【新增配置项】", "addconfig.html", "group_id=" + id);
+				$.ds.commons.openWindow("center_add_config", $.ds.icon.add , "新增配置项", "addconfig.html", "group_id=" + id);
 			}
 		});
 
@@ -127,7 +127,7 @@
 		});
 
 		var openConfig = function(_id, title) {
-			$.ds.commons.openWindow("center_add_config_" + _id, "【修改】" + title, "addconfig.html", "id=" + _id + "&group_id=" + id);
+			$.ds.commons.openWindow("center_add_config_" + _id, $.ds.icon.edit, title, "addconfig.html", "id=" + _id + "&group_id=" + id);
 		};
 
 		var init = function() {
@@ -157,7 +157,7 @@
 						}, function(d) {
 							clearTimeout(_time);
 							_time = setTimeout(function(){
-								$.ds.commons.openWindow("center_run_config_" + d.data.id, "【执行】" + d.data.title, "runconfig.html", "id=" + d.data.id);
+								$.ds.commons.openWindow("center_run_config_" + d.data.id, $.ds.icon.run , d.data.title, "runconfig.html", "id=" + d.data.id);
 	                        }, 300);
 						});
 						li.hover(function() {

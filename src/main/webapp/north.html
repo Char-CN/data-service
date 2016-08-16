@@ -10,7 +10,8 @@
 			var item_id = "north_style";
 			var ROWS = $("#" + item_id).height() / 3;
 			var COLS = $("#" + item_id).width() / 3;
-			var NUM_PARTICLES = ((ROWS) * (COLS)), THICKNESS = Math.pow(40, 2), SPACING = 3, MARGIN = 100, COLOR = 220, DRAG = 0.95, EASE = 0.25,
+// 			var NUM_PARTICLES = ((ROWS) * (COLS)), THICKNESS = Math.pow(40, 2), SPACING = 3, COLOR = 220, DRAG = 0.95, EASE = 0.25,
+			var NUM_PARTICLES = ((ROWS) * (COLS)) + COLS, THICKNESS = Math.pow(40, 2), SPACING = 3, COLOR = 150, DRAG = 0.96, EASE = 0.22,
 			/*
 			used for sine approximation, but Math.sin in Chrome is still fast enough :)http://jsperf.com/math-sin-vs-sine-approximation
 			B = 4 / Math.PI,

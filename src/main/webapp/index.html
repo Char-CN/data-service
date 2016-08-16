@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>data-service</title>
-<link rel="shortcut icon" type="image/ico" href="images/favicon.ico">
+<link rel="shortcut icon" type="image/ico" href="images/favicon.png">
 <link rel="stylesheet" type="text/css" href="css/font-awesome.css">
 <link rel="stylesheet" type="text/css" href="themes/custom/easyui.css">
 <link rel="stylesheet" type="text/css" href="css/commons.css">
@@ -48,12 +48,16 @@ body {
 			});
 		};
 
-		$.ds.commons.addFootTask = function(window_id, text) {
+		$.ds.commons.addFootTask = function(window_id, icon, text) {
 			var a = $('<a style="margin:2px;"></a>');
 			// a.attr("id", id);
 			a.attr("window_id", window_id);
 			a.attr("data-options", "plain:false");
-			a.html(text.length > 10 ? text.substr(0, 10) + '...' : text);
+			if (icon) {
+				a.html(icon + (text.length > 10 ? text.substr(0, 10) + '...' : text));
+			} else {
+				a.html(text.length > 10 ? text.substr(0, 10) + '...' : text);
+			}
 			a.linkbutton();
 			a.click(function() {
 				var window_id = $(this).attr("window_id");
@@ -66,18 +70,15 @@ body {
 			$("#foot").find("[window_id='" + window_id + "']").remove();
 		};
 
-		$.ds.commons.openWindow = function(id, title, url, queryString) {
+		$.ds.commons.openWindow = function(id, icon, title, url, queryString) {
 			if ($("#" + id).length != 0) {
 				return $.dsmessager.show(title + "已经存在。");
 			}
 			var _window = $('<div></div>');
 			_window.attr("id", id);
-			_window.attr("title", title);
-			// 			_window.attr("class", "easyui-window");
 			_window.window({
 				href : url,
-				// 				top : $.ds.getHeadHeight(),
-				// 				left : 0,
+				title : icon + "&nbsp;" + title,
 				resizable : false,
 				height : $.ds.getCenterHeight() < $.ds.getDefaultWindowHeight() ? $.ds.getCenterHeight() : $.ds.getDefaultWindowHeight(),
 				width : $.ds.getDefaultWindowWidth(),
@@ -99,7 +100,7 @@ body {
 					$.ds.commons.removeFootTask(this.id);
 				}
 			}).window('center');
-			$.ds.commons.addFootTask(id, title);
+			$.ds.commons.addFootTask(id, icon, title);
 		};
 
 		$.ds.commons.configRun = function(id) {
@@ -116,9 +117,9 @@ body {
 </head>
 <body>
 	<div id="main" class="easyui-layout" data-options="fit:true">
-		<div id="north" data-options="region:'north'" style="height: 100px;"></div>
+		<div id="north" data-options="region:'north'" style="height: 100px; overflow:hidden;"></div>
 		<div id="west" class="easyui-panel"
-			data-options="region:'west',split:true,collapsed:false,
+			data-options="region:'west',split:false,collapsed:false,
                 hideExpandTool: true,
                 expandMode: null,
                 hideCollapsedContent: false,
@@ -137,14 +138,6 @@ body {
 		</a> 
 		<a href="javascript:void(0)" class="easyui-linkbutton" style="width: 55px"> <i class="fa fa-cog fa-4x"></i>
 		</a>
-		<!--         <a href="javascript:void(0)" class="easyui-linkbutton" style="width:100%" data-options="iconCls:'icon-large-picture',size:'large',iconAlign:'top'">Picture</a> -->
-		<!--         <a href="javascript:void(0)" class="easyui-linkbutton" style="width:100%" data-options="iconCls:'icon-large-shapes',size:'large',iconAlign:'top'">Shapes</a> -->
-		<!--         <a href="javascript:void(0)" class="easyui-linkbutton" style="width:100%" data-options="iconCls:'icon-large-smartart',size:'large',iconAlign:'top'">SmartArt</a> -->
-		<!--         <a href="javascript:void(0)" class="easyui-linkbutton" style="width:100%" data-options="iconCls:'icon-large-chart',size:'large',iconAlign:'top'">Chart</a> -->
-		<!-- 		<ul style="list-style:none;margin: 0;padding: 0;"> -->
-		<!-- 			<li style="float: left;cursor: pointer;background : #e6e6e6;"><i class="fa fa-home fa-4x"></i></li> -->
-		<!-- 			<li style="float: left;cursor: pointer;"><i class="fa fa-cog fa-4x"></i></li> -->
-		<!-- 		</ul> -->
 	</div>
 </body>
 </html>
