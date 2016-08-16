@@ -1,4 +1,4 @@
-<ul id="tree" class="easyui-tree"></ul>
+<ul id="tree"></ul>
 <script>
 	$(function() {
 		var menu = $('<div></div>');
@@ -73,7 +73,6 @@
 
 		// 初始化树形菜单
 		$("#tree").tree({
-// 			lines : true,
 			method : 'post',
 			animate : true,
 			url : $.ds.url.tree + '?id=-1',
@@ -86,13 +85,6 @@
 				});
 			},
 			onClick : function(node) {
-				if (node.state == "closed") {
-					$(this).tree('expand', node.target);
-				} else {
-					$(this).tree('collapse', node.target);
-				}
-			},
-			onDblClick : function(node) {
 				if (node.state == "closed") {
 					$(this).tree('expand', node.target);
 				} else {

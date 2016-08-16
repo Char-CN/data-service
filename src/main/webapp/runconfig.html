@@ -79,6 +79,14 @@
 				$.dsmessager.show('您填写的内容不正确，请检查。');
 				return false;
 			}
+			// 添加刷新的图标
+			this_window.DSFind("panel").each(function() {
+				$(this).find(".panel").remove();
+				$(this).DSFind("grid_message").remove();
+				var p = $('<p></p>').DSAdd('grid_message');
+				p.append('<i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>loading...');
+				$(this).append(p);
+			});
 			// 获取参数
 			var params = "?id=" + id;
 			this_window.DSFind('params').find('tr').each(function() {
@@ -245,14 +253,14 @@
 			pan.panel({
 				border : true,
 				// bodyCls: 'padding-10px',
-				cls : addDetailCount == 1 ? 'margin-top-10px' : 'margin-top-30px',
+				cls : addDetailCount == 1 ? 'margin-top-10px' : 'margin-top-20px',
 				collapsible : true,
 				title : key,
 				width : details.width()
 			});
 			pan.append(te2);
 			te2.textbox({
-				required : true,
+				readonly : true,
 				validateOnCreate : false,
 				validateOnBlur : true,
 				validType : [],

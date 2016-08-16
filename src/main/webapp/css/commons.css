@@ -24,7 +24,7 @@
 
 .dsul {
 	margin: 0;
-	padding: 0;
+	padding: 5px;
 	list-style: none;
 }
 
@@ -33,6 +33,11 @@
 	float: left;
 	cursor: pointer;
 	width: 24%;
+}
+
+.dsli:hover {
+	background : #e6e6e6;
+	color : #00438a;
 }
 
 .dsli_sort {
