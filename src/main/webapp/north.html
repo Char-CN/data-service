@@ -17,7 +17,7 @@
 			C = -4 / Math.pow( Math.PI, 2 ),
 			P = 0.225,
 			 */
-			container, particle, canvas, mouse, stats, list, ctx, tog, man, dx, dy, mx, my, d, t, f, a, b, i, n, w, h, p, s, r, c;
+			container, particle, canvas, mouse, stats, list, ctx, tog, man, dx, dy, mx, my, d, t, f, a, b, i, n, w, h, p, s, r, c, mx_bak, my_bak, my_count=0;
 			particle = {
 				vx : 0,
 				vy : 0,
@@ -43,6 +43,7 @@
 					bounds = container.getBoundingClientRect();
 					mx = e.clientX - bounds.left;
 					my = e.clientY - bounds.top;
+					// 鼠标移出边界自动取消
 					if (my <= 2 || my >= $(this).height() - 2) {
 						my = -9999;
 					}
@@ -53,6 +54,22 @@
 				});
 				container.appendChild(canvas);
 			}
+
+			// 鼠标移出或者不动的时候自动取消
+			setInterval(function checkccc() {
+				if (my == my_bak && mx == mx_bak) {
+					my_count ++;
+				} else {
+					mx_bak = mx;
+					my_bak = my;
+					my_count = 0;
+				}
+				if (my_count == 3) {
+					mx = -9999;
+					my = -9999;
+					my_count = 0;
+				}
+			}, "1000");
 
 			function step() {
 				if (tog = !tog) {
