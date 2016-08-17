@@ -78,6 +78,31 @@ public class ViewAction extends BaseAction {
 	}
 
 	@ResponseBody
+	@RequestMapping("/saveConfigOrderAsc")
+	public Body saveConfigOrderAsc(HttpServletRequest request, HttpServletResponse response, @RequestBody List<ViewConfigBody> list) {
+		try {
+			viewService.saveConfigOrderAsc(list);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return fail().setMessage(e.getMessage());
+		}
+		return success().setMessage("保存成功！");
+	}
+
+	@ResponseBody
+	@RequestMapping("/deleteConfig")
+	public Body deleteConfig(HttpServletRequest request, HttpServletResponse response) {
+		try {
+			viewService.deleteConfig(getParamMap(request));
+			initSystem.initConfigEntity();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return fail().setMessage(e.getMessage());
+		}
+		return success().setMessage("删除成功！");
+	}
+
+	@ResponseBody
 	@RequestMapping("/getDataSourceAll")
 	public List<DataSourceBody> getDataSourceAll(HttpServletRequest request, HttpServletResponse response) throws UnknowDataSourceException {
 		logger.debug("map : " + getParamMap(request));

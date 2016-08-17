@@ -38,7 +38,7 @@
 
 		center_menu.menu('appendItem', {
 			text : '执行',
-			iconCls : 'fa fa-play-circle fa-1x',
+			iconCls : $.ds.icon.run_cls,
 			onclick : function() {
 				if (center_choose_li_id == "") {
 					return $.dsmessager.show('请选择一项配置执行!');
@@ -52,7 +52,7 @@
 
 		center_menu.menu('appendItem', {
 			text : '新增配置项',
-			iconCls : 'fa fa-plus-circle fa-1x',
+			iconCls : $.ds.icon.add_cls,
 			disabled : false,
 			onclick : function() {
 				$.ds.commons.openWindow("center_add_config", $.ds.icon.add , "新增配置项", "addconfig.html", "group_id=" + id);
@@ -61,7 +61,7 @@
 
 		center_menu.menu('appendItem', {
 			text : '修改',
-			iconCls : 'fa fa-edit fa-1x',
+			iconCls : $.ds.icon.edit_cls,
 			onclick : function() {
 				if (center_choose_li_id == "") {
 					return $.dsmessager.show('请选择一项配置进行修改!');
@@ -73,11 +73,35 @@
 			}
 		});
 
+		center_menu.menu('appendItem', {
+			text : '删除',
+			iconCls : $.ds.icon.remove_cls,
+			onclick : function() {
+				if (center_choose_li_id == "") {
+					return $.dsmessager.show('请选择一项配置进行删除!');
+				}
+				var id = center_choose_li_id;
+				var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
+				$.messager.confirm('确定', '您确定要删除[' + title + ']吗？删除后不可恢复。请谨慎操作。', function(r){
+					if (r){
+						$.post($.ds.url.delete_config, {id: id}, function(data) {
+							$.dsmessager.show(data.message);
+							this_ul.find("li[ds_index='" + center_choose_li_id + "']").remove();
+						});
+					} else {
+						$.dsmessager.show('您已取消删除' + title + '。');
+					}
+				});
+// 				openConfig(id, title);
+// 				return $.dsmessager.show('修改!');
+			}
+		});
+
 		center_menu.append($('<div class="menu-sep"></div>'));
 
 		center_menu.menu('appendItem', {
 			text : '自定义排序',
-			iconCls : 'fa fa-list fa-1x',
+			iconCls : $.ds.icon.list_cls,
 			onclick : function() {
 				this_window.unbind('contextmenu');
 				this_window.bind('contextmenu', function(e) {
@@ -94,7 +118,7 @@
 
 		center_menu.menu('appendItem', {
 			text : '刷新',
-			iconCls : 'fa fa-refresh fa-1x',
+			iconCls : $.ds.icon.refresh_cls,
 			onclick : function() {
 				init();
 			}
@@ -104,24 +128,42 @@
 		menuSaveCancel.appendTo(this_window).menu({});
 		menuSaveCancel.menu('appendItem', {
 			text : '保存',
-			iconCls : 'fa fa-save fa-1x',
+			iconCls : $.ds.icon.save_cls,
 			onclick : function() {
 				this_window.unbind('contextmenu');
 				this_window.bind('contextmenu', function(e) {
 					bindContextMenu(e);
 				});
 				sortable.option("disabled", true);
-				return $.dsmessager.show('您保存了本次自定义排序操作!');
+				var configs = [ ];
+				this_ul.find("li").each(function(){
+					configs.push({ id : $(this).DSGetIndex() });
+				});
+				$.ajax({
+					url : $.ds.url.save_config_order,
+					type : "post",
+					data : JSON.stringify(configs),
+					dataType : "json",
+					contentType : "application/json",
+					success : function(data) {
+						$.dsmessager.show(data.message);
+					},
+					error : function(data) {
+						$.dsmessager.show(data.message);
+						init();
+					}
+				});
 			}
 		}).menu('appendItem', {
 			text : '取消',
-			iconCls : 'fa fa-remove fa-1x',
+			iconCls : $.ds.icon.remove_cls,
 			onclick : function() {
 				this_window.unbind('contextmenu');
 				this_window.bind('contextmenu', function(e) {
 					bindContextMenu(e);
 				});
 				sortable.option("disabled", true);
+				init();
 				return $.dsmessager.show('您取消了本次自定义排序操作!');
 			}
 		});
@@ -141,9 +183,9 @@
 				if (rst.length != 0) {
 					for ( var i in rst) {
 						var li = $('<li class="dsli" ds_index="'+rst[i].id+'" ds_title="'+rst[i].configName+'">');
-						li.append('<i class="fa fa-cube fa-3x" aria-hidden="true"></i>');
+						li.append($.ds.icon.cube3);
 						li.append('<span>' + rst[i].configName + '</span>');
-	                    var _time = null;
+						var _time = null;
 						li.bind('dblclick', {
 							id : rst[i].id,
 							title : rst[i].configName
@@ -156,17 +198,17 @@
 							title : rst[i].configName
 						}, function(d) {
 							clearTimeout(_time);
-							_time = setTimeout(function(){
-								$.ds.commons.openWindow("center_run_config_" + d.data.id, $.ds.icon.run , d.data.title, "runconfig.html", "id=" + d.data.id);
-	                        }, 300);
+							_time = setTimeout(function() {
+								$.ds.commons.openWindow("center_run_config_" + d.data.id, $.ds.icon.run, d.data.title, "runconfig.html", "id=" + d.data.id);
+							}, 300);
 						});
 						li.hover(function() {
-// 							$(this).css("background", "#e6e6e6");
-// 							$(this).css("color", "00438a");
+							// 							$(this).css("background", "#e6e6e6");
+							// 							$(this).css("color", "00438a");
 							center_choose_li_id = $(this).attr('ds_index');
 						}, function() {
-// 							$(this).css("background", "");
-// 							$(this).css("color", "");
+							// 							$(this).css("background", "");
+							// 							$(this).css("color", "");
 							if (lock_menu == false) {
 								center_choose_li_id = "";
 							}

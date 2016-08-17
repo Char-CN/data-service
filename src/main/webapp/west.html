@@ -7,7 +7,7 @@
 
 		// 增加按钮
 		var menu_add = $('<div>新增子目录</div>');
-		menu_add.attr('data-options', "iconCls:'fa fa-car fa-1x'");
+		menu_add.attr('data-options', "iconCls:'" + $.ds.icon.add_cls + "'");
 		menu_add.bind('click', function() {
 			alert(1);
 		});
@@ -15,7 +15,7 @@
 
 		// 排序按钮
 		var menu_s = $('<div>自定义排序</div>');
-		menu_s.attr('data-options', "iconCls:'fa fa-list fa-1x'");
+		menu_s.attr('data-options', "iconCls:'" + $.ds.icon.list_cls + "'");
 		menu_s.bind('click', function() {
 			$("#tree").tree('enableDnd');
 			$("#tree").unbind('contextmenu');
@@ -38,7 +38,7 @@
 
 		// 自定义排序时保存按钮
 		var menu_sort_save = $('<div>保存</div>');
-		menu_sort_save.attr("data-options", "iconCls:'fa fa-save fa-1x'");
+		menu_sort_save.attr("data-options", "iconCls:'" + $.ds.icon.save_cls + "'");
 		menu_sort_save.bind('click', function() {
 			alert('save');
 			$("#tree").tree('disableDnd');
@@ -54,7 +54,7 @@
 
 		// 自定义排序时取消按钮
 		var menu_sort_cancel = $('<div>取消</div>');
-		menu_sort_cancel.attr("data-options", "iconCls:'fa fa-remove fa-1x'");
+		menu_sort_cancel.attr("data-options", "iconCls:'" + $.ds.icon.remove_cls + "'");
 		menu_sort_cancel.bind('click', function() {
 			$("#tree").tree('disableDnd');
 			$("#tree").unbind('contextmenu');
@@ -100,6 +100,10 @@
 				$('#tree').tree('options').url = $.ds.url.tree + '?id=' + node.id;
 				$("#main").layout('panel', 'center').panel('setTitle', node.text);
 				$.ds.commons.referCenterByMenuId(node.id);
+			},
+			onDragEnter : function(target, source) {
+			},
+			onBrforeDrag : function(target, source, point) {
 			}
 		});
 	});

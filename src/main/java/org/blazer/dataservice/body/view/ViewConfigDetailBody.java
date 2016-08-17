@@ -39,4 +39,9 @@ public class ViewConfigDetailBody {
 		this.values = values;
 	}
 
+	@Override
+	public String toString() {
+		return "ViewConfigDetailBody [id=" + id + ", datasourceId=" + datasourceId + ", key=" + key + ", values=" + values + "]";
+	}
+
 }

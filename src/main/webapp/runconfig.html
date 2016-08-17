@@ -65,15 +65,17 @@
 		var a_run = $('<a href="javascript:void(0)" class="icon-run"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_run);
 		a_run.click(function() {
-			$.messager.confirm('确定', '您确定执行吗?', function(r) {
-				if (r) {
-					run();
-					$.dsmessager.show('执行成功,如果数据量大请您耐心等待');
-				}
-			});
+			run();
 		});
 
+		var run_lock = false;
 		var run = function() {
+			if (run_lock) {
+				$.dsmessager.show('正在执行查询中，请勿重复提交,如果数据量大请您耐心等待');
+				return;
+			}
+			run_lock = true;
+			$.dsmessager.show('执行成功,如果数据量大请您耐心等待');
 			// 执行前的检查
 			if (!this_window.find(" form").form('validate')) {
 				$.dsmessager.show('您填写的内容不正确，请检查。');
@@ -84,7 +86,7 @@
 				$(this).find(".panel").remove();
 				$(this).DSFind("grid_message").remove();
 				var p = $('<p></p>').DSAdd('grid_message');
-				p.append('<i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>loading...');
+				p.append($.ds.icon.loading3 + 'loading...');
 				$(this).append(p);
 			});
 			// 获取参数
@@ -148,6 +150,7 @@
 						columns : [ columns ]
 					}).datagrid('loadData', datas);
 				});
+				run_lock = false;
 			});
 		};
 

@@ -32,4 +32,9 @@ public class GroupBody {
 		this.state = state;
 	}
 
+	@Override
+	public String toString() {
+		return "GroupBody [id=" + id + ", text=" + text + ", state=" + state + "]";
+	}
+
 }

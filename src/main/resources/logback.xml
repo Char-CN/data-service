@@ -47,18 +47,29 @@
 		<!-- logfile print layout -->
 		<layout class="ch.qos.logback.classic.PatternLayout">
 			<!-- <Pattern>%d{HH:mm:ss} [%thread] %-5level %logger{20} - [%method] %message%n</Pattern> -->
-			<Pattern>%d{HH:mm:ss} %-5level - [%method] %message%n</Pattern>
+			<Pattern>%d{HH:mm:ss} %-5level - [%thread] [%requestURL] %message%n</Pattern>
 		</layout>
 		<!-- logfile maxsize -->
 		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
 			<MaxFileSize>1024MB</MaxFileSize>
 		</triggeringPolicy>
 	</appender>
-
-	<!-- <logger name="myLogger" additivity="false">
-		<level value="info" />
-		<appender-ref ref="fileAppender" />
-	</logger> -->
+	
+	<appender name="fff" class="ch.qos.logback.core.FileAppender">
+		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+			<layout class="ch.qos.logback.classic.html.HTMLLayout">
+				<pattern>%relative%thread%mdc%level%logger%msg</pattern>
+			</layout>
+		</encoder>
+		<!-- rolling generate strategy -->
+<!-- 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy"> -->
+<!-- 			<FileNamePattern>${LOG_HOME}/access/%d{yyyy-MM-dd}.html</FileNamePattern> -->
+<!-- 			<MaxHistory>31</MaxHistory> -->
+<!-- 		</rollingPolicy> -->
+		<file>${LOG_HOME}/access/%d{yyyy-MM-dd}.html</file>
+	</appender>
+	
+	<!-- <logger name="myLogger" additivity="false"> <level value="info" /> <appender-ref ref="fileAppender" /> </logger> -->
 
 	<root level="debug">
 		<appender-ref ref="consoleAppender" />
@@ -66,8 +77,9 @@
 	</root>
 
 	<logger name="access" additivity="false" level="debug">
-<!-- 		<appender-ref ref="consoleAppender" /> -->
+		<!-- <appender-ref ref="consoleAppender" /> -->
 		<appender-ref ref="accessAppender" />
+		<appender-ref ref="fff" />
 	</logger>
 
 </configuration>

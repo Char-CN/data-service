@@ -9,6 +9,8 @@ $(function() {
 			config_by_id : "view/getConfigById.do",
 			datasource_all : "view/getDataSourceAll.do",
 			run_config : "view/runConfig.do",
+			delete_config : "view/deleteConfig.do",
+			save_config_order : "view/saveConfigOrderAsc.do",
 			save_config : "view/saveConfig.do"
 		},
 		commons : {
@@ -25,6 +27,8 @@ $(function() {
 			}
 		},
 		icon : {
+			cube3_cls : 'fa fa-cube fa-3x',
+			cube3 : '<i class="fa fa-cube fa-3x"></i>',
 			run_cls : 'fa fa-play-circle fa-1x',
 			run : '<i class="fa fa-play-circle fa-1x"></i>',
 			add_cls : 'fa fa-plus-circle fa-1x',
@@ -35,10 +39,12 @@ $(function() {
 			list : '<i class="fa fa-list fa-1x"></i>',
 			refresh_cls : 'fa fa-refresh fa-1x',
 			refresh : '<i class="fa fa-refresh fa-1x"></i>',
+			loading3_cls : 'fa fa-spinner fa-pulse fa-3x fa-fw',
+			loading3 : '<i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>',
 			save_cls : 'fa fa-save fa-1x',
 			save : '<i class="fa fa-save fa-1x"></i>',
-			remove_cls : 'fa fa-remove fa-1x',
-			remove : '<i class="fa fa-remove fa-1x"></i>'
+			remove_cls : 'fa fa-times-circle fa-1x',
+			remove : '<i class="fa fa-times-circle fa-1x"></i>'
 		},
 		
 		getBytesLength : function(str) {

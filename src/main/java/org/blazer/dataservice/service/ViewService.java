@@ -35,6 +35,7 @@ public class ViewService {
 			gb.setText(StringUtil.getStrEmpty(map.get("group_name")));
 			gb.setState("closed");
 			rst.add(gb);
+			logger.debug(gb.toString());
 		}
 		logger.debug("rst size : " + rst.size());
 		return rst;
@@ -42,7 +43,7 @@ public class ViewService {
 
 	public List<ViewConfigBody> getConfigsByGroupId(HashMap<String, String> params) {
 		logger.debug("qeury id " + params.get("id"));
-		String sql = "select * from ds_config where group_id=? and enable=1";
+		String sql = "select * from ds_config where group_id=? and enable=1 order by order_asc, id";
 		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, IntegerUtil.getInt0(params.get("id")));
 		List<ViewConfigBody> rst = new ArrayList<ViewConfigBody>();
 		for (Map<String, Object> map : list) {
@@ -52,6 +53,7 @@ public class ViewService {
 			vcb.setConfigName(StringUtil.getStrEmpty(map.get("config_name")));
 			vcb.setList(new ArrayList<ViewConfigDetailBody>());
 			rst.add(vcb);
+			logger.debug(vcb.toString());
 		}
 		logger.debug("rst size : " + rst.size());
 		return rst;
@@ -62,6 +64,7 @@ public class ViewService {
 		String sql = "select * from ds_config where id=? and enable=1";
 		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, IntegerUtil.getInt0(params.get("id")));
 		if (list.size() == 0) {
+			logger.debug("config not found , id is " + params.get("id"));
 			return new ViewConfigBody();
 		}
 		ViewConfigBody vcb = new ViewConfigBody();
@@ -74,6 +77,7 @@ public class ViewService {
 		vcb.setList(new ArrayList<ViewConfigDetailBody>());
 		sql = "select * from ds_config_detail where config_id=? and enable=1";
 		List<Map<String, Object>> list2 = jdbcTemplate.queryForList(sql, vcb.getId());
+		logger.debug(vcb.toString());
 		for (Map<String, Object> map : list2) {
 			ViewConfigDetailBody vcdb = new ViewConfigDetailBody();
 			vcdb.setId(IntegerUtil.getInt0(map.get("id")));
@@ -84,6 +88,7 @@ public class ViewService {
 			vcdb.setKey(StringUtil.getStrEmpty(map.get("key")));
 			vcdb.setValues(StringUtil.getStrEmpty(map.get("values")));
 			vcb.getList().add(vcdb);
+			logger.debug(vcdb.toString());
 		}
 		return vcb;
 	}
@@ -96,24 +101,29 @@ public class ViewService {
 			config.setConfigType("1");
 			config.setEnable(1);
 			String insertConfig = "insert into ds_config(group_id,datasource_id,config_name,config_type,enable) values(?,?,?,?,?)";
-			int code = jdbcTemplate.update(insertConfig, config.getGroupId(), config.getDatasourceId(), config.getConfigName(), config.getConfigType(), config.getEnable());
+			int code = jdbcTemplate.update(insertConfig, config.getGroupId(), config.getDatasourceId(), config.getConfigName(), config.getConfigType(),
+					config.getEnable());
 			logger.debug("inset code : " + code);
 			String selectMaxId = "select max(id) as max_id from ds_config";
 			Integer maxId = IntegerUtil.getInt0(jdbcTemplate.queryForList(selectMaxId).get(0).get("max_id"));
 			if (maxId == null) {
-				throw new RuntimeException("insert data error! maxId is null!");
+				logger.error("save config [" + config.getId() + "] fail. maxId is null.");
+				return;
 			}
 			config.setId(maxId);
 			HashMap<String, String> params = new HashMap<String, String>();
 			params.put("id", "" + maxId);
 			ViewConfigBody maxConfigBody = getConfigById(params);
-			if (config.getId() != maxConfigBody.getId() 
-					|| config.getGroupId() != maxConfigBody.getGroupId()
-					|| config.getDatasourceId() != maxConfigBody.getDatasourceId() 
-					|| !config.getConfigName().equals(maxConfigBody.getConfigName())
-					|| !config.getConfigType().equals(maxConfigBody.getConfigType())
-					|| config.getEnable() != maxConfigBody.getEnable()) {
-				throw new RuntimeException("insert data error!");
+			if (config.getId() != maxConfigBody.getId() || config.getGroupId() != maxConfigBody.getGroupId()
+					|| config.getDatasourceId() != maxConfigBody.getDatasourceId() || !config.getConfigName().equals(maxConfigBody.getConfigName())
+					|| !config.getConfigType().equals(maxConfigBody.getConfigType()) || config.getEnable() != maxConfigBody.getEnable()) {
+				logger.info("getId:" + config.getId() + "|" + maxConfigBody.getId());
+				logger.info("getDatasourceId:" + config.getDatasourceId() + "|" + maxConfigBody.getDatasourceId());
+				logger.info("getConfigName:" + config.getConfigName() + "|" + maxConfigBody.getConfigName());
+				logger.info("getConfigType:" + config.getConfigType() + "|" + maxConfigBody.getConfigType());
+				logger.info("getEnable:" + config.getEnable() + "|" + maxConfigBody.getEnable());
+				logger.error("save config [" + config.getId() + "] fail.");
+				return;
 			}
 		}
 		// 修改config
@@ -136,7 +146,21 @@ public class ViewService {
 			logger.debug("update detail code : " + code);
 		}
 
-		logger.debug("save config [" + config.getId() + "] over.");
+		logger.debug("save config [" + config.getId() + "] success.");
+	}
+
+	public void deleteConfig(HashMap<String, String> params) {
+		String updateConfig = "update ds_config set enable=0 where id=?";
+		int code = jdbcTemplate.update(updateConfig, IntegerUtil.getInt0(params.get("id")));
+		logger.debug("update code : " + code);
+	}
+
+	public void saveConfigOrderAsc(List<ViewConfigBody> list) {
+		String updateConfig = "update ds_config set order_asc=? where id=?";
+		for (int i = 0; i < list.size(); i++) {
+			int code = jdbcTemplate.update(updateConfig, (i + 1), list.get(i).getId());
+			logger.debug("update code : " + code);
+		}
 	}
 
 }

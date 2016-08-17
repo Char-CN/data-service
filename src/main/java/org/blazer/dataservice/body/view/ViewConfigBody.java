@@ -69,4 +69,10 @@ public class ViewConfigBody {
 		this.list = list;
 	}
 
+	@Override
+	public String toString() {
+		return "ViewConfigBody [id=" + id + ", groupId=" + groupId + ", datasourceId=" + datasourceId + ", configName=" + configName + ", configType="
+				+ configType + ", enable=" + enable + ", list=" + list + "]";
+	}
+
 }
