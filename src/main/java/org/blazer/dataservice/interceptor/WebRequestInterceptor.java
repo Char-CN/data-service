@@ -14,9 +14,7 @@ public class WebRequestInterceptor extends HandlerInterceptorAdapter {
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-		logger.debug("IP : " + IPUtil.getIpAddr(request));
-		logger.debug("Query String: " + request.getQueryString());
-		logger.debug("Request URL: " + request.getRequestURL());
+		logger.debug("IP:" + IPUtil.getIpAddr(request) + ",URL:" + request.getRequestURL() + "?" + request.getQueryString());
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		return super.preHandle(request, response, handler);
 	}
