@@ -8,6 +8,7 @@ import org.blazer.dataservice.exception.UnknowDataSourceException;
 import org.blazer.dataservice.model.DSDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.druid.pool.DruidDataSource;
@@ -18,6 +19,17 @@ public class CustomJdbcDao {
 	private static Logger logger = LoggerFactory.getLogger(CustomJdbcDao.class);
 
 	private Map<Integer, DSDataSource> dataSourceMap = new HashMap<Integer, DSDataSource>();
+
+	public static final Integer DEFAULT_DATASOURCE_ID = 1;
+
+	@Value("#{dataSourceProperties.url}")
+	public String url;
+
+	@Value("#{dataSourceProperties.username}")
+	public String username;
+
+	@Value("#{dataSourceProperties.password}")
+	public String password;
 
 	/**
 	 * 新增一个数据源，如果存在则覆盖。
@@ -73,6 +85,18 @@ public class CustomJdbcDao {
 			logger.error("ERROR[{}]", e);
 		}
 		dataSourceMap.put(id, dsDataSource);
+	}
+
+	public void addDefaultDataSource() {
+		addDataSource(DEFAULT_DATASOURCE_ID, "mysql", "default", url, username, password, "系统默认数据源，即datasource.properties里的数据源。");
+	}
+
+	public DSDataSource getDefaultDataSource() {
+		return dataSourceMap.get(DEFAULT_DATASOURCE_ID);
+	}
+
+	public Dao getDefaultDao() {
+		return dataSourceMap.get(DEFAULT_DATASOURCE_ID).getDao();
 	}
 
 	/**

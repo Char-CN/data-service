@@ -34,6 +34,8 @@ public class ViewService {
 			gb.setId(IntegerUtil.getInt0(map.get("id")));
 			gb.setText(StringUtil.getStrEmpty(map.get("group_name")));
 			gb.setState("closed");
+			// fa-c 兼容easyui的自定义fa-c
+			gb.setIconCls("fa fa-cubes fa-1x fa-c");
 			rst.add(gb);
 			logger.debug(gb.toString());
 		}

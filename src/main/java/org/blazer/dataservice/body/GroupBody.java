@@ -8,6 +8,16 @@ public class GroupBody {
 
 	private String state;
 
+	private String iconCls;
+
+	public String getIconCls() {
+		return iconCls;
+	}
+
+	public void setIconCls(String iconCls) {
+		this.iconCls = iconCls;
+	}
+
 	public Integer getId() {
 		return id;
 	}
@@ -34,7 +44,7 @@ public class GroupBody {
 
 	@Override
 	public String toString() {
-		return "GroupBody [id=" + id + ", text=" + text + ", state=" + state + "]";
+		return "GroupBody [id=" + id + ", text=" + text + ", state=" + state + ", iconCls=" + iconCls + "]";
 	}
 
 }

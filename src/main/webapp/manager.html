@@ -4,14 +4,13 @@
 		var windowId = 'center';
 		var this_window = $("#" + windowId);
 		// 	var this_ul = this_window.find("#center_ul");
-		var aaa = function() {
-			alert(1);
-		};
+		this_window.find('.dsli').bind('click', function(){
+			alert("暂不开放");
+		});
 	});
 </script>
 <div>
 	<ul class="dsul">
-		<li class="dsli"><i class="fa fa-database fa-3x" aria-hidden="true"></i>数据源管理</li>
 		<li class="dsli"><i class="fa fa-database fa-3x" aria-hidden="true"></i>数据源管理</li>
 	</ul>
 </div>

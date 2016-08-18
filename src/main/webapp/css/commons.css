@@ -1,3 +1,9 @@
+body {
+	background-image: -moz-linear-gradient(top, #FFFFF0, #fff); /* Firefox */
+	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #FFFFF0), color-stop(1, #fff)); /* Saf4+, Chrome */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFF0', endColorstr='#fff', GradientType='0'); /* IE*/
+}
+
 .margin-top-30px {
 	margin-top: 30px;
 }
@@ -36,8 +42,8 @@
 }
 
 .dsli:hover {
-	background : #e6e6e6;
-	color : #00438a;
+	background: #e6e6e6;
+	color: #00438a;
 }
 
 .dsli_sort {

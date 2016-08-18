@@ -4,19 +4,16 @@
 <meta charset="UTF-8">
 <title>data-service</title>
 <link rel="shortcut icon" type="image/ico" href="images/favicon.png">
-<link rel="stylesheet" type="text/css" href="css/font-awesome.css">
-<link rel="stylesheet" type="text/css" href="themes/custom/easyui.css">
+<!-- css引入顺序 -->
 <link rel="stylesheet" type="text/css" href="css/commons.css">
+<!-- easyui -->
+<link rel="stylesheet" type="text/css" href="themes/custom/easyui.css">
 <link rel="stylesheet" type="text/css" href="themes/icon.css">
 <link rel="stylesheet" type="text/css" href="css/icon_extends.css">
-<link rel="stylesheet" type="text/css" href="css/easyui_extends.css">
-<style type="text/css">
-body {
-	background-image: -moz-linear-gradient(top, #FFFFF0, #fff); /* Firefox */
-	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #FFFFF0), color-stop(1, #fff)); /* Saf4+, Chrome */
-	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFF0', endColorstr='#fff', GradientType='0'); /* IE*/
-}
-</style>
+<!-- font-awesome -->
+<link rel="stylesheet" type="text/css" href="css/font-awesome.css">
+<link rel="stylesheet" type="text/css" href="css/font-awesome-easyui.css">
+<!-- js引入顺序 -->
 <script type="text/javascript" src="js/jquery.min.js"></script>
 <script type="text/javascript" src="js/jquery.easyui.min.js"></script>
 <script type="text/javascript" src="js/jquery.easyui.commons.js"></script>
@@ -117,7 +114,7 @@ body {
 </head>
 <body>
 	<div id="main" class="easyui-layout" data-options="fit:true">
-		<div id="north" data-options="region:'north'" style="height: 100px; overflow:hidden;"></div>
+		<div id="north" data-options="region:'north'" style="height: 100px; overflow: hidden;"></div>
 		<div id="west" class="easyui-panel"
 			data-options="region:'west',split:false,collapsed:false,
                 hideExpandTool: true,
@@ -133,10 +130,8 @@ body {
 	</div>
 	<div id="titlebar" style="padding: 2px">
 		<a href="javascript:void(0)" class="easyui-linkbutton" style="width: 55px" data-options="iconCls:'layout-button-right'"
-			onclick="$('#main').layout('expand','west')"></a> 
-		<a href="javascript:void(0)" class="easyui-linkbutton" style="width: 55px"> <i class="fa fa-home fa-4x"></i>
-		</a> 
-		<a href="javascript:void(0)" class="easyui-linkbutton" style="width: 55px"> <i class="fa fa-cog fa-4x"></i>
+			onclick="$('#main').layout('expand','west')"></a> <a href="javascript:void(0)" class="easyui-linkbutton" style="width: 55px"> <i class="fa fa-home fa-4x"></i>
+		</a> <a href="javascript:void(0)" class="easyui-linkbutton" style="width: 55px"> <i class="fa fa-cog fa-4x"></i>
 		</a>
 	</div>
 </body>

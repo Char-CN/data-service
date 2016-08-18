@@ -80,12 +80,52 @@ public class InitSystem implements InitializingBean {
 			config.setDetailList(detailList);
 			dsConfigDao.addConfig(config);
 		}
-		logger.info("init config list size : " + configList.size());
+		logger.info("init success config list size : " + configList.size());
+	}
+
+	public void initConfigEntityById(Integer id) throws UnknowDataSourceException {
+		if (id == null) {
+			logger.info("config id is null, init fail");
+			return;
+		}
+		List<Map<String, Object>> configList = jdbcTemplate.queryForList("select id,datasource_id,config_name,config_type from ds_config where enable=1 and id=?", id);
+		if (configList.size() == 0) {
+			logger.info("config is not found, id : " + id + ", init fail");
+			return;
+		}
+		DSConfig config = new DSConfig();
+		config.setId(IntegerUtil.getInt0(configList.get(0).get("id")));
+		// 找不到数据源使用默认数据源
+		if (StringUtils.isBlank(StringUtil.getStr(configList.get(0).get("datasource_id")))) {
+			config.setDataSource(customJdbcDao.getDao(1));
+		} else {
+			config.setDataSource(customJdbcDao.getDao(IntegerUtil.getInt0(configList.get(0).get("datasource_id"))));
+		}
+		config.setConfigName(StringUtil.getStrEmpty(configList.get(0).get("config_name")));
+		config.setConfigType(StringUtil.getStrEmpty(configList.get(0).get("config_type")));
+		List<DSConfigDetail> detailList = new ArrayList<DSConfigDetail>();
+		List<Map<String, Object>> rstList = jdbcTemplate
+				.queryForList("select id,datasource_id,config_id,`key`,`values` from ds_config_detail where config_id=? and enable=1", config.getId());
+		for (Map<String, Object> detailMap : rstList) {
+			DSConfigDetail detail = new DSConfigDetail();
+			detail.setId(IntegerUtil.getInt0(detailMap.get("id")));
+			// 找不到数据源使用config的数据源
+			if (StringUtils.isBlank(StringUtil.getStr(detailMap.get("datasource_id")))) {
+				detail.setDataSource(config.getDataSource());
+			} else {
+				detail.setDataSource(customJdbcDao.getDao(IntegerUtil.getInt0(detailMap.get("datasource_id"))));
+			}
+			detail.setKey(StringUtil.getStrEmpty(detailMap.get("key")));
+			detail.setValues(StringUtil.getStrEmpty(detailMap.get("values")));
+			detailList.add(detail);
+		}
+		config.setDetailList(detailList);
+		dsConfigDao.addConfig(config);
+		logger.info("init success config id : " + config.getId());
 	}
 
 	public void initDataSource() {
 		List<Map<String, Object>> dataSourceList = jdbcTemplate.queryForList("select id,database_name,title,url,username,password,remark from ds_datasource");
-		boolean defaultSource = false;
 		for (Map<String, Object> map : dataSourceList) {
 			Integer id = IntegerUtil.getInt0(map.get("id"));
 			// id为1是系统默认的连接，如果有则覆盖
@@ -99,20 +139,12 @@ public class InitSystem implements InitializingBean {
 				if (StringUtils.isNotBlank(url) || StringUtils.isNotBlank(username) || StringUtils.isNotBlank(password)) {
 					logger.info("检测到配置默认数据源中url、username、password不为空，系统将强行覆盖该数据源为系统配置的datasource.properties里的数据源。");
 				}
-				initDefaultDataSource();
-				defaultSource = true;
 				continue;
 			}
 			customJdbcDao.addDataSource(id, database_name, title, url, username, password, remark);
 		}
-		if (!defaultSource) {
-			initDefaultDataSource();
-		}
-		logger.info("init datasource ids : {}", customJdbcDao.getKeySet());
-	}
-
-	private void initDefaultDataSource() {
-		customJdbcDao.addDataSource(1, "mysql", "default", url, username, password, "");
+		customJdbcDao.addDefaultDataSource();
+		logger.info("init sucess datasource ids : {}", customJdbcDao.getKeySet());
 	}
 
 	public void reload() {

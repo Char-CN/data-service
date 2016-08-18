@@ -33,4 +33,11 @@ public class SystemAction {
 		return "ok";
 	}
 
+	@ResponseBody
+	@RequestMapping("/referDataSource")
+	public String referDataSource(HttpServletRequest request, HttpServletResponse response) {
+		initSystem.initDataSource();
+		return "ok";
+	}
+
 }
