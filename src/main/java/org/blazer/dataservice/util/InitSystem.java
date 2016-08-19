@@ -48,7 +48,9 @@ public class InitSystem implements InitializingBean {
 		initConfigEntity();
 	}
 
-	public void initConfigEntity() throws UnknowDataSourceException {
+	public synchronized void initConfigEntity() throws UnknowDataSourceException {
+		// 先清空
+		dsConfigDao.clear();
 		List<Map<String, Object>> configList = jdbcTemplate.queryForList("select id,datasource_id,config_name,config_type from ds_config where enable=1");
 		for (Map<String, Object> configMap : configList) {
 			DSConfig config = new DSConfig();
@@ -83,11 +85,13 @@ public class InitSystem implements InitializingBean {
 		logger.info("init success config list size : " + configList.size());
 	}
 
-	public void initConfigEntityById(Integer id) throws UnknowDataSourceException {
+	public synchronized void initConfigEntity(Integer id) throws UnknowDataSourceException {
 		if (id == null) {
 			logger.info("config id is null, init fail");
 			return;
 		}
+		// 先清除
+		dsConfigDao.clear(id);
 		List<Map<String, Object>> configList = jdbcTemplate.queryForList("select id,datasource_id,config_name,config_type from ds_config where enable=1 and id=?", id);
 		if (configList.size() == 0) {
 			logger.info("config is not found, id : " + id + ", init fail");
@@ -124,7 +128,7 @@ public class InitSystem implements InitializingBean {
 		logger.info("init success config id : " + config.getId());
 	}
 
-	public void initDataSource() {
+	public synchronized void initDataSource() {
 		List<Map<String, Object>> dataSourceList = jdbcTemplate.queryForList("select id,database_name,title,url,username,password,remark from ds_datasource");
 		for (Map<String, Object> map : dataSourceList) {
 			Integer id = IntegerUtil.getInt0(map.get("id"));

@@ -1,6 +1,7 @@
 package org.blazer.dataservice.action;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,6 +15,7 @@ import org.blazer.dataservice.dao.CustomJdbcDao;
 import org.blazer.dataservice.exception.UnknowDataSourceException;
 import org.blazer.dataservice.service.ViewService;
 import org.blazer.dataservice.util.InitSystem;
+import org.blazer.dataservice.util.IntegerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +71,7 @@ public class ViewAction extends BaseAction {
 	public Body saveConfig(HttpServletRequest request, HttpServletResponse response, @RequestBody ViewConfigBody viewConfigBody) {
 		try {
 			viewService.saveConfig(viewConfigBody);
-			initSystem.initConfigEntity();
+			initSystem.initConfigEntity(viewConfigBody.getId());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			return fail().setMessage(e.getMessage());
@@ -92,9 +94,10 @@ public class ViewAction extends BaseAction {
 	@ResponseBody
 	@RequestMapping("/deleteConfig")
 	public Body deleteConfig(HttpServletRequest request, HttpServletResponse response) {
+		HashMap<String, String> params = getParamMap(request);
 		try {
-			viewService.deleteConfig(getParamMap(request));
-			initSystem.initConfigEntity();
+			viewService.deleteConfig(params);
+			initSystem.initConfigEntity(IntegerUtil.getInt0(params.get("id")));
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			return fail().setMessage(e.getMessage());

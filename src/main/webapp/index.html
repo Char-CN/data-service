@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <title>data-service</title>
 <link rel="shortcut icon" type="image/ico" href="images/favicon.png">
-<!-- css引入顺序 -->
-<link rel="stylesheet" type="text/css" href="css/commons.css">
+<!-- css引入顺序，不可置换。 -->
 <!-- easyui -->
 <link rel="stylesheet" type="text/css" href="themes/custom/easyui.css">
 <link rel="stylesheet" type="text/css" href="themes/icon.css">
@@ -13,13 +12,14 @@
 <!-- font-awesome -->
 <link rel="stylesheet" type="text/css" href="css/font-awesome.css">
 <link rel="stylesheet" type="text/css" href="css/font-awesome-easyui.css">
-<!-- js引入顺序 -->
+<!-- commons -->
+<link rel="stylesheet" type="text/css" href="css/commons.css">
+<!-- js引入顺序，不可置换 -->
 <script type="text/javascript" src="js/jquery.min.js"></script>
 <script type="text/javascript" src="js/jquery.easyui.min.js"></script>
 <script type="text/javascript" src="js/jquery.easyui.commons.js"></script>
 <script type="text/javascript" src="js/jquery.easyui.extends.js"></script>
 <script type="text/javascript" src="js/Sortable.js"></script>
-<!-- <script type="text/javascript" src="js/jquery.binding.js"></script> -->
 <script type="text/javascript" src="js/locale/easyui-lang-zh_CN.js"></script>
 <script>
 	$(function() {
@@ -69,7 +69,8 @@
 
 		$.ds.commons.openWindow = function(id, icon, title, url, queryString) {
 			if ($("#" + id).length != 0) {
-				return $.dsmessager.show(title + "已经存在。");
+				$("#" + id).window('open');
+				return $.ds.show("[" + icon + title + "]已经存在。");
 			}
 			var _window = $('<div></div>');
 			_window.attr("id", id);

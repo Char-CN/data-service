@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.blazer.dataservice.body.ConfigBody;
 import org.blazer.dataservice.body.ConfigDetailBody;
 import org.blazer.dataservice.body.ParamsBody;
@@ -68,7 +69,7 @@ public class DataService {
 			Dao dao = detail.getDataSource();
 			List<Map<String, Object>> values = null;
 
-			String errorMessage = "";
+			String errorMessage = StringUtils.EMPTY;
 			try {
 				values = dao.find(sql);
 			} catch (Exception e) {

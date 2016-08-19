@@ -34,9 +34,9 @@
 		
 		// 提示
 		if (id == null) {
-			$.dsmessager.show("您正在新增配置项。");
+			$.ds.show("您正在新增配置项。");
 		} else {
-			$.dsmessager.show('您正在修改[' + this_window.window('options').title + "]");
+			$.ds.show('您正在修改[' + this_window.window('options').title + "]");
 		}
 
 		// 详情拖拽初始化
@@ -44,16 +44,16 @@
 
 		// 增加window的tool
 		// 执行
-		var a_run = $('<a href="javascript:void(0)" class="icon-run"></a>');
-		this_window.parent().find(" .panel-tool").prepend(a_run);
-		a_run.click(function() {
-			$.dsmessager.show('执行');
-		});
+// 		var a_run = $('<a href="javascript:void(0)" class="icon-run"></a>');
+// 		this_window.parent().find(" .panel-tool").prepend(a_run);
+// 		a_run.click(function() {
+// 			$.ds.show('执行');
+// 		});
 		// 刷新
 		var a_reload = $('<a href="javascript:void(0)" class="icon-reload"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_reload);
 		a_reload.click(function() {
-			$.dsmessager.show('您正在刷新[' + this_window.window('options').title + ']');
+			$.ds.show('您正在刷新[' + this_window.window('options').title + ']');
 			init();
 		});
 		// 排序
@@ -66,9 +66,9 @@
 					$(this).DSFind("panel").panel('collapse');
 				});
 				if (r){
-					$.dsmessager.show('您已经开启排序功能，请拖动配置详情。');
+					$.ds.show('您已经开启排序功能，请拖动配置详情。');
 				} else {
-					$.dsmessager.show('您已经取消排序。');
+					$.ds.show('您已经取消排序。');
 				}
 			});
 		});
@@ -81,7 +81,7 @@
 					sortable.option("disabled", true);
 					// 保存前的检查
 					if (!this_window.find(" form").form('validate')) {
-						$.dsmessager.show('您填写的内容不正确，请检查。');
+						$.ds.show('您填写的内容不正确，请检查。');
 						return false;
 					}
 					// 组装json对象
@@ -108,7 +108,7 @@
 						contentType : "application/json",
 						dataType : "json",
 						success : function(data) {
-							$.dsmessager.show(data.message);
+							$.ds.show(data.message);
 							this_window.DSFind('details').find('li').each(function(i, o){
 								$(this).DSFind("panel").panel('expand');
 							});
@@ -118,7 +118,7 @@
 							this_window.DSFind('details').find('li').each(function(i, o){
 								$(this).DSFind("panel").panel('expand');
 							});
-							$.dsmessager.show('保存失败！<br>status：' + XMLHttpRequest.status + '<br>state：' + XMLHttpRequest.readyState + '<br>text：' + (textStatus || errorThrown));
+							$.ds.show('保存失败！<br>status：' + XMLHttpRequest.status + '<br>state：' + XMLHttpRequest.readyState + '<br>text：' + (textStatus || errorThrown));
 						}
 					});
 				}
@@ -161,7 +161,7 @@
 					});
 				},
 				fail : function() {
-					$.dsmessager.show("出现莫名失败。");
+					$.ds.show("出现莫名失败。");
 				}
 			});
 			// 新增
@@ -207,6 +207,7 @@
 				border : true,
 				// bodyCls: 'padding-10px',
 				cls : addDetailCount == 1 ? 'margin-top-10px' : 'margin-top-30px',
+				style : 'margin-top: 20px',
 				collapsible : true,
 				title : title,
 				width : details.width(),

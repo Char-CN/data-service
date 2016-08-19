@@ -1,11 +1,10 @@
-
 <script>
 	$(function() {
 		var windowId = 'center';
 		var this_window = $("#" + windowId);
 		// 	var this_ul = this_window.find("#center_ul");
 		this_window.find('.dsli').bind('click', function(){
-			alert("暂不开放");
+			$.ds.alert('抱歉，该功能暂未开放，配置数据源请联系管理员。');
 		});
 	});
 </script>

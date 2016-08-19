@@ -41,12 +41,11 @@
 			iconCls : $.ds.icon.run_cls,
 			onclick : function() {
 				if (center_choose_li_id == "") {
-					return $.dsmessager.show('请选择一项配置执行!');
+					return $.ds.show('请选择一项配置执行!');
 				}
 				var id = center_choose_li_id;
 				var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
 				$.ds.commons.openWindow("center_run_config_" + id, $.ds.icon.run, title, "runconfig.html", "id=" + id);
-				return $.dsmessager.show('执行 ' + title);
 			}
 		});
 
@@ -64,12 +63,11 @@
 			iconCls : $.ds.icon.edit_cls,
 			onclick : function() {
 				if (center_choose_li_id == "") {
-					return $.dsmessager.show('请选择一项配置进行修改!');
+					return $.ds.show('请选择一项配置进行修改!');
 				}
 				var id = center_choose_li_id;
 				var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
 				openConfig(id, title);
-				return $.dsmessager.show('修改!');
 			}
 		});
 
@@ -78,22 +76,22 @@
 			iconCls : $.ds.icon.remove_cls,
 			onclick : function() {
 				if (center_choose_li_id == "") {
-					return $.dsmessager.show('请选择一项配置进行删除!');
+					return $.ds.show('请选择一项配置进行删除!');
 				}
 				var id = center_choose_li_id;
 				var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
 				$.messager.confirm('确定', '您确定要删除[' + title + ']吗？删除后不可恢复。请谨慎操作。', function(r){
 					if (r){
 						$.post($.ds.url.delete_config, {id: id}, function(data) {
-							$.dsmessager.show(data.message);
+							$.ds.show(data.message);
 							this_ul.find("li[ds_index='" + center_choose_li_id + "']").remove();
 						});
 					} else {
-						$.dsmessager.show('您已取消删除' + title + '。');
+						$.ds.show('您已取消删除' + title + '。');
 					}
 				});
 // 				openConfig(id, title);
-// 				return $.dsmessager.show('修改!');
+// 				return $.ds.show('修改!');
 			}
 		});
 
@@ -112,7 +110,7 @@
 					});
 				});
 				sortable.option("disabled", false);
-				return $.dsmessager.show('您已经开启了自定义排序功能，请拖动列表，然后右键→保存!');
+				return $.ds.show('您已经开启了自定义排序功能，请拖动列表，然后右键→保存!');
 			}
 		});
 
@@ -146,10 +144,10 @@
 					dataType : "json",
 					contentType : "application/json",
 					success : function(data) {
-						$.dsmessager.show(data.message);
+						$.ds.show(data.message);
 					},
 					error : function(data) {
-						$.dsmessager.show(data.message);
+						$.ds.show(data.message);
 						init();
 					}
 				});
@@ -164,7 +162,7 @@
 				});
 				sortable.option("disabled", true);
 				init();
-				return $.dsmessager.show('您取消了本次自定义排序操作!');
+				return $.ds.show('您取消了本次自定义排序操作!');
 			}
 		});
 
@@ -216,7 +214,7 @@
 						this_ul.append(li);
 					}
 				}
-				return $.dsmessager.show('加载[' + rst.length + ']条配置。');
+				return $.ds.show('加载[' + rst.length + ']条配置。');
 			});
 		};
 

@@ -74,21 +74,21 @@ $(function() {
 		}
 	});
 	// 自定义提示
-	$.dsmessager = {
-		show : function(message) {
-			if (message == undefined || message == null) {
-				message = "";
-			}
-			if (message == "") {
-				return;
-			}
-			return $.messager.show({
-				title : '提示',
-				msg : message,
-				showType : 'fade'
-			});
-		}
-	};
+//	$.dsmessager = {
+//		show : function(message) {
+//			if (message == undefined || message == null) {
+//				message = "";
+//			}
+//			if (message == "") {
+//				return;
+//			}
+//			return $.messager.show({
+//				title : '提示',
+//				msg : message,
+//				showType : 'fade'
+//			});
+//		}
+//	};
 	// 自定义查询
 	$.extend({
 		DSFindByRoot : function(CONT) {

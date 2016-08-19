@@ -46,7 +46,22 @@ $(function() {
 			remove_cls : 'fa fa-times-circle fa-1x',
 			remove : '<i class="fa fa-times-circle fa-1x"></i>'
 		},
-		
+		show : function(message) {
+			if (message == undefined || message == null || message == "") {
+				return;
+			}
+			return $.messager.show({
+				title : '提示',
+				msg : message,
+				showType : 'fade'
+			});
+		},
+		alert : function(message) {
+			if (message == undefined || message == null || message == "") {
+				return;
+			}
+			$.messager.alert('提示', message);
+		},
 		getBytesLength : function(str) {
 			// 在GBK编码里，除了ASCII字符，其它都占两个字符宽
 			return str.replace(/[^\x00-\xff]/g, 'xx').length;

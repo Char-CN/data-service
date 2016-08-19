@@ -40,4 +40,11 @@ public class SystemAction {
 		return "ok";
 	}
 
+	@ResponseBody
+	@RequestMapping("/gc")
+	public String gc(HttpServletRequest request, HttpServletResponse response) {
+		System.gc();
+		return "ok";
+	}
+
 }

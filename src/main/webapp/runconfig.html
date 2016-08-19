@@ -57,7 +57,7 @@
 		var a_reload = $('<a href="javascript:void(0)" class="icon-reload"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_reload);
 		a_reload.click(function() {
-			$.dsmessager.show('您正在刷新[' + this_window.window('options').title + ']');
+			$.ds.show('您正在刷新[' + this_window.window('options').title + ']');
 			init();
 		});
 
@@ -71,14 +71,14 @@
 		var run_lock = false;
 		var run = function() {
 			if (run_lock) {
-				$.dsmessager.show('正在执行查询中，请勿重复提交,如果数据量大请您耐心等待');
+				$.ds.alert('正在执行查询中，请勿重复提交,如果数据量大请您耐心等待');
 				return;
 			}
 			run_lock = true;
-			$.dsmessager.show('执行成功,如果数据量大请您耐心等待');
+			$.ds.show('执行成功,如果数据量大请您耐心等待');
 			// 执行前的检查
 			if (!this_window.find(" form").form('validate')) {
-				$.dsmessager.show('您填写的内容不正确，请检查。');
+				$.ds.show('您填写的内容不正确，请检查。');
 				return false;
 			}
 			// 添加刷新的图标
@@ -190,7 +190,7 @@
 					});
 				},
 				fail : function() {
-					$.dsmessager.show("出现莫名失败。");
+					$.ds.show("出现莫名失败。");
 				}
 			});
 			// 获取该配置的信息以及详细信息
