@@ -34,37 +34,55 @@
 	</appender>
 
 	<!-- File -->
-	<appender name="accessAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<!-- if the thread safety -->
+	<appender name="fileAppenderByTime" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<Prudent>true</Prudent>
-		<!-- set encoding -->
 		<Encoding>UTF-8</Encoding>
-		<!-- rolling generate strategy -->
+		<encoder>
+			<Pattern>%d{HH:mm:ss} %-5level - [%thread] %message%n</Pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>${LOG_HOME}/%d{yyyy-MM}/%d{yyyy-MM-dd}.log</FileNamePattern>
+			<MaxHistory>31</MaxHistory>
+		</rollingPolicy>
+	</appender>
+
+	<!-- File -->
+	<appender name="accessAppenderByTime" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<Prudent>true</Prudent>
+		<Encoding>UTF-8</Encoding>
+		<encoder>
+			<Pattern>%d{HH:mm:ss} %-5level - [%thread] %message%n</Pattern>
+		</encoder>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<FileNamePattern>${LOG_HOME}/access/%d{yyyy-MM-dd}.log</FileNamePattern>
 			<MaxHistory>31</MaxHistory>
 		</rollingPolicy>
-		<!-- logfile print layout -->
-		<layout class="ch.qos.logback.classic.PatternLayout">
-			<!-- <Pattern>%d{HH:mm:ss} [%thread] %-5level %logger{20} - [%method] %message%n</Pattern> -->
-			<Pattern>%d{HH:mm:ss} %-5level - [%thread] %message%n</Pattern>
-		</layout>
-		<!-- logfile maxsize -->
-		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-			<MaxFileSize>1024MB</MaxFileSize>
-		</triggeringPolicy>
 	</appender>
-	
-	<!-- <logger name="myLogger" additivity="false"> <level value="info" /> <appender-ref ref="fileAppender" /> </logger> -->
+
+	<!-- File -->
+	<appender name="accessAppenderByTimeAndSize" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<Prudent>true</Prudent>
+		<Encoding>UTF-8</Encoding>
+		<file>${LOG_HOME}/access/%d{yyyy-MM-dd}.log</file>
+		<encoder>
+			<Pattern>%d{HH:mm:ss} %-5level - [%method] %message%n</Pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>${LOG_HOME}/access/%d{yyyy-MM-dd}.log.%i</FileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>1024MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+	</appender>
 
 	<root level="debug">
 		<appender-ref ref="consoleAppender" />
-		<appender-ref ref="fileAppender" />
+		<appender-ref ref="fileAppenderByTime" />
 	</root>
 
 	<logger name="access" additivity="false" level="debug">
 		<!-- <appender-ref ref="consoleAppender" /> -->
-		<appender-ref ref="accessAppender" />
+		<appender-ref ref="accessAppenderByTime" />
 	</logger>
 
 </configuration>
