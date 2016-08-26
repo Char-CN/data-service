@@ -6,9 +6,13 @@
 
 	<!-- Console -->
 	<appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
-		<layout class="ch.qos.logback.classic.PatternLayout">
-			<Pattern>%d{HH:mm:ss} %-5level - [%method] %message%n</Pattern>
-		</layout>
+	<!-- <layout class="ch.qos.logback.classic.PatternLayout"> -->
+	<!-- <Pattern>%d{HH:mm:ss} %-5level - [%method] %message%n</Pattern> -->
+	<!-- </layout> -->
+		<encoder>
+			<charset>UTF-8</charset>
+			<Pattern>%d{HH:mm:ss} %-5level - [%thread] %message%n</Pattern>
+		</encoder>
 	</appender>
 
 	<!-- File -->
@@ -30,8 +34,8 @@
 	<!-- File -->
 	<appender name="fileAppenderByTime" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<Prudent>true</Prudent>
-		<Encoding>UTF-8</Encoding>
 		<encoder>
+			<charset>UTF-8</charset>
 			<Pattern>%d{HH:mm:ss} %-5level - [%thread] %message%n</Pattern>
 		</encoder>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -43,8 +47,8 @@
 	<!-- File -->
 	<appender name="accessAppenderByTime" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<Prudent>true</Prudent>
-		<Encoding>UTF-8</Encoding>
 		<encoder>
+			<charset>UTF-8</charset>
 			<Pattern>%d{HH:mm:ss} %-5level - [%thread] %message%n</Pattern>
 		</encoder>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
