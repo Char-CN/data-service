@@ -3,13 +3,30 @@
 		var windowId = 'center';
 		var this_window = $("#" + windowId);
 		// 	var this_ul = this_window.find("#center_ul");
-		this_window.find('.dsli').bind('click', function(){
-			$.ds.alert('抱歉，该功能暂未开放，配置数据源请联系管理员。');
+		// 		this_window.find('.dsli').bind('click', function() {
+		// 			$.ds.alert('抱歉，该功能暂未开放，配置数据源请联系管理员。');
+		// 		});
+		this_window.find('.user').bind('click', function() {
+			$.ds.commons.openWindow("user_manager", $.ds.icon.user, "用户管理", "users/user_manager.html").window('resize', {
+				height : 350
+			});
 		});
 	});
 </script>
 <div>
-	<ul class="dsul">
-		<li class="dsli"><i class="fa fa-database fa-3x" aria-hidden="true"></i>数据源管理</li>
-	</ul>
+	<fieldset style="margin-top: 20px; padding-bottom: 5px; border: 1px solid;">
+		<legend>数据服务模块</legend>
+		<ul class="dsul">
+			<li class="dsli datasource"><i class="fa fa-database fa-3x" aria-hidden="true"></i>数据源管理</li>
+		</ul>
+	</fieldset>
+	<fieldset style="margin-top: 20px; padding-bottom: 5px; border: 1px solid;">
+		<legend>用户服务模块</legend>
+		<ul class="dsul">
+			<li class="dsli system"><i class="fa fa-desktop fa-3x" aria-hidden="true"></i>系统管理</li>
+			<li class="dsli user"><i class="fa fa-user fa-3x" aria-hidden="true"></i>用户管理</li>
+			<li class="dsli role"><i class="fa fa-users fa-3x" aria-hidden="true"></i>角色管理</li>
+			<li class="dsli premission"><i class="fa fa-th-list fa-3x" aria-hidden="true"></i>权限管理</li>
+		</ul>
+	</fieldset>
 </div>

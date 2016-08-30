@@ -23,93 +23,93 @@
 <script type="text/javascript" src="js/locale/easyui-lang-zh_CN.js"></script>
 <script>
 	$(function() {
-		$.ds.commons.referCenterByMenuId = function(id) {
-			$.ds.commons.chooseTreeId = id;
-			var c = $("#center");
-			c.unbind('contextmenu');
-			c.bind('contextmenu', function(e) {
-				e.preventDefault();
-				$('#center_menu').menu('show', {
-					left : e.pageX,
-					top : e.pageY
-				});
-				rp_center_block = true;
-			});
-			c.panel({
-				href : 'center.html',
-				extractor : function(data) {
-					data = $.ds.replaceAll(data, "[$]queryString", "id=" + id);
-					data = $.ds.replaceAll(data, "[$]windowId", "center");
-					return data;
-				}
-			});
-		};
+// 		$.ds.commons.referCenterByMenuId = function(id) {
+// 			$.ds.commons.chooseTreeId = id;
+// 			var c = $("#center");
+// 			c.unbind('contextmenu');
+// 			c.bind('contextmenu', function(e) {
+// 				e.preventDefault();
+// 				$('#center_menu').menu('show', {
+// 					left : e.pageX,
+// 					top : e.pageY
+// 				});
+// 				rp_center_block = true;
+// 			});
+// 			c.panel({
+// 				href : 'center.html',
+// 				extractor : function(data) {
+// 					data = $.ds.replaceAll(data, "[$]queryString", "id=" + id);
+// 					data = $.ds.replaceAll(data, "[$]windowId", "center");
+// 					return data;
+// 				}
+// 			});
+// 		};
 
-		$.ds.commons.addFootTask = function(window_id, icon, text) {
-			var a = $('<a style="margin:2px;"></a>');
-			// a.attr("id", id);
-			a.attr("window_id", window_id);
-			a.attr("data-options", "plain:false");
-			if (icon) {
-				a.html(icon + (text.length > 10 ? text.substr(0, 10) + '...' : text));
-			} else {
-				a.html(text.length > 10 ? text.substr(0, 10) + '...' : text);
-			}
-			a.linkbutton();
-			a.click(function() {
-				var window_id = $(this).attr("window_id");
-				$('#' + window_id).window('open');
-			});
-			$("#foot").append(a);
-		};
+// 		$.ds.commons.addFootTask = function(window_id, icon, text) {
+// 			var a = $('<a style="margin:2px;"></a>');
+// 			// a.attr("id", id);
+// 			a.attr("window_id", window_id);
+// 			a.attr("data-options", "plain:false");
+// 			if (icon) {
+// 				a.html(icon + (text.length > 10 ? text.substr(0, 10) + '...' : text));
+// 			} else {
+// 				a.html(text.length > 10 ? text.substr(0, 10) + '...' : text);
+// 			}
+// 			a.linkbutton();
+// 			a.click(function() {
+// 				var window_id = $(this).attr("window_id");
+// 				$('#' + window_id).window('open');
+// 			});
+// 			$("#foot").append(a);
+// 		};
 
-		$.ds.commons.removeFootTask = function(window_id) {
-			$("#foot").find("[window_id='" + window_id + "']").remove();
-		};
+// 		$.ds.commons.removeFootTask = function(window_id) {
+// 			$("#foot").find("[window_id='" + window_id + "']").remove();
+// 		};
 
-		$.ds.commons.openWindow = function(id, icon, title, url, queryString) {
-			if ($("#" + id).length != 0) {
-				$("#" + id).window('open');
-				return $.ds.show("[" + icon + title + "]已经存在。");
-			}
-			var _window = $('<div></div>');
-			_window.attr("id", id);
-			_window.window({
-				href : url,
-				title : icon + "&nbsp;" + title,
-				resizable : false,
-				height : $.ds.getCenterHeight() < $.ds.getDefaultWindowHeight() ? $.ds.getCenterHeight() : $.ds.getDefaultWindowHeight(),
-				width : $.ds.getDefaultWindowWidth(),
-				closed : false,
-				modal : false,
-				loadingMessage : '请稍等，正在读取服务器内容，加载数据。。。',
-				doSize : false,
-				maximizable : false,
-				minimizable : true,
-				extractor : function(data) {
-					data = $.ds.replaceAll(data, "[$]queryString", queryString);
-					data = $.ds.replaceAll(data, "[$]windowId", id);
-					return data;
-				},
-				onClose : function(forceDestroy) {
-					$(this).window('destroy');
-				},
-				onDestroy : function() {
-					$.ds.commons.removeFootTask(this.id);
-				}
-			}).window('center');
-			$.ds.commons.addFootTask(id, icon, title);
-		};
-
-		$.ds.commons.configRun = function(id) {
-
-		};
+// 		$.ds.commons.openWindow = function(id, icon, title, url, queryString) {
+// 			if ($("#" + id).length != 0) {
+// 				$("#" + id).window('open');
+// 				return $.ds.show("[" + icon + title + "]已经存在。");
+// 			}
+// 			var _window = $('<div></div>');
+// 			_window.attr("id", id);
+// 			_window.window({
+// 				href : url,
+// 				title : icon + "&nbsp;" + title,
+// 				resizable : false,
+// 				height : $.ds.getCenterHeight() < $.ds.getDefaultWindowHeight() ? $.ds.getCenterHeight() : $.ds.getDefaultWindowHeight(),
+// 				width : $.ds.getDefaultWindowWidth(),
+// 				closed : false,
+// 				modal : false,
+// 				loadingMessage : '请稍等，正在读取服务器内容，加载数据。。。',
+// 				doSize : false,
+// 				maximizable : false,
+// 				minimizable : true,
+// 				extractor : function(data) {
+// 					data = $.ds.replaceAll(data, "[$]queryString", queryString);
+// 					data = $.ds.replaceAll(data, "[$]windowId", id);
+// 					return data;
+// 				},
+// 				onClose : function(forceDestroy) {
+// 					$(this).window('destroy');
+// 				},
+// 				onDestroy : function() {
+// 					$.ds.commons.removeFootTask(this.id);
+// 				}
+// 			}).window('center');
+// 			$.ds.commons.addFootTask(id, icon, title);
+// 		};
 
 		// 初始化west
 		$("#west").panel('refresh', 'west.html');
 		$("#north").panel('refresh', 'north.html');
-		$("#center").panel('refresh', 'manager.html');
-		$("#center").panel('setTitle', '管理首页');
+		$("#center").panel('refresh', 'welcome.html');
+		$("#center").panel('setTitle', '首页');
+		$("#titlebar .home").click(function(){
+			$("#center").panel('refresh', 'manager.html');
+			$("#center").panel('setTitle', '管理首页');
+		}).click();
 	});
 </script>
 </head>
@@ -131,9 +131,9 @@
 	</div>
 	<div id="titlebar" style="padding: 2px">
 		<a href="javascript:void(0)" class="easyui-linkbutton" style="width: 55px" data-options="iconCls:'layout-button-right'"
-			onclick="$('#main').layout('expand','west')"></a> <a href="javascript:void(0)" class="easyui-linkbutton" style="width: 55px"> <i class="fa fa-home fa-4x"></i>
-		</a> <a href="javascript:void(0)" class="easyui-linkbutton" style="width: 55px"> <i class="fa fa-cog fa-4x"></i>
-		</a>
+			onclick="$('#main').layout('expand','west')"></a> 
+		<a href="javascript:void(0)" class="easyui-linkbutton home" style="width: 55px"> <i class="fa fa-home fa-4x"></i></a>
+		<a href="javascript:void(0)" class="easyui-linkbutton cog" style="width: 55px"> <i class="fa fa-cog fa-4x"></i></a>
 	</div>
 </body>
 </html>
