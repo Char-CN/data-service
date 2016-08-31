@@ -21,8 +21,16 @@ public class SqlUtil {
 		return result;
 	}
 
+	public static String Show(String sql, Object... objs) {
+		for (Object obj : objs) {
+			sql = sql.replaceFirst("[?]", StringUtil.getStr(obj));
+		}
+		return sql;
+	}
+
 	public static void main(String[] args) {
 		System.out.println(SqlUtil.TransactSQLInjection("asd';select * from a; '"));
+		System.out.println(SqlUtil.Show("select * from aaa limit ?,?", 1, "2"));
 		System.out.println(ExtractParams("select * from table where a='${hello}' and b='${hyy}'"));
 		System.out.println(ExtractParams("select * from table where a='${aaa}' and b='${hyy}'"));
 	}

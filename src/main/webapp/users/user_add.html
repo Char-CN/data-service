@@ -2,28 +2,33 @@
 <form method="post" url="">
 	<div style="margin-bottom: 20px">
 		<span style="width: 130px; padding-left: 20px; display: inline-block">用户名:</span>
-		<input ds_index="user_name" class="easyui-textbox" name="user_name" style="width: 200px" data-options="validType:'nospace'" value="aaa">
+		<input ds_index="user_name" class="easyui-textbox" name="user_name" style="width: 200px" data-options="validType:'nospace'">
 		<input ds_index="id" type="hidden" name="id">
 	</div>
 	<div style="margin-bottom: 20px">
 		<span style="width: 130px; padding-left: 20px; display: inline-block">用户中文名:</span>
-		<input ds_index="user_name" class="easyui-textbox" name="user_name_cn" style="width: 200px" data-options="validType:'nospace'">
+		<input ds_index="user_name_cn" class="easyui-textbox" name="user_name_cn" style="width: 200px" data-options="validType:'nospace'">
 	</div>
 	<div style="margin-bottom: 20px">
 		<span style="width: 130px; padding-left: 20px; display: inline-block">电子邮箱:</span>
-		<input class="easyui-textbox" name="email" style="width: 200px" data-options="validType:'nospace'">
+		<input ds_index="email" class="easyui-textbox" name="email" style="width: 200px" data-options="validType:'nospace'">
 	</div>
 	<div style="margin-bottom: 20px">
 		<span style="width: 130px; padding-left: 20px; display: inline-block">电话号码:</span>
-		<input class="easyui-textbox" name="phone_number" style="width: 200px" data-options="validType:'nospace'">
+		<input ds_index="phone_number" class="easyui-textbox" name="phone_number" style="width: 200px" data-options="validType:'nospace'">
+	</div>
+	<div style="margin-bottom: 20px">
+		<span style="width: 130px; padding-left: 20px; display: inline-block">角色:</span>
+		<select ds_index="role" class="easyui-combobox" name="remark" style="width: 200px;height:60px;" multiple="true" multiline="true" editable="false">
+		</select>
 	</div>
 	<div style="margin-bottom: 20px">
 		<span style="width: 130px; padding-left: 20px; display: inline-block">备注:</span>
-		<input class="easyui-textbox" name="remark" style="width: 200px; height: 60px" data-options="multiline:true">
+		<input ds_index="remark" class="easyui-textbox" name="remark" style="width: 200px; height: 60px" data-options="multiline:true">
 	</div>
 	<div style="text-align: center; padding: 5px 0">
-		<a href="javascript:void(0)" class="easyui-linkbutton submit" style="width: 80px">提交</a>
-		<a href="javascript:void(0)" class="easyui-linkbutton close" style="width: 80px">关闭</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" ds_index="submit" style="width: 80px">提交</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" ds_index="close" style="width: 80px">关闭</a>
 	</div>
 </form>
 <script>
@@ -34,22 +39,79 @@
 		var this_window = $("#" + windowId);
 
 		var init = function() {
-			this_window.find(".close").click(function() {
+			$.ajax({
+				url : $.ds.url.find_role_all,
+				type : 'post',
+				async : false,
+				success : function(data) {
+					var select = this_window.DSFind("role");
+					for ( var i in data) {
+						var sel = "";
+						var op = $('<option value="' + data[i].id + '">' + data[i].roleName + '</option>');
+						select.append(op);
+					}
+// 					select.combobox({
+// 						editable : false,
+// 						panelMaxHeight : 88
+// 					});
+				},
+				fail : function() {
+					$.ds.show("出现莫名失败。");
+				}
+			});
+			this_window.DSFind("close").click(function() {
 				this_window.window('close');
 			});
-			this_window.find(".submit").click(function() {
-				alert(1);
+			this_window.DSFind("submit").click(function() {
+				var roleIds = "";
+				var vals = this_window.DSFind("role").combobox("getValues");
+				for (var i in vals) {
+					if (roleIds != "") {
+						roleIds += ",";
+					}
+					roleIds += vals[i];
+				}
+				var json = { user : {
+					id : this_window.DSFind("id").val(),
+					userName : this_window.DSFind("user_name").textbox('getValue'),
+					userNameCn : this_window.DSFind("user_name_cn").textbox('getValue'),
+					email : this_window.DSFind("email").textbox('getValue'),
+					phoneNumber : this_window.DSFind("phone_number").textbox('getValue'),
+					remark : this_window.DSFind("remark").textbox('getValue')
+				}, roleIds : roleIds};
+				$.ajax({
+					type : "post", // 请求方式
+					url : $.ds.url.save_user, // url地址
+					data : JSON.stringify(json), // 数据
+					contentType : "application/json",
+					dataType : "json",
+					success : function(data) {
+// 						$.ds.alert(data.message);
+						$.messager.alert('提示', data.message, 'info', function() {
+							this_window.window('close');
+						});
+					},
+					error : function(XMLHttpRequest, textStatus, errorThrown) {
+						$.ds.show('保存失败！<br>status：' + XMLHttpRequest.status + '<br>state：' + XMLHttpRequest.readyState + '<br>text：'
+								+ (textStatus || errorThrown));
+					}
+				});
+				// 				$.post($.ds.url.save_user, JSON.stringify(user), function(data) {
+				// 					alert(data);
+				// 				});
 			});
 			if (id != null) {
 				$.post($.ds.url.find_user_by_id, {
 					id : id
 				}, function(data) {
-					// 					alert(JSON.stringify(data));
-// 					alert(data.userName);
-// 					alert(this_window.find("form input[name='user_name']").val());
-// 					this_window.find("form input[name='user_name']").textbox('setText', data.userName);
-					this_window.find("form #user_name").textbox('setValue', data.userName);
-// 					this_window.find("form input[name='user_name']").textbox('initValue', data.userName);
+					var user = data.user;
+					this_window.DSFind("user_name").textbox('setValue', user.userName);
+					this_window.DSFind("id").val(user.id);
+					this_window.DSFind("user_name_cn").textbox('setValue', user.userNameCn);
+					this_window.DSFind("email").textbox('setValue', user.email);
+					this_window.DSFind("phone_number").textbox('setValue', user.phoneNumber);
+					this_window.DSFind("remark").textbox('setValue', user.remark);
+					this_window.DSFind("role").combobox("setValues", data.role_ids);
 				});
 			}
 		};

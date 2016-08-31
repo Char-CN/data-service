@@ -13,7 +13,9 @@ $(function() {
 			save_config_order : "view/saveConfigOrderAsc.do",
 			save_config : "view/saveConfig.do",
 			find_user_by_page : "user/findUserByPage.do",
-			find_user_by_id : "user/findUserById.do"
+			find_user_by_id : "user/findUserById.do",
+			save_user : "user/saveUser.do",
+			find_role_all : "user/findRoleAll.do"
 		},
 		commons : {
 			chooseTreeId : "",
@@ -58,6 +60,11 @@ $(function() {
 			removeFootTask : function(window_id) {
 				$("#foot").find("[window_id='" + window_id + "']").remove();
 			},
+			execFunc : function (funcs, func) {
+				if (funcs != undefined && funcs[func] != undefined && typeof funcs[func] === 'function') {
+					funcs[func]();
+				}
+			},
 			openWindow : function(id, icon, title, url, queryString) {
 				if ($("#" + id).length != 0) {
 					$("#" + id).window('open');
@@ -92,7 +99,7 @@ $(function() {
 				$.ds.commons.addFootTask(id, icon, title);
 				return _window;
 			},
-			openDialog : function(id, icon, title, url, queryString) {
+			openDialog : function(id, icon, title, url, queryString, funcs) {
 				if ($("#" + id).length != 0) {
 					$("#" + id).window('open');
 					return $.ds.show("[" + icon + title + "]已经存在。");
@@ -113,6 +120,7 @@ $(function() {
 					},
 					onClose : function(forceDestroy) {
 						$(this).window('destroy');
+						$.ds.commons.execFunc(funcs, 'onClose');
 					},
 					onDestroy : function() {
 						$.ds.commons.removeFootTask(this.id);
