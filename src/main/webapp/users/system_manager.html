@@ -1,23 +1,21 @@
-<input ds_index="search_user_name">
-<table ds_index="user_tables"></table>
+<input ds_index="search_system_name">
+<table ds_index="system_tables"></table>
 <script>
 	$(function() {
 		var windowId = '$windowId';
 		var this_window = $("#" + windowId);
-		// 		alert(this_window.html());
-		// 		$.ds.commons.openDialog("user_role_config", $.ds.icon.user + "&nbsp;" + $.ds.icon.role, "用户角色配置", "user_role_config.html");
 
 		// 搜索框
-		this_window.DSFind("search_user_name").searchbox({
+		this_window.DSFind("search_system_name").searchbox({
 			width : "100%",
 			searcher : function(value, name) {
 				if (value != undefined) {
 					table.datagrid('reload', {
-						userName : value
+						systemName : value
 					});
 				}
 			},
-			prompt : '请输入用户名或者中文名...'
+			prompt : '请输入系统名...'
 		});
 
 		// 刷新
@@ -26,6 +24,25 @@
 		a_reload.click(function() {
 			table.datagrid('reload');
 		});
+		// 删除
+		var a_del = $('<a href="javascript:void(0)" class="icon-remove"></a>');
+		this_window.parent().find(" .panel-tool").prepend(a_del);
+		a_del.click(function() {
+			var selected = table.datagrid('getSelected');
+			var idx = table.datagrid('getRowIndex', selected);
+			if (selected == undefined || selected == null) {
+				$.ds.show('请选择一个系统！');
+				return;
+			}
+			$.ds.confirm("您确定要删除该系统吗？", function() {
+				$.post($.ds.url.del_system, {
+					id : selected.id
+				}, function(data) {
+					$.ds.show(data.message);
+					table.datagrid('reload');
+				});
+			});
+		});
 		// 编辑
 		var a_edit = $('<a href="javascript:void(0)" class="icon-edit"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_edit);
@@ -33,10 +50,10 @@
 			var selected = table.datagrid('getSelected');
 			var idx = table.datagrid('getRowIndex', selected);
 			if (selected == undefined || selected == null) {
-				$.ds.show('请选择一个用户！');
+				$.ds.show('请选择一个系统！');
 				return;
 			}
-			$.ds.commons.openDialog("user_add", $.ds.icon.user, "用户编辑", "users/user_add.html", "id=" + selected.id, {
+			$.ds.commons.openDialog("system_add", $.ds.icon.system, "系统编辑", "users/system_add.html", "id=" + selected.id, {
 				onClose : function() {
 					table.datagrid('reload');
 					setTimeout(function() {
@@ -44,27 +61,27 @@
 					}, 200);
 				}
 			}).dialog('resize', {
-				height : 420
+				height : 220
 			});
 		});
 		// 增加
 		var a_add = $('<a href="javascript:void(0)" class="icon-add"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_add);
 		a_add.click(function() {
-			$.ds.commons.openDialog("user_add", $.ds.icon.user, "用户增加", "users/user_add.html", null, {
+			$.ds.commons.openDialog("system_add", $.ds.icon.system, "系统增加", "users/system_add.html", null, {
 				onClose : function() {
 					table.datagrid('getPager').pagination('select', 99999999);
 				}
 			}).dialog('resize', {
-				height : 420
+				height : 220
 			});
 		});
 
-		var table = this_window.DSFind("user_tables");
+		var table = this_window.DSFind("system_tables");
 		// 		this_window.append(table);
 		table.datagrid({
-			url : $.ds.url.find_user_by_page,
-// 			queryParams : { userName : "asdass" },
+			url : $.ds.url.find_system_by_page,
+			// 			queryParams : { systemName : "asdass" },
 			method : 'post',
 			singleSelect : true,
 			columns : [ [ {
@@ -72,24 +89,12 @@
 				title : 'id',
 				hidden : true
 			}, {
-				field : 'userName',
-				width : "15%",
-				title : '用户名'
-			}, {
-				field : 'userNameCn',
-				width : "15%",
-				title : '中文名'
-			}, {
-				field : 'phoneNumber',
-				width : "15%",
-				title : '电话号码'
-			}, {
-				field : 'email',
-				width : "20%",
-				title : '邮箱'
+				field : 'systemName',
+				width : "45%",
+				title : '系统名'
 			}, {
 				field : 'remark',
-				width : "32%",
+				width : "50%",
 				title : '备注'
 			} ] ],
 			rownumbers : true,

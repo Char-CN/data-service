@@ -1,9 +1,8 @@
-<ul id="tree"></ul>
+
 <script>
 	$(function() {
 		var menu = $('<div></div>');
 		menu.attr('id', 'tree_menu');
-		menu.attr('class', 'easyui-menu');
 
 		// 增加按钮
 		var menu_add = $('<div>新增子目录</div>');
@@ -72,7 +71,7 @@
 		menu_sort.menu().appendTo('body');
 
 		// 初始化树形菜单
-		$("#tree").tree({
+		$("<ul>").tree({
 			method : 'post',
 			animate : true,
 			url : $.ds.url.tree + '?id=-1',
@@ -105,6 +104,6 @@
 			},
 			onBrforeDrag : function(target, source, point) {
 			}
-		});
+		}).appendTo("#west");
 	});
 </script>

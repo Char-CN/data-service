@@ -10,6 +10,7 @@ import org.blazer.dataservice.body.Body;
 import org.blazer.dataservice.body.PageBody;
 import org.blazer.dataservice.dao.CustomJdbcDao;
 import org.blazer.dataservice.model.USRole;
+import org.blazer.dataservice.model.USSystem;
 import org.blazer.dataservice.model.USUser;
 import org.blazer.dataservice.service.UserService;
 import org.blazer.dataservice.util.HMap;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller(value = "userAction")
@@ -33,6 +35,60 @@ public class UserAction extends BaseAction {
 
 	@Autowired
 	CustomJdbcDao customJdbcDao;
+
+	/**
+	 * TODO : 系统相关
+	 */
+
+	@ResponseBody
+	@RequestMapping("/findSystemAll")
+	public List<USSystem> findSystemAll(HttpServletRequest request, HttpServletResponse response) {
+		logger.debug("map : " + getParamMap(request));
+		return userService.findSystemAll();
+	}
+
+	@ResponseBody
+	@RequestMapping("/findSystemByPage")
+	public PageBody<USSystem> findSystemByPage(HttpServletRequest request, HttpServletResponse response) {
+		logger.debug("map : " + getParamMap(request));
+		return userService.findSystemByPage(getParamMap(request));
+	}
+
+	@ResponseBody
+	@RequestMapping("/findSystemById")
+	public USSystem findSystemById(HttpServletRequest request, HttpServletResponse response) {
+		logger.debug("map : " + getParamMap(request));
+		HashMap<String, String> params = getParamMap(request);
+		return userService.findSystemById(params);
+	}
+
+	@ResponseBody
+	@RequestMapping("/saveSystem")
+	public Body saveSystem(@RequestBody USSystem system) throws Exception {
+		logger.debug("system : " + system);
+		try {
+			userService.saveSystem(system);
+		} catch (Exception e) {
+			return new Body().error().setMessage("保存失败：" + e.getMessage());
+		}
+		return new Body().setMessage("保存成功！");
+	}
+
+	@ResponseBody
+	@RequestMapping("/delSystem")
+	public Body delSystem(@RequestParam Integer id) throws Exception {
+		logger.debug("system id : " + id);
+		try {
+			userService.delSystem(id);
+		} catch (Exception e) {
+			return new Body().error().setMessage("删除失败：" + e.getMessage());
+		}
+		return new Body().setMessage("删除成功！");
+	}
+	
+	/**
+	 * TODO : 用户相关
+	 */
 
 	@ResponseBody
 	@RequestMapping("/findUserByPage")
@@ -57,7 +113,8 @@ public class UserAction extends BaseAction {
 	public Body saveUser(@RequestBody HashMap<String, Object> params) throws Exception {
 		USUser user = HMap.to(params.get("user"), USUser.class);
 		String roleIds = (String) params.get("roleIds");
-//		USUser user = ((Map<String, Object>) params.get("user")).to(USUser.class);
+		// USUser user = ((Map<String, Object>)
+		// params.get("user")).to(USUser.class);
 		logger.debug("user : " + user);
 		logger.debug("user : " + roleIds);
 		try {
@@ -69,10 +126,68 @@ public class UserAction extends BaseAction {
 	}
 
 	@ResponseBody
+	@RequestMapping("/delUser")
+	public Body delUser(@RequestParam Integer id) throws Exception {
+		logger.debug("userid : " + id);
+		try {
+			userService.delUser(id);
+		} catch (Exception e) {
+			return new Body().error().setMessage("删除失败：" + e.getMessage());
+		}
+		return new Body().setMessage("删除成功！");
+	}
+
+	/**
+	 * TODO : 角色相关
+	 */
+
+	@ResponseBody
 	@RequestMapping("/findRoleAll")
 	public List<USRole> findRoleAll(HttpServletRequest request, HttpServletResponse response) {
 		logger.debug("map : " + getParamMap(request));
 		return userService.findRoleAll();
 	}
 
+	@ResponseBody
+	@RequestMapping("/findRoleByPage")
+	public PageBody<USRole> findRoleByPage(HttpServletRequest request, HttpServletResponse response) {
+		logger.debug("map : " + getParamMap(request));
+		return userService.findRoleByPage(getParamMap(request));
+	}
+
+	@ResponseBody
+	@RequestMapping("/findRoleById")
+	public USRole findRoleById(HttpServletRequest request, HttpServletResponse response) {
+		logger.debug("map : " + getParamMap(request));
+		HashMap<String, String> params = getParamMap(request);
+		return userService.findRoleById(params);
+	}
+
+	@ResponseBody
+	@RequestMapping("/saveRole")
+	public Body saveRole(@RequestBody USRole role) throws Exception {
+		logger.debug("role : " + role);
+		try {
+			userService.saveRole(role);
+		} catch (Exception e) {
+			return new Body().error().setMessage("保存失败：" + e.getMessage());
+		}
+		return new Body().setMessage("保存成功！");
+	}
+
+	@ResponseBody
+	@RequestMapping("/delRole")
+	public Body delRole(@RequestParam Integer id) throws Exception {
+		logger.debug("role id : " + id);
+		try {
+			userService.delRole(id);
+		} catch (Exception e) {
+			return new Body().error().setMessage("删除失败：" + e.getMessage());
+		}
+		return new Body().setMessage("删除成功！");
+	}
+
+	/**
+	 * TODO : 权限相关
+	 */
 }

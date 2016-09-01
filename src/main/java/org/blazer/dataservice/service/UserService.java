@@ -7,8 +7,10 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.blazer.dataservice.body.PageBody;
+import org.blazer.dataservice.exception.NotAllowDeleteException;
 import org.blazer.dataservice.model.USPermission;
 import org.blazer.dataservice.model.USRole;
+import org.blazer.dataservice.model.USSystem;
 import org.blazer.dataservice.model.USUser;
 import org.blazer.dataservice.util.HMap;
 import org.blazer.dataservice.util.IntegerUtil;
@@ -29,12 +31,104 @@ public class UserService {
 	JdbcTemplate jdbcTemplate;
 
 	/**
+	 * TODO : 系统相关
+	 */
+
+	public List<USSystem> findSystemAll() {
+		try {
+			String sql = "select * from us_system where enable=1";
+			List<Map<String, Object>> rst = jdbcTemplate.queryForList(sql);
+			List<USSystem> list = HMap.toList(rst, USSystem.class);
+			logger.debug("rst size : " + rst.size());
+			if (list.size() > 0) {
+				logger.debug("role : " + list.get(0));
+			}
+			return list;
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		return new ArrayList<USSystem>();
+	}
+
+	public PageBody<USSystem> findSystemByPage(HashMap<String, String> params) {
+		PageBody<USSystem> pb = new PageBody<USSystem>();
+		String where = " where 1=1 and enable=1 ";
+		String systemName = StringUtil.getStr(params.get("systemName"));
+		if (systemName != null) {
+			where += String.format(" and (system_name like '%%%s%%')", systemName);
+		}
+		String sql = "select * from us_system " + where + " limit ?,?";
+		int start = (IntegerUtil.getInt1(params.get("page")) - 1) * IntegerUtil.getInt0(params.get("rows"));
+		int end = IntegerUtil.getInt0(params.get("rows"));
+		logger.debug("start : " + start);
+		logger.debug("end : " + end);
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, start, end);
+		logger.debug("list size : " + list.size());
+		List<USSystem> systemList = new ArrayList<USSystem>();
+		for (Map<String, Object> map : list) {
+			USSystem system = new USSystem();
+			system.setId(IntegerUtil.getInt0(map.get("id")));
+			system.setSystemName(StringUtil.getStrEmpty(map.get("system_name")));
+			system.setRemark(StringUtil.getStrEmpty(map.get("remark")));
+			systemList.add(system);
+		}
+		pb.setTotal(IntegerUtil.getInt0(jdbcTemplate.queryForList("select count(0) as ct from us_system " + where).get(0).get("ct")));
+		pb.setRows(systemList);
+		logger.debug(pb.toString());
+		return pb;
+	}
+
+	public void saveSystem(USSystem system) {
+		logger.debug("system " + system);
+		if (system.getId() == null) {
+			String sql = "insert into us_system(system_name,remark) values(?,?)";
+			jdbcTemplate.update(sql, system.getSystemName(), system.getRemark());
+		} else {
+			String sql = "update us_system set system_name=?,remark=? where id=?";
+			jdbcTemplate.update(sql, system.getSystemName(), system.getRemark(), system.getId());
+		}
+	}
+
+	public void delSystem(Integer id) throws Exception {
+		logger.debug("systemId " + id);
+		String sql = "select count(0) as ct from us_permission where enable=1 and system_id=?";
+		logger.debug(SqlUtil.Show(sql, id));
+		Integer count = IntegerUtil.getInt0(jdbcTemplate.queryForList(sql, id).get(0).get("ct"));
+		logger.debug("permission count : " + count);
+		if (count != 0) {
+			throw new NotAllowDeleteException("该系统下有[" + count + "]个权限，不能删除。");
+		}
+		sql = "update us_system set enable=0 where id=?";
+		logger.debug(SqlUtil.Show(sql, id));
+		jdbcTemplate.update(sql, id);
+	}
+
+	public USSystem findSystemById(HashMap<String, String> params) {
+		String sql = "select * from us_system where id = ? and enable=1";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, IntegerUtil.getInt0(params.get("id")));
+		USSystem system = new USSystem();
+		if (list.size() == 0) {
+			return system;
+		}
+		Map<String, Object> map = list.get(0);
+		system.setId(IntegerUtil.getInt0(map.get("id")));
+		system.setSystemName(StringUtil.getStrEmpty(map.get("system_name")));
+		system.setRemark(StringUtil.getStrEmpty(map.get("remark")));
+		return system;
+	}
+
+	/**
 	 * TODO : 用户相关
 	 */
 
 	public PageBody<USUser> findUserByPage(HashMap<String, String> params) {
 		PageBody<USUser> pb = new PageBody<USUser>();
-		String where = " where 1=1 and enable = 1 ";
+		String where = " where 1=1 and enable=1 ";
+		String userName = StringUtil.getStr(params.get("userName"));
+		if (userName != null) {
+			where += String.format(" and (user_name like '%%%s%%' or user_name_cn like '%%%s%%' or phone_number like '%%%s%%' or email like '%%%s%%')",
+					userName, userName, userName, userName);
+		}
 		String sql = "select * from us_user " + where + " limit ?,?";
 		int start = (IntegerUtil.getInt1(params.get("page")) - 1) * IntegerUtil.getInt0(params.get("rows"));
 		int end = IntegerUtil.getInt0(params.get("rows"));
@@ -54,8 +148,6 @@ public class UserService {
 			user.setRemark(StringUtil.getStrEmpty(map.get("remark")));
 			userList.add(user);
 		}
-		// pb.setPage(1);
-		// pb.setRows(10);
 		pb.setTotal(IntegerUtil.getInt0(jdbcTemplate.queryForList("select count(0) as ct from us_user " + where).get(0).get("ct")));
 		pb.setRows(userList);
 		logger.debug(pb.toString());
@@ -134,10 +226,6 @@ public class UserService {
 	 * TODO : 角色相关
 	 */
 
-	/**
-	 * @return
-	 * @throws Exception
-	 */
 	public List<USRole> findRoleAll() {
 		try {
 			String sql = "select * from us_role where enable=1";
@@ -154,13 +242,70 @@ public class UserService {
 		return new ArrayList<USRole>();
 	}
 
-	public void saveRole(USRole role) {
-
+	public PageBody<USRole> findRoleByPage(HashMap<String, String> params) {
+		PageBody<USRole> pb = new PageBody<USRole>();
+		String where = " where 1=1 and enable = 1 ";
+		String roleName = StringUtil.getStr(params.get("roleName"));
+		if (roleName != null) {
+			where += String.format(" and (role_name like '%%%s%%')", roleName);
+		}
+		String sql = "select * from us_role " + where + " limit ?,?";
+		int start = (IntegerUtil.getInt1(params.get("page")) - 1) * IntegerUtil.getInt0(params.get("rows"));
+		int end = IntegerUtil.getInt0(params.get("rows"));
+		logger.debug("start : " + start);
+		logger.debug("end : " + end);
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, start, end);
+		logger.debug("list size : " + list.size());
+		List<USRole> roleList = new ArrayList<USRole>();
+		for (Map<String, Object> map : list) {
+			USRole role = new USRole();
+			role.setId(IntegerUtil.getInt0(map.get("id")));
+			role.setRoleName(StringUtil.getStrEmpty(map.get("role_name")));
+			role.setRemark(StringUtil.getStrEmpty(map.get("remark")));
+			roleList.add(role);
+		}
+		pb.setTotal(IntegerUtil.getInt0(jdbcTemplate.queryForList("select count(0) as ct from us_role " + where).get(0).get("ct")));
+		pb.setRows(roleList);
+		logger.debug(pb.toString());
+		return pb;
 	}
 
-	public void delRole(Integer id) {
-		logger.debug("del role id " + id);
+	public void saveRole(USRole role) {
+		if (role.getId() == null) {
+			String sql = "insert into us_role(role_name,remark) values(?,?)";
+			jdbcTemplate.update(sql, role.getRoleName(), role.getRemark());
+		} else {
+			String sql = "update us_role set role_name=?,remark=? where id=?";
+			jdbcTemplate.update(sql, role.getRoleName(), role.getRemark(), role.getId());
+		}
+	}
 
+	public void delRole(Integer id) throws Exception {
+		logger.debug("roleId " + id);
+		String sql = "select count(0) as ct from us_user_role ur inner join (select id from us_user where enable=1) u on ur.user_id=u.id where role_id=?";
+		logger.debug(SqlUtil.Show(sql, id));
+		Integer count = IntegerUtil.getInt0(jdbcTemplate.queryForList(sql, id).get(0).get("ct"));
+		logger.debug("user count : " + count);
+		if (count != 0) {
+			throw new NotAllowDeleteException("该角色下有[" + count + "]个用户，不能删除。");
+		}
+		sql = "update us_role set enable=0 where id=?";
+		logger.debug(SqlUtil.Show(sql, id));
+		jdbcTemplate.update(sql, id);
+	}
+
+	public USRole findRoleById(HashMap<String, String> params) {
+		String sql = "select * from us_role where id = ? and enable=1";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, IntegerUtil.getInt0(params.get("id")));
+		USRole role = new USRole();
+		if (list.size() == 0) {
+			return role;
+		}
+		Map<String, Object> map = list.get(0);
+		role.setId(IntegerUtil.getInt0(map.get("id")));
+		role.setRoleName(StringUtil.getStrEmpty(map.get("role_name")));
+		role.setRemark(StringUtil.getStrEmpty(map.get("remark")));
+		return role;
 	}
 
 	/**

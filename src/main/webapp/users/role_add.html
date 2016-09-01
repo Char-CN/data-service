@@ -1,0 +1,64 @@
+<div style="margin-top: 10px"></div>
+<form method="post" url="">
+	<div style="margin-bottom: 20px">
+		<span style="width: 130px; padding-left: 20px; display: inline-block">角色名:</span>
+		<input ds_index="role_name" class="easyui-textbox" style="width: 200px" data-options="validType:'nospace'">
+		<input ds_index="id" type="hidden" name="id">
+	</div>
+	<div style="margin-bottom: 20px">
+		<span style="width: 130px; padding-left: 20px; display: inline-block">备注:</span>
+		<input ds_index="remark" class="easyui-textbox" style="width: 200px; height: 60px" data-options="multiline:true">
+	</div>
+	<div style="text-align: center; padding: 5px 0">
+		<a href="javascript:void(0)" class="easyui-linkbutton" ds_index="submit" style="width: 80px">提交</a>
+		<a href="javascript:void(0)" class="easyui-linkbutton" ds_index="close" style="width: 80px">关闭</a>
+	</div>
+</form>
+<script>
+	$(function() {
+		var queryString = '$queryString';
+		var windowId = '$windowId';
+		var id = $.ds.getQueryString(queryString, "id");
+		var this_window = $("#" + windowId);
+
+		var init = function() {
+			this_window.DSFind("close").click(function() {
+				this_window.window('close');
+			});
+			this_window.DSFind("submit").click(function() {
+				var json = {
+					id : this_window.DSFind("id").val(),
+					roleName : this_window.DSFind("role_name").textbox('getValue'),
+					remark : this_window.DSFind("remark").textbox('getValue')
+				};
+				$.ajax({
+					type : "post", // 请求方式
+					url : $.ds.url.save_role, // url地址
+					data : JSON.stringify(json), // 数据
+					contentType : "application/json",
+					dataType : "json",
+					success : function(data) {
+						$.messager.alert('提示', data.message, 'info', function() {
+							this_window.window('close');
+						});
+					},
+					error : function(XMLHttpRequest, textStatus, errorThrown) {
+						$.ds.show('保存失败！<br>status：' + XMLHttpRequest.status + '<br>state：' + XMLHttpRequest.readyState + '<br>text：'
+								+ (textStatus || errorThrown));
+					}
+				});
+			});
+			if (id != null) {
+				$.post($.ds.url.find_role_by_id, {
+					id : id
+				}, function(role) {
+					this_window.DSFind("role_name").textbox('setValue', role.roleName);
+					this_window.DSFind("remark").textbox('setValue', role.remark);
+					this_window.DSFind("id").val(role.id);
+				});
+			}
+		};
+
+		init();
+	});
+</script>

@@ -1,0 +1,116 @@
+<input ds_index="search_role_name">
+<table ds_index="role_tables"></table>
+<script>
+	$(function() {
+		var windowId = '$windowId';
+		var this_window = $("#" + windowId);
+		// 		alert(this_window.html());
+		// 		$.ds.commons.openDialog("user_role_config", $.ds.icon.user + "&nbsp;" + $.ds.icon.role, "角色角色配置", "user_role_config.html");
+
+		// 搜索框
+		this_window.DSFind("search_role_name").searchbox({
+			width : "100%",
+			searcher : function(value, name) {
+				if (value != undefined) {
+					table.datagrid('reload', {
+						roleName : value
+					});
+				}
+			},
+			prompt : '请输入角色名...'
+		});
+
+		// 刷新
+		var a_reload = $('<a href="javascript:void(0)" class="icon-reload"></a>');
+		this_window.parent().find(" .panel-tool").prepend(a_reload);
+		a_reload.click(function() {
+			table.datagrid('reload');
+		});
+		// 删除
+		var a_del = $('<a href="javascript:void(0)" class="icon-remove"></a>');
+		this_window.parent().find(" .panel-tool").prepend(a_del);
+		a_del.click(function() {
+			var selected = table.datagrid('getSelected');
+			var idx = table.datagrid('getRowIndex', selected);
+			if (selected == undefined || selected == null) {
+				$.ds.show('请选择一个角色！');
+				return;
+			}
+			$.ds.confirm("您确定要删除该角色吗？", function() {
+				$.post($.ds.url.del_role, {
+					id : selected.id
+				}, function(data) {
+					$.ds.show(data.message);
+					table.datagrid('reload');
+				});
+			});
+		});
+		// 编辑
+		var a_edit = $('<a href="javascript:void(0)" class="icon-edit"></a>');
+		this_window.parent().find(" .panel-tool").prepend(a_edit);
+		a_edit.click(function() {
+			var selected = table.datagrid('getSelected');
+			var idx = table.datagrid('getRowIndex', selected);
+			if (selected == undefined || selected == null) {
+				$.ds.show('请选择一个角色！');
+				return;
+			}
+			$.ds.commons.openDialog("role_add", $.ds.icon.role, "角色编辑", "users/role_add.html", "id=" + selected.id, {
+				onClose : function() {
+					table.datagrid('reload');
+					setTimeout(function() {
+						table.datagrid('selectRow', idx);
+					}, 200);
+				}
+			}).dialog('resize', {
+				height : 220
+			});
+		});
+		// 增加
+		var a_add = $('<a href="javascript:void(0)" class="icon-add"></a>');
+		this_window.parent().find(" .panel-tool").prepend(a_add);
+		a_add.click(function() {
+			$.ds.commons.openDialog("role_add", $.ds.icon.role, "角色增加", "users/role_add.html", null, {
+				onClose : function() {
+					table.datagrid('getPager').pagination('select', 99999999);
+				}
+			}).dialog('resize', {
+				height : 220
+			});
+		});
+
+		var table = this_window.DSFind("role_tables");
+		// 		this_window.append(table);
+		table.datagrid({
+			url : $.ds.url.find_role_by_page,
+			// 			queryParams : { roleName : "asdass" },
+			method : 'post',
+			singleSelect : true,
+			columns : [ [ {
+				field : 'id',
+				title : 'id',
+				hidden : true
+			}, {
+				field : 'roleName',
+				width : "45%",
+				title : '角色名'
+			}, {
+				field : 'remark',
+				width : "50%",
+				title : '备注'
+			} ] ],
+			rownumbers : true,
+			singleSelect : true,
+			autoRowHeight : false,
+			pagination : true,
+			striped : true,
+			pageSize : 10,
+			pagePosition : 'bottom'
+		}).datagrid('getPager').pagination({
+			pageList : [ 10, 20, 50, 100 ],
+			links : 5,
+			displayMsg : '当前显示　{from} - {to}　条记录,共　{total}　条记录',
+			layout : [ 'list', 'sep', 'first', 'prev', 'sep', 'links', 'sep', 'next', 'last', 'sep', 'refresh' ]
+		});
+	});
+</script>

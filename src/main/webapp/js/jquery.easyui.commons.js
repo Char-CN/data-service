@@ -15,7 +15,17 @@ $(function() {
 			find_user_by_page : "user/findUserByPage.do",
 			find_user_by_id : "user/findUserById.do",
 			save_user : "user/saveUser.do",
-			find_role_all : "user/findRoleAll.do"
+			del_user : "user/delUser.do",
+			find_role_by_page : "user/findRoleByPage.do",
+			find_role_by_id : "user/findRoleById.do",
+			save_role : "user/saveRole.do",
+			del_role : "user/delRole.do",
+			find_role_all : "user/findRoleAll.do",
+			find_system_by_page : "user/findSystemByPage.do",
+			find_system_by_id : "user/findSystemById.do",
+			save_system : "user/saveSystem.do",
+			del_system : "user/delSystem.do",
+			find_system_all : "user/findSystemAll.do"
 		},
 		commons : {
 			chooseTreeId : "",
@@ -173,6 +183,11 @@ $(function() {
 				return;
 			}
 			$.messager.alert('提示', message);
+		},
+		confirm : function(message, func) {
+			$.messager.confirm('提示', message, function(r){
+				if (r) func();
+			});
 		},
 		getBytesLength : function(str) {
 			// 在GBK编码里，除了ASCII字符，其它都占两个字符宽

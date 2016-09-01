@@ -45,7 +45,11 @@
 			<mvc:mapping path="/**" />
 			<!-- <mvc:exclude-mapping path="/system" /> -->
 			<!-- <mvc:exclude-mapping path="/index" /> -->
-			<bean class="org.blazer.dataservice.interceptor.WebRequestInterceptor" />
+			<bean class="org.blazer.dataservice.interceptor.AccessInterceptor" />
+		</mvc:interceptor>
+		<mvc:interceptor>
+			<mvc:mapping path="/dataservice" />
+			<bean class="org.blazer.dataservice.interceptor.AllowCrossDomainInterceptor" />
 		</mvc:interceptor>
 	</mvc:interceptors>
 
