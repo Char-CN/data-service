@@ -14,6 +14,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class UserServiceAction extends BaseAction {
 
 	@ResponseBody
+	@RequestMapping("/login")
+	public ParamsBody login(HttpServletRequest request, HttpServletResponse response) {
+		return null;
+	}
+
+	@ResponseBody
 	@RequestMapping("/getuser")
 	public ConfigBody getUser(HttpServletRequest request, HttpServletResponse response) {
 		return null;
