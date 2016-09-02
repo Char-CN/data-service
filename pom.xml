@@ -49,12 +49,6 @@
 			<version>1.0.20</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/tomcat/jasper-runtime -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>tomcat</groupId> -->
-<!-- 			<artifactId>jasper-runtime</artifactId> -->
-<!-- 			<version>5.5.23</version> -->
-<!-- 		</dependency> -->
 		<!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-webapp -->
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
@@ -97,6 +91,7 @@
 			<version>4.3.0.RELEASE</version>
 		</dependency>
 	</dependencies>
+
 	<!-- fatjar -->
 	<build>
 		<plugins>
@@ -125,4 +120,5 @@
 			</plugin>
 		</plugins>
 	</build>
+
 </project>

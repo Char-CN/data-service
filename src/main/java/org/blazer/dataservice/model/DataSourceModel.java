@@ -2,7 +2,7 @@ package org.blazer.dataservice.model;
 
 import org.blazer.dataservice.dao.Dao;
 
-public class DSDataSource {
+public class DataSourceModel {
 
 	private int id;
 	private String database_name;

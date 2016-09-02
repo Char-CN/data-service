@@ -6,10 +6,13 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.blazer.dataservice.dao.CustomJdbcDao;
-import org.blazer.dataservice.dao.DSConfigDao;
 import org.blazer.dataservice.exception.UnknowDataSourceException;
-import org.blazer.dataservice.model.DSConfig;
-import org.blazer.dataservice.model.DSConfigDetail;
+import org.blazer.dataservice.model.ConfigModel;
+import org.blazer.dataservice.model.PermissionsModel;
+import org.blazer.dataservice.model.RoleModel;
+import org.blazer.dataservice.model.ConfigDetailModel;
+import org.blazer.dataservice.service.CacheService;
+import org.blazer.dataservice.service.UserCacheService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -30,7 +33,10 @@ public class InitSystem implements InitializingBean {
 	CustomJdbcDao customJdbcDao;
 
 	@Autowired
-	DSConfigDao dsConfigDao;
+	CacheService cacheService;
+
+	@Autowired
+	UserCacheService userCacheService;
 
 	@Value("#{dataSourceProperties.url}")
 	public String url;
@@ -42,18 +48,52 @@ public class InitSystem implements InitializingBean {
 	public String password;
 
 	public void afterPropertiesSet() throws Exception {
+		TimeUtil timeUtil = TimeUtil.createAndPoint().setLogger(logger);
 		//////////////////////// 加载数据源 ////////////////////////
 		initDataSource();
+		timeUtil.printMs("加载数据源");
 		//////////////////////// 加载配置项 ////////////////////////
 		initConfigEntity();
+		timeUtil.printMs("加载配置项");
+		//////////////////////// 加载用户和权限 ////////////////////////
+		initUserAndPermissions();
+		timeUtil.printMs("加载用户和权限");
 	}
 
-	public synchronized void initConfigEntity() throws UnknowDataSourceException {
+	private void initUserAndPermissions() {
 		// 先清空
-		dsConfigDao.clear();
+		userCacheService.clearAll();
+		// 查询所有权限
+		String sql = "select up.id,up.permissions_name,up.url,us.system_name,us.id as system_id from us_permissions up inner join us_system us on up.system_id=us.id where us.enable=1 and up.enable=1";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		for (Map<String, Object> map : list) {
+			PermissionsModel permissionsModel = new PermissionsModel();
+			permissionsModel.setId(IntegerUtil.getInt0(map.get("id")));
+			permissionsModel.setPermissionsName(StringUtil.getStrEmpty(map.get("permissions_name")));
+			permissionsModel.setUrl(StringUtil.getStrEmpty(map.get("url")));
+			permissionsModel.setSystemId(IntegerUtil.getInt0(map.get("system_id")));
+			permissionsModel.setSystemName(StringUtil.getStrEmpty(map.get("system_name")));
+			userCacheService.addPermissions(permissionsModel);
+		}
+		// 查询所有角色
+		sql = "select * from us_role where enable=1";
+		list = jdbcTemplate.queryForList(sql);
+		for (Map<String, Object> map : list) {
+			sql = "select GROUP_CONCAT(role_id) as roleids from us_user_role where user_id=? group by user_id";
+			RoleModel roleModel = new RoleModel();
+			roleModel.setId(IntegerUtil.getInt0(map.get("id")));
+			roleModel.setRoleName(StringUtil.getStrEmpty(map.get("role_name")));
+			userCacheService.addRole(roleModel);
+		}
+		// 查询所有用户
+	}
+
+	public void initConfigEntity() throws UnknowDataSourceException {
+		// 先清空
+		cacheService.clearConfigAll();
 		List<Map<String, Object>> configList = jdbcTemplate.queryForList("select id,datasource_id,config_name,config_type from ds_config where enable=1");
 		for (Map<String, Object> configMap : configList) {
-			DSConfig config = new DSConfig();
+			ConfigModel config = new ConfigModel();
 			config.setId(IntegerUtil.getInt0(configMap.get("id")));
 			// 找不到数据源使用默认数据源
 			if (StringUtils.isBlank(StringUtil.getStr(configMap.get("datasource_id")))) {
@@ -63,11 +103,11 @@ public class InitSystem implements InitializingBean {
 			}
 			config.setConfigName(StringUtil.getStrEmpty(configMap.get("config_name")));
 			config.setConfigType(StringUtil.getStrEmpty(configMap.get("config_type")));
-			List<DSConfigDetail> detailList = new ArrayList<DSConfigDetail>();
+			List<ConfigDetailModel> detailList = new ArrayList<ConfigDetailModel>();
 			List<Map<String, Object>> rstList = jdbcTemplate
 					.queryForList("select id,datasource_id,config_id,`key`,`values` from ds_config_detail where config_id=? and enable=1", config.getId());
 			for (Map<String, Object> detailMap : rstList) {
-				DSConfigDetail detail = new DSConfigDetail();
+				ConfigDetailModel detail = new ConfigDetailModel();
 				detail.setId(IntegerUtil.getInt0(detailMap.get("id")));
 				// 找不到数据源使用config的数据源
 				if (StringUtils.isBlank(StringUtil.getStr(detailMap.get("datasource_id")))) {
@@ -80,24 +120,25 @@ public class InitSystem implements InitializingBean {
 				detailList.add(detail);
 			}
 			config.setDetailList(detailList);
-			dsConfigDao.addConfig(config);
+			cacheService.addConfig(config);
 		}
 		logger.info("init success config list size : " + configList.size());
 	}
 
-	public synchronized void initConfigEntity(Integer id) throws UnknowDataSourceException {
+	public void initConfigEntity(Integer id) throws UnknowDataSourceException {
 		if (id == null) {
 			logger.info("config id is null, init fail");
 			return;
 		}
 		// 先清除
-		dsConfigDao.clear(id);
-		List<Map<String, Object>> configList = jdbcTemplate.queryForList("select id,datasource_id,config_name,config_type from ds_config where enable=1 and id=?", id);
+		cacheService.clearConfigById(id);
+		List<Map<String, Object>> configList = jdbcTemplate
+				.queryForList("select id,datasource_id,config_name,config_type from ds_config where enable=1 and id=?", id);
 		if (configList.size() == 0) {
 			logger.info("config is not found, id : " + id + ", init fail");
 			return;
 		}
-		DSConfig config = new DSConfig();
+		ConfigModel config = new ConfigModel();
 		config.setId(IntegerUtil.getInt0(configList.get(0).get("id")));
 		// 找不到数据源使用默认数据源
 		if (StringUtils.isBlank(StringUtil.getStr(configList.get(0).get("datasource_id")))) {
@@ -107,11 +148,11 @@ public class InitSystem implements InitializingBean {
 		}
 		config.setConfigName(StringUtil.getStrEmpty(configList.get(0).get("config_name")));
 		config.setConfigType(StringUtil.getStrEmpty(configList.get(0).get("config_type")));
-		List<DSConfigDetail> detailList = new ArrayList<DSConfigDetail>();
+		List<ConfigDetailModel> detailList = new ArrayList<ConfigDetailModel>();
 		List<Map<String, Object>> rstList = jdbcTemplate
 				.queryForList("select id,datasource_id,config_id,`key`,`values` from ds_config_detail where config_id=? and enable=1", config.getId());
 		for (Map<String, Object> detailMap : rstList) {
-			DSConfigDetail detail = new DSConfigDetail();
+			ConfigDetailModel detail = new ConfigDetailModel();
 			detail.setId(IntegerUtil.getInt0(detailMap.get("id")));
 			// 找不到数据源使用config的数据源
 			if (StringUtils.isBlank(StringUtil.getStr(detailMap.get("datasource_id")))) {
@@ -124,11 +165,11 @@ public class InitSystem implements InitializingBean {
 			detailList.add(detail);
 		}
 		config.setDetailList(detailList);
-		dsConfigDao.addConfig(config);
+		cacheService.addConfig(config);
 		logger.info("init success config id : " + config.getId());
 	}
 
-	public synchronized void initDataSource() {
+	public void initDataSource() {
 		List<Map<String, Object>> dataSourceList = jdbcTemplate.queryForList("select id,database_name,title,url,username,password,remark from ds_datasource");
 		for (Map<String, Object> map : dataSourceList) {
 			Integer id = IntegerUtil.getInt0(map.get("id"));

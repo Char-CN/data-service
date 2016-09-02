@@ -1,11 +1,11 @@
 package org.blazer.dataservice.dao;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.blazer.dataservice.exception.UnknowDataSourceException;
-import org.blazer.dataservice.model.DSDataSource;
+import org.blazer.dataservice.model.DataSourceModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +18,7 @@ public class CustomJdbcDao {
 
 	private static Logger logger = LoggerFactory.getLogger(CustomJdbcDao.class);
 
-	private Map<Integer, DSDataSource> dataSourceMap = new HashMap<Integer, DSDataSource>();
+	private Map<Integer, DataSourceModel> dataSourceMap = new ConcurrentHashMap<Integer, DataSourceModel>();
 
 	public static final Integer DEFAULT_DATASOURCE_ID = 1;
 
@@ -43,15 +43,15 @@ public class CustomJdbcDao {
 	 * @param remark
 	 */
 	public void addDataSource(Integer id, String database_name, String title, String url, String username, String password, String remark) {
-		DSDataSource dsDataSource = new DSDataSource();
+		DataSourceModel dataSourceModel = new DataSourceModel();
 		try {
-			dsDataSource.setId(id);
-			dsDataSource.setDatabase_name(database_name);
-			dsDataSource.setTitle(title);
-			dsDataSource.setUrl(url);
-			dsDataSource.setUsername(username);
-			dsDataSource.setPassword(password);
-			dsDataSource.setRemark(remark);
+			dataSourceModel.setId(id);
+			dataSourceModel.setDatabase_name(database_name);
+			dataSourceModel.setTitle(title);
+			dataSourceModel.setUrl(url);
+			dataSourceModel.setUsername(username);
+			dataSourceModel.setPassword(password);
+			dataSourceModel.setRemark(remark);
 			DruidDataSource dataSource = new DruidDataSource();
 			// 设置连接信息
 			dataSource.setUsername(username);
@@ -80,18 +80,18 @@ public class CustomJdbcDao {
 			dataSource.setPoolPreparedStatements(false);
 			// dataSource.setMaxPoolPreparedStatementPerConnectionSize(100);
 			Dao dao = new TransactionDao(dataSource);
-			dsDataSource.setDao(dao);
+			dataSourceModel.setDao(dao);
 		} catch (Exception e) {
 			logger.error("ERROR[{}]", e);
 		}
-		dataSourceMap.put(id, dsDataSource);
+		dataSourceMap.put(id, dataSourceModel);
 	}
 
 	public void addDefaultDataSource() {
 		addDataSource(DEFAULT_DATASOURCE_ID, "mysql", "default", url, username, password, "系统默认数据源，即datasource.properties里的数据源。");
 	}
 
-	public DSDataSource getDefaultDataSource() {
+	public DataSourceModel getDefaultDataSource() {
 		return dataSourceMap.get(DEFAULT_DATASOURCE_ID);
 	}
 
@@ -120,7 +120,7 @@ public class CustomJdbcDao {
 	 * @return
 	 * @throws UnknowDataSourceException
 	 */
-	public DSDataSource getDataSourceBean(Integer id) throws UnknowDataSourceException {
+	public DataSourceModel getDataSourceBean(Integer id) throws UnknowDataSourceException {
 		if (!dataSourceMap.containsKey(id)) {
 			throw new UnknowDataSourceException("not found the datasource id[" + id + "]");
 		}

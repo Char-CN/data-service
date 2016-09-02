@@ -1,4 +1,4 @@
-package org.blazer.dataservice.model;
+package org.blazer.dataservice.entity;
 
 public class USSystem {
 

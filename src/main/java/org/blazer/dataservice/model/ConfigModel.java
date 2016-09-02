@@ -4,13 +4,13 @@ import java.util.List;
 
 import org.blazer.dataservice.dao.Dao;
 
-public class DSConfig {
+public class ConfigModel {
 
 	private Integer id;
 	private Dao dataSource;
 	private String configName;
 	private String configType;
-	private List<DSConfigDetail> detailList;
+	private List<ConfigDetailModel> detailList;
 
 	public Integer getId() {
 		return id;
@@ -44,11 +44,11 @@ public class DSConfig {
 		this.configType = configType;
 	}
 
-	public List<DSConfigDetail> getDetailList() {
+	public List<ConfigDetailModel> getDetailList() {
 		return detailList;
 	}
 
-	public void setDetailList(List<DSConfigDetail> detailList) {
+	public void setDetailList(List<ConfigDetailModel> detailList) {
 		this.detailList = detailList;
 	}
 

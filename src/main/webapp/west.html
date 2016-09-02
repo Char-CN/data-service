@@ -1,4 +1,3 @@
-
 <script>
 	$(function() {
 		var menu = $('<div></div>');
@@ -71,7 +70,7 @@
 		menu_sort.menu().appendTo('body');
 
 		// 初始化树形菜单
-		$("<ul>").tree({
+		$("<ul id='tree'>").tree({
 			method : 'post',
 			animate : true,
 			url : $.ds.url.tree + '?id=-1',

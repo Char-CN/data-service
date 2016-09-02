@@ -1,35 +1,51 @@
-package org.blazer.dataservice.service;
+package org.blazer.dataservice.action;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang3.StringUtils;
 import org.blazer.dataservice.body.ConfigBody;
 import org.blazer.dataservice.body.ConfigDetailBody;
 import org.blazer.dataservice.body.ParamsBody;
-import org.blazer.dataservice.dao.DSConfigDao;
 import org.blazer.dataservice.dao.Dao;
-import org.blazer.dataservice.model.DSConfig;
-import org.blazer.dataservice.model.DSConfigDetail;
+import org.blazer.dataservice.model.ConfigModel;
+import org.blazer.dataservice.model.ConfigDetailModel;
+import org.blazer.dataservice.service.CacheService;
 import org.blazer.dataservice.util.IntegerUtil;
 import org.blazer.dataservice.util.SqlUtil;
 import org.blazer.dataservice.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-@Service(value = "dataService")
-public class DataService {
+@Controller
+@RequestMapping("/dataservice")
+public class DataServiceAction extends BaseAction {
 
-	private static Logger logger = LoggerFactory.getLogger(DataService.class);
+	private static Logger logger = LoggerFactory.getLogger(DataServiceAction.class);
 
 	@Autowired
-	DSConfigDao dsConfigDao;
+	CacheService cacheService;
 
-	public ConfigBody getConfigById(HashMap<String, String> paramMap) {
+	/**
+	 * 根据id与参数获取配置执行的结果值
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping("/getconfig")
+	public ConfigBody getConfig(HttpServletRequest request, HttpServletResponse response) {
+		HashMap<String, String> paramMap = getParamMap(request);
 		ConfigBody cb = new ConfigBody();
 		Integer id = IntegerUtil.getInt0(paramMap.get("id"));
 		String detailsId = StringUtil.getStr(paramMap.get("detailsid"));
@@ -40,15 +56,15 @@ public class DataService {
 		if (detailsKey != null) {
 			detailsKey = "," + detailsKey + ",";
 		}
-		DSConfig config = dsConfigDao.getConfig(id);
+		ConfigModel config = cacheService.getConfigById(id);
 
 		cb.setId(config.getId());
 		cb.setConfigName(config.getConfigName());
 		cb.setConfigType(config.getConfigType());
 		cb.setDetails(new HashMap<String, ConfigDetailBody>());
 
-		List<DSConfigDetail> detailList = config.getDetailList();
-		for (DSConfigDetail detail : detailList) {
+		List<ConfigDetailModel> detailList = config.getDetailList();
+		for (ConfigDetailModel detail : detailList) {
 			// 匹配details id
 			if (detailsId != null && !detailsId.contains("," + detail.getId() + ",")) {
 				continue;
@@ -83,19 +99,30 @@ public class DataService {
 			cdb.setValues(values);
 			cb.getDetails().put(detail.getKey(), cdb);
 		}
-
 		return cb;
 	}
 
-	public ParamsBody getParamsById(HashMap<String, String> paramMap) {
+	/**
+	 * 根据id获取所有配置的参数
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping("/getparams")
+	public ParamsBody getParams(HttpServletRequest request, HttpServletResponse response) {
+		HashMap<String, String> paramMap = getParamMap(request);
 		ParamsBody body = new ParamsBody();
 		Integer id = IntegerUtil.getInt0(paramMap.get("id"));
-		DSConfig config = dsConfigDao.getConfig(id);
 
-		List<DSConfigDetail> detailList = config.getDetailList();
+		ConfigModel config = cacheService.getConfigById(id);
+		List<ConfigDetailModel> detailList = config.getDetailList();
+
 		body.setParams(new ArrayList<String>());
 		body.setDetails(new HashMap<String, List<String>>());
-		for (DSConfigDetail detail : detailList) {
+
+		for (ConfigDetailModel detail : detailList) {
 			String key = detail.getKey();
 			String sql = detail.getValues();
 			List<String> tmpList = new ArrayList<String>();
@@ -109,6 +136,7 @@ public class DataService {
 			}
 			body.getDetails().put(key, tmpList);
 		}
+
 		return body;
 	}
 

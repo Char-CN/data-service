@@ -2,11 +2,11 @@ package org.blazer.dataservice.model;
 
 import org.blazer.dataservice.dao.Dao;
 
-public class DSConfigDetail {
+public class ConfigDetailModel {
 
 	private Integer id;
 	private Dao dataSource;
-	private DSConfig config;
+	private ConfigModel config;
 	private String key;
 	private String values;
 
@@ -26,11 +26,11 @@ public class DSConfigDetail {
 		this.dataSource = dataSource;
 	}
 
-	public DSConfig getConfig() {
+	public ConfigModel getConfig() {
 		return config;
 	}
 
-	public void setConfig(DSConfig config) {
+	public void setConfig(ConfigModel config) {
 		this.config = config;
 	}
 

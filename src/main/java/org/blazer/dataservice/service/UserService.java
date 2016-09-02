@@ -7,11 +7,11 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.blazer.dataservice.body.PageBody;
+import org.blazer.dataservice.entity.USPermission;
+import org.blazer.dataservice.entity.USRole;
+import org.blazer.dataservice.entity.USSystem;
+import org.blazer.dataservice.entity.USUser;
 import org.blazer.dataservice.exception.NotAllowDeleteException;
-import org.blazer.dataservice.model.USPermission;
-import org.blazer.dataservice.model.USRole;
-import org.blazer.dataservice.model.USSystem;
-import org.blazer.dataservice.model.USUser;
 import org.blazer.dataservice.util.HMap;
 import org.blazer.dataservice.util.IntegerUtil;
 import org.blazer.dataservice.util.SqlUtil;
@@ -190,11 +190,13 @@ public class UserService {
 		logger.debug("userId " + id);
 		String sql = "update us_user set enable=0 where id=?";
 		jdbcTemplate.update(sql, id);
+		// 删除用户角色关系
+		delUserRoleByUserId(id);
 	}
 
 	public void delUserRoleByUserId(Integer id) {
 		logger.debug("userId " + id);
-		String sql = "delete from us_user_role where user_id = ?";
+		String sql = "delete from us_user_role where user_id=?";
 		jdbcTemplate.update(sql, id);
 	}
 
@@ -292,10 +294,18 @@ public class UserService {
 		sql = "update us_role set enable=0 where id=?";
 		logger.debug(SqlUtil.Show(sql, id));
 		jdbcTemplate.update(sql, id);
+		// 删除角色权限关系
+		delRolePermissionsByRoleId(id);
+	}
+
+	public void delRolePermissionsByRoleId(Integer id) {
+		String sql = "delete from us_role_permissions where role_id=?";
+		logger.debug(SqlUtil.Show(sql, id));
+		jdbcTemplate.update(sql, id);
 	}
 
 	public USRole findRoleById(HashMap<String, String> params) {
-		String sql = "select * from us_role where id = ? and enable=1";
+		String sql = "select * from us_role where id=? and enable=1";
 		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, IntegerUtil.getInt0(params.get("id")));
 		USRole role = new USRole();
 		if (list.size() == 0) {

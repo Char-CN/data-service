@@ -21,7 +21,6 @@ public class PermissionsFilter implements Filter {
 			System.out.println(request.getRequestURI());
 			System.out.println(request.getRemoteHost());
 			System.out.println(request.getRemoteAddr());
-
 		}
 		chain.doFilter(req, resp);
 	}
