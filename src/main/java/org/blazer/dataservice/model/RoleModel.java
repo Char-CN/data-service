@@ -1,8 +1,9 @@
 package org.blazer.dataservice.model;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class RoleModel {
+public class RoleModel implements Serializable {
 
 	private Integer id;
 	private String roleName;

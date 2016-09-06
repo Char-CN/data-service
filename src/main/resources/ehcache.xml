@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
+<ehcache updateCheck="false">
+
+	<diskStore path="user.dir/ehcache" />
+
+	<!-- maxBytesLocalHeap="10K" -->
+	<!-- maxEntriesLocalDisk="1000" diskSpoolBufferSizeMB="10240" maxBytesLocalHeap="100M" -->
+	<cache name="aaa"
+		eternal="false"
+		diskPersistent="true"
+		timeToIdleSeconds="120"
+		timeToLiveSeconds="0"
+		memoryStoreEvictionPolicy="FIFO"
+		maxEntriesLocalHeap="100"
+		maxBytesLocalDisk="3G"
+		maxEntriesLocalDisk="10010">
+	</cache>
+
+</ehcache>
+

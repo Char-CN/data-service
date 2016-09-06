@@ -48,6 +48,7 @@ public class InitSystem implements InitializingBean {
 	public String password;
 
 	public void afterPropertiesSet() throws Exception {
+		logger.debug("系统配置开始加载");
 		TimeUtil timeUtil = TimeUtil.createAndPoint().setLogger(logger);
 		//////////////////////// 加载数据源 ////////////////////////
 		initDataSource();
