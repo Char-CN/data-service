@@ -1,9 +1,12 @@
 package org.blazer.dataservice.model;
 
+import java.io.Serializable;
+
 import org.blazer.dataservice.dao.Dao;
 
-public class ConfigDetailModel {
+public class ConfigDetailModel implements Serializable {
 
+	private static final long serialVersionUID = -5812714497821525878L;
 	private Integer id;
 	private Dao dataSource;
 	private ConfigModel config;

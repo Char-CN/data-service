@@ -4,7 +4,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.blazer.dataservice.exception.UnknowDataSourceException;
-import org.blazer.dataservice.util.InitSystem;
+import org.blazer.dataservice.init.ConfigInit;
+import org.blazer.dataservice.init.DataSourceInit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +20,16 @@ public class SystemAction {
 	private static Logger logger = LoggerFactory.getLogger(SystemAction.class);
 
 	@Autowired
-	InitSystem initSystem;
+	DataSourceInit dataSourceInit;
+
+	@Autowired
+	ConfigInit configInit;
 
 	@ResponseBody
 	@RequestMapping("/referConfig")
 	public String getConfig(HttpServletRequest request, HttpServletResponse response) {
 		try {
-			initSystem.initConfigEntity();
+			configInit.initConfigEntity();
 		} catch (UnknowDataSourceException e) {
 			logger.error(e.toString(), e);
 			return "fail";
@@ -36,7 +40,7 @@ public class SystemAction {
 	@ResponseBody
 	@RequestMapping("/referDataSource")
 	public String referDataSource(HttpServletRequest request, HttpServletResponse response) {
-		initSystem.initDataSource();
+		dataSourceInit.initDataSource();
 		return "ok";
 	}
 

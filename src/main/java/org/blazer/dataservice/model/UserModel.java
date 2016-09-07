@@ -1,14 +1,18 @@
 package org.blazer.dataservice.model;
 
-import java.util.List;
+import java.io.Serializable;
 
-public class UserModel {
+import org.roaringbitmap.buffer.MutableRoaringBitmap;
 
+public class UserModel implements Serializable {
+
+	private static final long serialVersionUID = 4901063117205666555L;
 	private Integer id;
 	private String userName;
 	private String phoneNumber;
 	private String email;
-	private List<Integer> roleIdList;
+	private MutableRoaringBitmap roleBitmap;
+	private MutableRoaringBitmap permissionsBitmap;
 
 	public Integer getId() {
 		return id;
@@ -42,12 +46,20 @@ public class UserModel {
 		this.email = email;
 	}
 
-	public List<Integer> getRoleIdList() {
-		return roleIdList;
+	public MutableRoaringBitmap getRoleBitmap() {
+		return roleBitmap;
 	}
 
-	public void setRoleIdList(List<Integer> roleIdList) {
-		this.roleIdList = roleIdList;
+	public void setRoleBitmap(MutableRoaringBitmap roleBitmap) {
+		this.roleBitmap = roleBitmap;
+	}
+
+	public MutableRoaringBitmap getPermissionsBitmap() {
+		return permissionsBitmap;
+	}
+
+	public void setPermissionsBitmap(MutableRoaringBitmap permissionsBitmap) {
+		this.permissionsBitmap = permissionsBitmap;
 	}
 
 	@Override

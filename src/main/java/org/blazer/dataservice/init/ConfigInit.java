@@ -1,30 +1,31 @@
-package org.blazer.dataservice.util;
+package org.blazer.dataservice.init;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.blazer.dataservice.cache.ConfigCache;
 import org.blazer.dataservice.dao.CustomJdbcDao;
 import org.blazer.dataservice.exception.UnknowDataSourceException;
-import org.blazer.dataservice.model.ConfigModel;
-import org.blazer.dataservice.model.PermissionsModel;
-import org.blazer.dataservice.model.RoleModel;
 import org.blazer.dataservice.model.ConfigDetailModel;
-import org.blazer.dataservice.service.CacheService;
-import org.blazer.dataservice.service.UserCacheService;
+import org.blazer.dataservice.model.ConfigModel;
+import org.blazer.dataservice.util.IntegerUtil;
+import org.blazer.dataservice.util.StringUtil;
+import org.blazer.dataservice.util.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-@Component("initSystem")
-public class InitSystem implements InitializingBean {
+@Component("configInit")
+@DependsOn("dataSourceInit")
+public class ConfigInit implements InitializingBean {
 
-	private static Logger logger = LoggerFactory.getLogger(InitSystem.class);
+	private static Logger logger = LoggerFactory.getLogger(ConfigInit.class);
 
 	@Autowired
 	JdbcTemplate jdbcTemplate;
@@ -33,65 +34,19 @@ public class InitSystem implements InitializingBean {
 	CustomJdbcDao customJdbcDao;
 
 	@Autowired
-	CacheService cacheService;
-
-	@Autowired
-	UserCacheService userCacheService;
-
-	@Value("#{dataSourceProperties.url}")
-	public String url;
-
-	@Value("#{dataSourceProperties.username}")
-	public String username;
-
-	@Value("#{dataSourceProperties.password}")
-	public String password;
+	ConfigCache configCache;
 
 	public void afterPropertiesSet() throws Exception {
 		logger.debug("系统配置开始加载");
 		TimeUtil timeUtil = TimeUtil.createAndPoint().setLogger(logger);
-		//////////////////////// 加载数据源 ////////////////////////
-		initDataSource();
-		timeUtil.printMs("加载数据源");
 		//////////////////////// 加载配置项 ////////////////////////
 		initConfigEntity();
 		timeUtil.printMs("加载配置项");
-		//////////////////////// 加载用户和权限 ////////////////////////
-		initUserAndPermissions();
-		timeUtil.printMs("加载用户和权限");
-	}
-
-	private void initUserAndPermissions() {
-		// 先清空
-		userCacheService.clearAll();
-		// 查询所有权限
-		String sql = "select up.id,up.permissions_name,up.url,us.system_name,us.id as system_id from us_permissions up inner join us_system us on up.system_id=us.id where us.enable=1 and up.enable=1";
-		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
-		for (Map<String, Object> map : list) {
-			PermissionsModel permissionsModel = new PermissionsModel();
-			permissionsModel.setId(IntegerUtil.getInt0(map.get("id")));
-			permissionsModel.setPermissionsName(StringUtil.getStrEmpty(map.get("permissions_name")));
-			permissionsModel.setUrl(StringUtil.getStrEmpty(map.get("url")));
-			permissionsModel.setSystemId(IntegerUtil.getInt0(map.get("system_id")));
-			permissionsModel.setSystemName(StringUtil.getStrEmpty(map.get("system_name")));
-			userCacheService.addPermissions(permissionsModel);
-		}
-		// 查询所有角色
-		sql = "select * from us_role where enable=1";
-		list = jdbcTemplate.queryForList(sql);
-		for (Map<String, Object> map : list) {
-			sql = "select GROUP_CONCAT(role_id) as roleids from us_user_role where user_id=? group by user_id";
-			RoleModel roleModel = new RoleModel();
-			roleModel.setId(IntegerUtil.getInt0(map.get("id")));
-			roleModel.setRoleName(StringUtil.getStrEmpty(map.get("role_name")));
-			userCacheService.addRole(roleModel);
-		}
-		// 查询所有用户
 	}
 
 	public void initConfigEntity() throws UnknowDataSourceException {
 		// 先清空
-		cacheService.clearConfigAll();
+		configCache.clearConfigAll();
 		List<Map<String, Object>> configList = jdbcTemplate.queryForList("select id,datasource_id,config_name,config_type from ds_config where enable=1");
 		for (Map<String, Object> configMap : configList) {
 			ConfigModel config = new ConfigModel();
@@ -121,7 +76,7 @@ public class InitSystem implements InitializingBean {
 				detailList.add(detail);
 			}
 			config.setDetailList(detailList);
-			cacheService.addConfig(config);
+			configCache.addConfig(config);
 		}
 		logger.info("init success config list size : " + configList.size());
 	}
@@ -132,7 +87,7 @@ public class InitSystem implements InitializingBean {
 			return;
 		}
 		// 先清除
-		cacheService.clearConfigById(id);
+		configCache.clearConfigById(id);
 		List<Map<String, Object>> configList = jdbcTemplate
 				.queryForList("select id,datasource_id,config_name,config_type from ds_config where enable=1 and id=?", id);
 		if (configList.size() == 0) {
@@ -166,31 +121,8 @@ public class InitSystem implements InitializingBean {
 			detailList.add(detail);
 		}
 		config.setDetailList(detailList);
-		cacheService.addConfig(config);
+		configCache.addConfig(config);
 		logger.info("init success config id : " + config.getId());
-	}
-
-	public void initDataSource() {
-		List<Map<String, Object>> dataSourceList = jdbcTemplate.queryForList("select id,database_name,title,url,username,password,remark from ds_datasource");
-		for (Map<String, Object> map : dataSourceList) {
-			Integer id = IntegerUtil.getInt0(map.get("id"));
-			// id为1是系统默认的连接，如果有则覆盖
-			String database_name = StringUtil.getStrEmpty(map.get("database_name"));
-			String title = StringUtil.getStrEmpty(map.get("title"));
-			String url = StringUtil.getStrEmpty(map.get("url"));
-			String username = StringUtil.getStrEmpty(map.get("username"));
-			String password = StringUtil.getStrEmpty(map.get("password"));
-			String remark = StringUtil.getStrEmpty(map.get("remark"));
-			if (id == 1) {
-				if (StringUtils.isNotBlank(url) || StringUtils.isNotBlank(username) || StringUtils.isNotBlank(password)) {
-					logger.info("检测到配置默认数据源中url、username、password不为空，系统将强行覆盖该数据源为系统配置的datasource.properties里的数据源。");
-				}
-				continue;
-			}
-			customJdbcDao.addDataSource(id, database_name, title, url, username, password, remark);
-		}
-		customJdbcDao.addDefaultDataSource();
-		logger.info("init sucess datasource ids : {}", customJdbcDao.getKeySet());
 	}
 
 	public void reload() {

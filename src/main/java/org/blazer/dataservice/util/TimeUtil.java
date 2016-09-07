@@ -187,7 +187,7 @@ public class TimeUtil {
 
 	private TimeUtil print(String message) {
 		if (logger != null) {
-			logger.debug(message);
+			logger.info(message);
 		} else {
 			System.out.println(message);
 		}

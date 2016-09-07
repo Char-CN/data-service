@@ -43,27 +43,21 @@
 
 	<!-- datasource -->
 	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
-		<!-- 基本属性 url、user、password -->
 		<property name="url" value="${url}" />
 		<property name="username" value="${username}" />
 		<property name="password" value="${password}" />
-		<!-- 配置初始化大小、最小、最大 -->
+		<!-- init、min、max -->
 		<property name="initialSize" value="5" />
 		<property name="minIdle" value="5" />
 		<property name="maxActive" value="50" />
-		<!-- 配置获取连接等待超时的时间 -->
 		<property name="maxWait" value="60000" />
-		<!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
 		<property name="timeBetweenEvictionRunsMillis" value="60000" />
-		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
 		<property name="minEvictableIdleTimeMillis" value="300000" />
 		<property name="validationQuery" value="SELECT 'x'" />
 		<property name="testWhileIdle" value="true" />
 		<property name="testOnBorrow" value="false" />
 		<property name="testOnReturn" value="false" />
-		<!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
 		<property name="poolPreparedStatements" value="false" />
-		<!-- <property name="maxPoolPreparedStatementPerConnectionSize" value="20" /> -->
 		<!-- 配置监控统计拦截的filters，去掉后监控界面sql无法统计 -->
 		<property name="filters" value="stat" />
 	</bean>
@@ -78,10 +72,24 @@
 
 	<tx:annotation-driven transaction-manager="txManager" />
 
-	<bean id="cacheManagerFactory" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+	<!-- Spring集成的ehcache不知是否支持所有参数与特性，如需ehcache集群使用还有待研究 -->
+	<bean id="ehCacheManagerFactory" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
 		<property name="configLocation" value="classpath:ehcache.xml" />
 	</bean>
-	<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
-		<property name="cacheManager" ref="cacheManagerFactory" />
+
+	<bean id="ehCacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+		<property name="cacheManager" ref="ehCacheManagerFactory" />
 	</bean>
+
+<!-- 	<bean id="ehConfigCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"> -->
+<!-- 		<property name="cacheName" value="config_cache" /> -->
+<!-- 		<property name="cacheManager" ref="ehCacheManager" /> -->
+<!-- 	</bean> -->
+
+<!-- 	<bean id="ehUserCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"> -->
+<!-- 		<property name="cacheName" value="user_cache" /> -->
+<!-- 		<property name="cacheManager" ref="ehCacheManager" /> -->
+<!-- 	</bean> -->
+<!--       <bean id="dataSourceInit" class="org.blazer.dataservice.init.DataSourceInit"></bean> -->
+<!--       <bean id="configInit" class="org.blazer.dataservice.init.ConfigInit" depends-on="dataSourceInit"></bean> -->
 </beans>

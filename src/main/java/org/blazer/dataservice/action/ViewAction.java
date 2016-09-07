@@ -13,8 +13,8 @@ import org.blazer.dataservice.body.GroupBody;
 import org.blazer.dataservice.body.view.ViewConfigBody;
 import org.blazer.dataservice.dao.CustomJdbcDao;
 import org.blazer.dataservice.exception.UnknowDataSourceException;
+import org.blazer.dataservice.init.ConfigInit;
 import org.blazer.dataservice.service.ViewService;
-import org.blazer.dataservice.util.InitSystem;
 import org.blazer.dataservice.util.IntegerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,7 @@ public class ViewAction extends BaseAction {
 	CustomJdbcDao customJdbcDao;
 
 	@Autowired
-	InitSystem initSystem;
+	ConfigInit configInit;
 
 	@ResponseBody
 	@RequestMapping("/getTree")
@@ -71,7 +71,7 @@ public class ViewAction extends BaseAction {
 	public Body saveConfig(HttpServletRequest request, HttpServletResponse response, @RequestBody ViewConfigBody viewConfigBody) {
 		try {
 			viewService.saveConfig(viewConfigBody);
-			initSystem.initConfigEntity(viewConfigBody.getId());
+			configInit.initConfigEntity(viewConfigBody.getId());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			return fail().setMessage(e.getMessage());
@@ -97,7 +97,7 @@ public class ViewAction extends BaseAction {
 		HashMap<String, String> params = getParamMap(request);
 		try {
 			viewService.deleteConfig(params);
-			initSystem.initConfigEntity(IntegerUtil.getInt0(params.get("id")));
+			configInit.initConfigEntity(IntegerUtil.getInt0(params.get("id")));
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			return fail().setMessage(e.getMessage());

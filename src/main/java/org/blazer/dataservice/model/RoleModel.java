@@ -5,6 +5,7 @@ import java.util.List;
 
 public class RoleModel implements Serializable {
 
+	private static final long serialVersionUID = -2151798820711872969L;
 	private Integer id;
 	private String roleName;
 	private List<Integer> permissionsIdList;

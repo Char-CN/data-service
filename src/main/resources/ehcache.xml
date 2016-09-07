@@ -6,16 +6,53 @@
 
 	<!-- maxBytesLocalHeap="10K" -->
 	<!-- maxEntriesLocalDisk="1000" diskSpoolBufferSizeMB="10240" maxBytesLocalHeap="100M" -->
-	<cache name="aaa"
-		eternal="false"
-		diskPersistent="true"
-		timeToIdleSeconds="120"
-		timeToLiveSeconds="0"
-		memoryStoreEvictionPolicy="FIFO"
-		maxEntriesLocalHeap="100"
-		maxBytesLocalDisk="3G"
-		maxEntriesLocalDisk="10010">
+
+	<cache 
+		name="config_cache"
+		eternal="true"
+		diskPersistent="false"
+		maxElementsInMemory="0"
+		overflowToDisk="false"
+		>
 	</cache>
+
+<!-- 	<cache  -->
+<!-- 		name="config_cache" -->
+<!-- 		eternal="true" -->
+<!-- 		diskPersistent="false" -->
+<!-- 		memoryStoreEvictionPolicy="LRU" -->
+<!-- 		maxElementsInMemory="10" -->
+<!-- 		maxElementsOnDisk="0" -->
+<!-- 		overflowToDisk="true" -->
+<!-- 		diskSpoolBufferSizeMB="1024" -->
+<!-- 		> -->
+<!-- 	</cache> -->
+
+	<cache 
+		name="user_cache"
+		eternal="false"
+		diskPersistent="false"
+		timeToIdleSeconds="100"
+		timeToLiveSeconds="0"
+		memoryStoreEvictionPolicy="LRU"
+		maxElementsInMemory="10"
+		maxElementsOnDisk="0"
+		overflowToDisk="true"
+		diskSpoolBufferSizeMB="20"
+		>
+	</cache>
+	
+	
+<!-- 	<cache name="user_cache" -->
+<!-- 		eternal="false" -->
+<!-- 		diskPersistent="true" -->
+<!-- 		timeToIdleSeconds="10" -->
+<!-- 		timeToLiveSeconds="0" -->
+<!-- 		memoryStoreEvictionPolicy="FIFO" -->
+<!-- 		maxEntriesLocalHeap="100" -->
+<!-- 		maxBytesLocalDisk="10G" -->
+<!-- 		maxEntriesLocalDisk="10010"> -->
+<!-- 	</cache> -->
 
 </ehcache>
 

@@ -12,10 +12,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.blazer.dataservice.body.ConfigBody;
 import org.blazer.dataservice.body.ConfigDetailBody;
 import org.blazer.dataservice.body.ParamsBody;
+import org.blazer.dataservice.cache.ConfigCache;
 import org.blazer.dataservice.dao.Dao;
-import org.blazer.dataservice.model.ConfigModel;
 import org.blazer.dataservice.model.ConfigDetailModel;
-import org.blazer.dataservice.service.CacheService;
+import org.blazer.dataservice.model.ConfigModel;
 import org.blazer.dataservice.util.IntegerUtil;
 import org.blazer.dataservice.util.SqlUtil;
 import org.blazer.dataservice.util.StringUtil;
@@ -33,7 +33,7 @@ public class DataServiceAction extends BaseAction {
 	private static Logger logger = LoggerFactory.getLogger(DataServiceAction.class);
 
 	@Autowired
-	CacheService cacheService;
+	ConfigCache configCache;
 
 	/**
 	 * 根据id与参数获取配置执行的结果值
@@ -56,7 +56,7 @@ public class DataServiceAction extends BaseAction {
 		if (detailsKey != null) {
 			detailsKey = "," + detailsKey + ",";
 		}
-		ConfigModel config = cacheService.getConfigById(id);
+		ConfigModel config = configCache.getConfigById(id);
 
 		cb.setId(config.getId());
 		cb.setConfigName(config.getConfigName());
@@ -116,7 +116,7 @@ public class DataServiceAction extends BaseAction {
 		ParamsBody body = new ParamsBody();
 		Integer id = IntegerUtil.getInt0(paramMap.get("id"));
 
-		ConfigModel config = cacheService.getConfigById(id);
+		ConfigModel config = configCache.getConfigById(id);
 		List<ConfigDetailModel> detailList = config.getDetailList();
 
 		body.setParams(new ArrayList<String>());

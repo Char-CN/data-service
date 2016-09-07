@@ -73,7 +73,7 @@
 	<!-- </rollingPolicy> -->
 	<!-- </appender> -->
 
-	<root level="info">
+	<root level="debug">
 		<appender-ref ref="consoleAppender" />
 		<appender-ref ref="fileAppenderByTime" />
 	</root>

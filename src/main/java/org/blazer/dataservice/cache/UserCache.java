@@ -1,4 +1,4 @@
-package org.blazer.dataservice.service;
+package org.blazer.dataservice.cache;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -6,14 +6,40 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.blazer.dataservice.model.PermissionsModel;
 import org.blazer.dataservice.model.RoleModel;
 import org.blazer.dataservice.model.UserModel;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.ehcache.EhCacheCacheManager;
 import org.springframework.stereotype.Component;
 
-@Component(value = "userCacheService")
-public class UserCacheService {
+/**
+ * disk cache
+ * 
+ * 流程：
+ * 
+ * 1.缓存用户与所对应权限Bigmap
+ * 
+ * 2.缓存权限的map
+ * 
+ * 3.缓存用户-角色、角色-权限
+ * 
+ * @author hyy
+ *
+ */
+@Component(value = "userCache")
+public class UserCache extends BaseCache {
 
+	private static final String CACHE_NAME = "user_cache";
 	private static final Map<Integer, UserModel> userMap = new ConcurrentHashMap<Integer, UserModel>();
 	private static final Map<Integer, RoleModel> roleMap = new ConcurrentHashMap<Integer, RoleModel>();
 	private static final Map<String, PermissionsModel> permissionsMap = new ConcurrentHashMap<String, PermissionsModel>();
+
+	@Autowired
+	EhCacheCacheManager ehCacheManager;
+
+	@Override
+	public String getCacheName() {
+		return "user_cache";
+	}
 
 	/**
 	 * TODO : 所有
