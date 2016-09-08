@@ -11,9 +11,9 @@ import org.blazer.dataservice.body.Body;
 import org.blazer.dataservice.body.DataSourceBody;
 import org.blazer.dataservice.body.GroupBody;
 import org.blazer.dataservice.body.view.ViewConfigBody;
-import org.blazer.dataservice.dao.CustomJdbcDao;
+import org.blazer.dataservice.cache.ConfigCache;
+import org.blazer.dataservice.cache.DataSourceCache;
 import org.blazer.dataservice.exception.UnknowDataSourceException;
-import org.blazer.dataservice.init.ConfigInit;
 import org.blazer.dataservice.service.ViewService;
 import org.blazer.dataservice.util.IntegerUtil;
 import org.slf4j.Logger;
@@ -34,10 +34,10 @@ public class ViewAction extends BaseAction {
 	ViewService viewService;
 
 	@Autowired
-	CustomJdbcDao customJdbcDao;
+	DataSourceCache dataSourceCache;
 
 	@Autowired
-	ConfigInit configInit;
+	ConfigCache configCache;
 
 	@ResponseBody
 	@RequestMapping("/getTree")
@@ -71,7 +71,7 @@ public class ViewAction extends BaseAction {
 	public Body saveConfig(HttpServletRequest request, HttpServletResponse response, @RequestBody ViewConfigBody viewConfigBody) {
 		try {
 			viewService.saveConfig(viewConfigBody);
-			configInit.initConfigEntity(viewConfigBody.getId());
+			configCache.initConfigEntity(viewConfigBody.getId());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			return fail().setMessage(e.getMessage());
@@ -97,7 +97,7 @@ public class ViewAction extends BaseAction {
 		HashMap<String, String> params = getParamMap(request);
 		try {
 			viewService.deleteConfig(params);
-			configInit.initConfigEntity(IntegerUtil.getInt0(params.get("id")));
+			configCache.initConfigEntity(IntegerUtil.getInt0(params.get("id")));
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			return fail().setMessage(e.getMessage());
@@ -110,12 +110,12 @@ public class ViewAction extends BaseAction {
 	public List<DataSourceBody> getDataSourceAll(HttpServletRequest request, HttpServletResponse response) throws UnknowDataSourceException {
 		logger.debug("map : " + getParamMap(request));
 		List<DataSourceBody> list = new ArrayList<DataSourceBody>();
-		for (Integer i : customJdbcDao.getKeySet()) {
+		for (Integer i : dataSourceCache.getKeySet()) {
 			DataSourceBody dsb = new DataSourceBody();
 			dsb.setId(i);
-			dsb.setDatabaseName(customJdbcDao.getDataSourceBean(i).getDatabase_name());
-			dsb.setTitle(customJdbcDao.getDataSourceBean(i).getTitle());
-			dsb.setRemark(customJdbcDao.getDataSourceBean(i).getRemark());
+			dsb.setDatabaseName(dataSourceCache.getDataSourceBean(i).getDatabase_name());
+			dsb.setTitle(dataSourceCache.getDataSourceBean(i).getTitle());
+			dsb.setRemark(dataSourceCache.getDataSourceBean(i).getRemark());
 			list.add(dsb);
 		}
 		return list;

@@ -1,7 +1,10 @@
 package org.blazer.dataservice.model;
 
-public class PermissionsModel {
+import java.io.Serializable;
 
+public class PermissionsModel implements Serializable {
+
+	private static final long serialVersionUID = -5468934981914473709L;
 	private Integer id;
 	private Integer systemId;
 	private String systemName;

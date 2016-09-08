@@ -91,10 +91,10 @@ public class UserService {
 
 	public void delSystem(Integer id) throws Exception {
 		logger.debug("systemId " + id);
-		String sql = "select count(0) as ct from us_permission where enable=1 and system_id=?";
+		String sql = "select count(0) as ct from us_permissions where enable=1 and system_id=?";
 		logger.debug(SqlUtil.Show(sql, id));
 		Integer count = IntegerUtil.getInt0(jdbcTemplate.queryForList(sql, id).get(0).get("ct"));
-		logger.debug("permission count : " + count);
+		logger.debug("permissions count : " + count);
 		if (count != 0) {
 			throw new NotAllowDeleteException("该系统下有[" + count + "]个权限，不能删除。");
 		}
@@ -322,12 +322,12 @@ public class UserService {
 	 * TODO : 权限相关
 	 */
 
-	public void savePermission(USPermission permission) {
+	public void savePermissions(USPermission permission) {
 
 	}
 
-	public void delPermission(Integer id) {
-		logger.debug("del permission id " + id);
+	public void delPermissions(Integer id) {
+		logger.debug("del permissions id " + id);
 
 	}
 

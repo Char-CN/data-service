@@ -13,9 +13,7 @@ public abstract class BaseCache {
 
 	public abstract String getCacheName();
 
-//	public abstract EhCacheCacheManager getEhCacheManager();
-
-	public Cache getCache() {
+	protected Cache getCache() {
 		return ehCacheManager.getCache(getCacheName());
 	}
 

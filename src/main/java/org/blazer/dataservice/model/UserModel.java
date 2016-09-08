@@ -9,9 +9,10 @@ public class UserModel implements Serializable {
 	private static final long serialVersionUID = 4901063117205666555L;
 	private Integer id;
 	private String userName;
+	private String password;
+	private String userNameCn;
 	private String phoneNumber;
 	private String email;
-	private MutableRoaringBitmap roleBitmap;
 	private MutableRoaringBitmap permissionsBitmap;
 
 	public Integer getId() {
@@ -30,6 +31,22 @@ public class UserModel implements Serializable {
 		this.userName = userName;
 	}
 
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getUserNameCn() {
+		return userNameCn;
+	}
+
+	public void setUserNameCn(String userNameCn) {
+		this.userNameCn = userNameCn;
+	}
+
 	public String getPhoneNumber() {
 		return phoneNumber;
 	}
@@ -46,14 +63,6 @@ public class UserModel implements Serializable {
 		this.email = email;
 	}
 
-	public MutableRoaringBitmap getRoleBitmap() {
-		return roleBitmap;
-	}
-
-	public void setRoleBitmap(MutableRoaringBitmap roleBitmap) {
-		this.roleBitmap = roleBitmap;
-	}
-
 	public MutableRoaringBitmap getPermissionsBitmap() {
 		return permissionsBitmap;
 	}
@@ -64,7 +73,8 @@ public class UserModel implements Serializable {
 
 	@Override
 	public String toString() {
-		return "UserModel [id=" + id + ", userName=" + userName + ", phoneNumber=" + phoneNumber + ", email=" + email + "]";
+		return "UserModel [id=" + id + ", userName=" + userName + ", password=" + password + ", userNameCn=" + userNameCn + ", phoneNumber=" + phoneNumber
+				+ ", email=" + email + ", permissionsBitmap=" + permissionsBitmap + "]";
 	}
 
 }

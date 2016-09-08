@@ -15,6 +15,7 @@ public class PermissionsFilter implements Filter {
 	private String systemName = null;
 
 	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
+		System.out.println(systemName);
 		if (systemName != null) {
 			HttpServletRequest request = (HttpServletRequest) req;
 			System.out.println(request.getRequestURL());
@@ -27,6 +28,7 @@ public class PermissionsFilter implements Filter {
 
 	public void init(FilterConfig filterConfig) throws ServletException {
 		systemName = filterConfig.getInitParameter("systemName");
+		System.out.println("init filter : " + systemName);
 	}
 
 	public void destroy() {

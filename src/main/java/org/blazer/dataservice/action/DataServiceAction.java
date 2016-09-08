@@ -56,7 +56,7 @@ public class DataServiceAction extends BaseAction {
 		if (detailsKey != null) {
 			detailsKey = "," + detailsKey + ",";
 		}
-		ConfigModel config = configCache.getConfigById(id);
+		ConfigModel config = configCache.get(id);
 
 		cb.setId(config.getId());
 		cb.setConfigName(config.getConfigName());
@@ -116,7 +116,7 @@ public class DataServiceAction extends BaseAction {
 		ParamsBody body = new ParamsBody();
 		Integer id = IntegerUtil.getInt0(paramMap.get("id"));
 
-		ConfigModel config = configCache.getConfigById(id);
+		ConfigModel config = configCache.get(id);
 		List<ConfigDetailModel> detailList = config.getDetailList();
 
 		body.setParams(new ArrayList<String>());

@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.blazer.dataservice.body.Body;
 import org.blazer.dataservice.body.PageBody;
-import org.blazer.dataservice.dao.CustomJdbcDao;
+import org.blazer.dataservice.cache.DataSourceCache;
 import org.blazer.dataservice.entity.USRole;
 import org.blazer.dataservice.entity.USSystem;
 import org.blazer.dataservice.entity.USUser;
@@ -34,7 +34,7 @@ public class UserAction extends BaseAction {
 	UserService userService;
 
 	@Autowired
-	CustomJdbcDao customJdbcDao;
+	DataSourceCache dataSourceCache;
 
 	/**
 	 * TODO : 系统相关

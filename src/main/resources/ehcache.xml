@@ -4,9 +4,6 @@
 
 	<diskStore path="user.dir/ehcache" />
 
-	<!-- maxBytesLocalHeap="10K" -->
-	<!-- maxEntriesLocalDisk="1000" diskSpoolBufferSizeMB="10240" maxBytesLocalHeap="100M" -->
-
 	<cache 
 		name="config_cache"
 		eternal="true"
@@ -16,17 +13,28 @@
 		>
 	</cache>
 
-<!-- 	<cache  -->
-<!-- 		name="config_cache" -->
-<!-- 		eternal="true" -->
-<!-- 		diskPersistent="false" -->
-<!-- 		memoryStoreEvictionPolicy="LRU" -->
-<!-- 		maxElementsInMemory="10" -->
-<!-- 		maxElementsOnDisk="0" -->
-<!-- 		overflowToDisk="true" -->
-<!-- 		diskSpoolBufferSizeMB="1024" -->
-<!-- 		> -->
-<!-- 	</cache> -->
+	<cache 
+		name="data_source_cache"
+		eternal="true"
+		diskPersistent="false"
+		maxElementsInMemory="0"
+		overflowToDisk="false"
+		>
+	</cache>
+
+	<cache 
+		name="session_cache"
+		eternal="false"
+		diskPersistent="false"
+		timeToIdleSeconds="100"
+		timeToLiveSeconds="0"
+		memoryStoreEvictionPolicy="LRU"
+		maxElementsInMemory="100"
+		maxElementsOnDisk="0"
+		overflowToDisk="true"
+		diskSpoolBufferSizeMB="20"
+		>
+	</cache>
 
 	<cache 
 		name="user_cache"
@@ -35,14 +43,27 @@
 		timeToIdleSeconds="100"
 		timeToLiveSeconds="0"
 		memoryStoreEvictionPolicy="LRU"
-		maxElementsInMemory="10"
+		maxElementsInMemory="100"
 		maxElementsOnDisk="0"
 		overflowToDisk="true"
 		diskSpoolBufferSizeMB="20"
 		>
 	</cache>
-	
-	
+
+	<cache 
+		name="permissions_cache"
+		eternal="false"
+		diskPersistent="false"
+		timeToIdleSeconds="100"
+		timeToLiveSeconds="0"
+		memoryStoreEvictionPolicy="LRU"
+		maxElementsInMemory="100"
+		maxElementsOnDisk="0"
+		overflowToDisk="true"
+		diskSpoolBufferSizeMB="20"
+		>
+	</cache>
+
 <!-- 	<cache name="user_cache" -->
 <!-- 		eternal="false" -->
 <!-- 		diskPersistent="true" -->
