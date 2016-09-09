@@ -48,7 +48,8 @@
 			<bean class="org.blazer.dataservice.interceptor.AccessInterceptor" />
 		</mvc:interceptor>
 		<mvc:interceptor>
-			<mvc:mapping path="/dataservice" />
+			<mvc:mapping path="/dataservice/**" />
+			<mvc:mapping path="/userservice/**" />
 			<bean class="org.blazer.dataservice.interceptor.AllowCrossDomainInterceptor" />
 		</mvc:interceptor>
 	</mvc:interceptors>

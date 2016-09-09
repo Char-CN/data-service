@@ -53,26 +53,26 @@
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
 
-	<filter>
-		<filter-name>PermissionsFilter</filter-name>
-		<filter-class>org.blazer.dataservice.filter.PermissionsFilter</filter-class>
-		<init-param>
-			<param-name>systemName</param-name>
-			<param-value>data-service</param-value>
-		</init-param>
-		<init-param>
-			<param-name>serviceUrl</param-name>
-			<param-value>127.0.0.1:8080/dataservice</param-value>
-		</init-param>
-	</filter>
-	<filter-mapping>
-		<filter-name>PermissionsFilter</filter-name>
-		<url-pattern>*.do</url-pattern>
-	</filter-mapping>
-	<filter-mapping>
-		<filter-name>PermissionsFilter</filter-name>
-		<url-pattern>*.action</url-pattern>
-	</filter-mapping>
+<!-- 	<filter> -->
+<!-- 		<filter-name>PermissionsFilter</filter-name> -->
+<!-- 		<filter-class>org.blazer.dataservice.filter.PermissionsFilter</filter-class> -->
+<!-- 		<init-param> -->
+<!-- 			<param-name>systemName</param-name> -->
+<!-- 			<param-value>data-service</param-value> -->
+<!-- 		</init-param> -->
+<!-- 		<init-param> -->
+<!-- 			<param-name>serviceUrl</param-name> -->
+<!-- 			<param-value>127.0.0.1:8080/dataservice</param-value> -->
+<!-- 		</init-param> -->
+<!-- 	</filter> -->
+<!-- 	<filter-mapping> -->
+<!-- 		<filter-name>PermissionsFilter</filter-name> -->
+<!-- 		<url-pattern>*.do</url-pattern> -->
+<!-- 	</filter-mapping> -->
+<!-- 	<filter-mapping> -->
+<!-- 		<filter-name>PermissionsFilter</filter-name> -->
+<!-- 		<url-pattern>*.action</url-pattern> -->
+<!-- 	</filter-mapping> -->
 
 	<!-- druid config -->
 	<filter>

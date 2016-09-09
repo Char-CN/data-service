@@ -54,12 +54,14 @@ public class UserCache extends BaseCache implements InitializingBean {
 			userModel.setPhoneNumber(StringUtil.getStrEmpty(map.get("phone_number")));
 			String permissions_ids = StringUtil.getStrEmpty(map.get("permissions_ids"));
 			MutableRoaringBitmap bitmap = new MutableRoaringBitmap();
-			for (String id : StringUtils.split(permissions_ids)) {
+			for (String id : StringUtils.splitPreserveAllTokens(permissions_ids, ",")) {
 				bitmap.add(IntegerUtil.getInt0(id));
 			}
 			userModel.setPermissionsBitmap(bitmap);
+			logger.debug("init user : " + userModel);
 			this.add(userModel);
 		}
+		logger.info("init user size : " + list.size());
 	}
 
 	public void clear() {

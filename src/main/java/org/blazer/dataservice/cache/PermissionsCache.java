@@ -45,7 +45,9 @@ public class PermissionsCache extends BaseCache implements InitializingBean {
 			permissionsModel.setSystemId(IntegerUtil.getInt0(map.get("system_id")));
 			permissionsModel.setSystemName(StringUtil.getStrEmpty(map.get("system_name")));
 			this.add(permissionsModel);
+			logger.info("init permissions : " + permissionsModel);
 		}
+		logger.info("init permissions size : " + list.size());
 	}
 
 	private void init(Integer id) {
@@ -93,16 +95,19 @@ public class PermissionsCache extends BaseCache implements InitializingBean {
 
 	public PermissionsModel get(Integer id) {
 		if (!contains(id)) {
+			if (id == null) {
+				return null;
+			}
 			this.init(id);
 		}
 		return (PermissionsModel) getCache().get(id).get();
 	}
 
-	public PermissionsModel get(String systemName_Url) {
+	public Integer get(String systemName_Url) {
 		if (!contains(systemName_Url)) {
 			return null;
 		}
-		return (PermissionsModel) getCache().get(systemName_Url).get();
+		return (Integer) getCache().get(systemName_Url).get();
 	}
 
 	public boolean contains(Integer id) {
