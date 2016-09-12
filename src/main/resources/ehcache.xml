@@ -22,28 +22,28 @@
 		>
 	</cache>
 
-	<cache 
-		name="user_cache"
-		eternal="true"
-		diskPersistent="false"
-		maxElementsInMemory="0"
-		overflowToDisk="false"
-		>
-	</cache>
-
 <!-- 	<cache  -->
 <!-- 		name="user_cache" -->
-<!-- 		eternal="false" -->
+<!-- 		eternal="true" -->
 <!-- 		diskPersistent="false" -->
-<!-- 		timeToIdleSeconds="100" -->
-<!-- 		timeToLiveSeconds="0" -->
-<!-- 		memoryStoreEvictionPolicy="LRU" -->
-<!-- 		maxElementsInMemory="100" -->
-<!-- 		maxElementsOnDisk="0" -->
-<!-- 		overflowToDisk="true" -->
-<!-- 		diskSpoolBufferSizeMB="20" -->
+<!-- 		maxElementsInMemory="0" -->
+<!-- 		overflowToDisk="false" -->
 <!-- 		> -->
 <!-- 	</cache> -->
+
+	<cache 
+		name="user_cache"
+		eternal="false"
+		diskPersistent="false"
+		timeToIdleSeconds="100"
+		timeToLiveSeconds="0"
+		memoryStoreEvictionPolicy="LRU"
+		maxElementsInMemory="100"
+		maxElementsOnDisk="0"
+		overflowToDisk="true"
+		diskSpoolBufferSizeMB="20"
+		>
+	</cache>
 
 	<cache 
 		name="permissions_cache"
@@ -68,19 +68,19 @@
 <!-- 		> -->
 <!-- 	</cache> -->
 
-	<cache 
-		name="session_cache"
-		eternal="false"
-		diskPersistent="false"
-		timeToIdleSeconds="1800"
-		timeToLiveSeconds="0"
-		memoryStoreEvictionPolicy="LRU"
-		maxElementsInMemory="100"
-		maxElementsOnDisk="0"
-		overflowToDisk="true"
-		diskSpoolBufferSizeMB="20"
-		>
-	</cache>
+<!-- 	<cache  -->
+<!-- 		name="session_cache" -->
+<!-- 		eternal="false" -->
+<!-- 		diskPersistent="false" -->
+<!-- 		timeToIdleSeconds="1800" -->
+<!-- 		timeToLiveSeconds="0" -->
+<!-- 		memoryStoreEvictionPolicy="LRU" -->
+<!-- 		maxElementsInMemory="100" -->
+<!-- 		maxElementsOnDisk="0" -->
+<!-- 		overflowToDisk="true" -->
+<!-- 		diskSpoolBufferSizeMB="20" -->
+<!-- 		> -->
+<!-- 	</cache> -->
 
 <!-- 	<cache name="user_cache" -->
 <!-- 		eternal="false" -->

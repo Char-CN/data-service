@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.blazer.dataservice.body.PageBody;
+import org.blazer.dataservice.cache.UserCache;
 import org.blazer.dataservice.entity.USPermission;
 import org.blazer.dataservice.entity.USRole;
 import org.blazer.dataservice.entity.USSystem;
@@ -29,6 +30,9 @@ public class UserService {
 
 	@Autowired
 	JdbcTemplate jdbcTemplate;
+	
+	@Autowired
+	UserCache userCache;
 
 	/**
 	 * TODO : 系统相关
@@ -183,6 +187,7 @@ public class UserService {
 			String sql = "update us_user set user_name=?,user_name_cn=?,email=?,phone_number=?,remark=? where id=?";
 			jdbcTemplate.update(sql, user.getUserName(), user.getUserNameCn(), user.getEmail(), user.getPhoneNumber(), user.getRemark(), user.getId());
 		}
+		userCache.init(userId);
 		addUserRole(userId, roleIds);
 	}
 

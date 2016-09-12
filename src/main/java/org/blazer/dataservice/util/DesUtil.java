@@ -9,13 +9,11 @@ import javax.crypto.spec.DESKeySpec;
 
 public final class DesUtil {
 
-	
-	private static final String DEFAULT_PASSWORD_CRYPT_KEY = "URIW853FKDJAF9363KDJKF7MFS3FKD";
+	private static final String DEFAULT_PASSWORD_CRYPT_KEY = "HelLohYy";
 	private static final String DES = "DES";
 	private static Cipher cipher = null;
 
 	static {
-		// Cipher对象实际完成加密操作
 		try {
 			cipher = Cipher.getInstance(DES);
 		} catch (Exception e) {
@@ -26,42 +24,21 @@ public final class DesUtil {
 	private DesUtil() {
 	}
 
-	public static byte[] encrypt(byte[] src, byte[] key) throws Exception {
-		// DES算法要求有一个可信任的随机数源
+	private static byte[] encrypt(byte[] src, byte[] key) throws Exception {
 		SecureRandom sr = new SecureRandom();
-
-		// 从原始密匙数据创建DESKeySpec对象
 		DESKeySpec dks = new DESKeySpec(key);
-
-		// 创建一个密匙工厂，然后用它把DESKeySpec转换成
-		// 一个SecretKey对象
 		SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(DES);
 		SecretKey securekey = keyFactory.generateSecret(dks);
-
-		// 用密匙初始化Cipher对象
 		cipher.init(Cipher.ENCRYPT_MODE, securekey, sr);
-
-		// 正式执行加密操作
 		return cipher.doFinal(src);
 	}
 
-	public static byte[] decrypt(byte[] src, byte[] key) throws Exception {
-
-		// DES算法要求有一个可信任的随机数源
+	private static byte[] decrypt(byte[] src, byte[] key) throws Exception {
 		SecureRandom sr = new SecureRandom();
-
-		// 从原始密匙数据创建一个DESKeySpec对象
 		DESKeySpec dks = new DESKeySpec(key);
-
-		// 创建一个密匙工厂，然后用它把DESKeySpec对象转换成
-		// 一个SecretKey对象
 		SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(DES);
 		SecretKey securekey = keyFactory.generateSecret(dks);
-
-		// 用密匙初始化Cipher对象
 		cipher.init(Cipher.DECRYPT_MODE, securekey, sr);
-
-		// 正式执行解密操作
 		return cipher.doFinal(src);
 	}
 
@@ -69,11 +46,16 @@ public final class DesUtil {
 		return decrypt(data, DEFAULT_PASSWORD_CRYPT_KEY);
 	}
 
-	public static String decrypt(String data, String key) {
+	public static String decrypt(final String data, final String key) {
+		String rst = data;
 		try {
-			return new String(decrypt(hex2byte(data.getBytes()), key.getBytes()));
+			for (int i = key.length() / 8 - 1; i >= 0; i--) {
+				String tmpKey = key.substring(i * 8, i * 8 + 8);
+				rst = new String(decrypt(hex2byte(rst.getBytes()), tmpKey.getBytes()));
+			}
+			return rst;
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 		return null;
 	}
@@ -82,32 +64,33 @@ public final class DesUtil {
 		return encrypt(data, DEFAULT_PASSWORD_CRYPT_KEY);
 	}
 
-	public static String encrypt(String data, String key) {
+	public static String encrypt(final String data, final String key) {
+		String rst = data;
 		try {
-			return byte2hex(encrypt(data.getBytes(), key.getBytes()));
+			for (int i = 0; i < key.length() / 8; i++) {
+				String tmpKey = key.substring(i * 8, i * 8 + 8);
+				rst = byte2hex(encrypt(rst.getBytes(), tmpKey.getBytes()));
+			}
+			return rst;
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 		return null;
 	}
 
-	public static String byte2hex(byte[] b) {
-		String hs = "";
-		String stmp = "";
-
+	private static String byte2hex(byte[] b) {
+		StringBuilder hs = new StringBuilder();
 		for (int n = 0; n < b.length; n++) {
-			stmp = (java.lang.Integer.toHexString(b[n] & 0XFF));
+			String stmp = (java.lang.Integer.toHexString(b[n] & 0XFF));
 			if (stmp.length() == 1) {
-				hs = hs + "0" + stmp;
-			} else {
-				hs = hs + stmp;
+				hs.append("0");
 			}
+			hs.append(stmp);
 		}
-
-		return hs.toUpperCase();
+		return hs.toString();
 	}
 
-	public static byte[] hex2byte(byte[] b) {
+	private static byte[] hex2byte(byte[] b) {
 		if ((b.length % 2) != 0) {
 			throw new IllegalArgumentException("长度不是偶数");
 		}
@@ -121,14 +104,32 @@ public final class DesUtil {
 
 	public static void main(String[] args) {
 		String url = "http://baidu.com";
-		String KEY = "URIW853FKDJAF9363KDJKF7MFS3FKD";
+		String KEY = "URIW853F";
 		System.out.println(KEY.length());
-		url = DesUtil.encrypt(url, KEY);
-		System.out.println("1:" + url);
-		url = DesUtil.encrypt(url, KEY);
-		System.out.println("2:" + url);
-		System.out.println();
-		url = DesUtil.decrypt("3AD66C12BFC094DD65566158F09F5C72AD4021DB9ABCD50D");
+		System.out.println("1:" + DesUtil.encrypt("12347", "hellohyy"));
+		System.out.println("1:" + DesUtil.decrypt(DesUtil.encrypt("http://baidu.com", "HelLOHyY"), "HelLOHyY"));
+		TimeUtil time = TimeUtil.createAndPoint();
+		TimeUtil time2 = TimeUtil.createAndPoint();
+//		String k = "12345678";
+//		String content = "fghjkzxcvbnm,2222222233333333888888fghjkzxcvbnm,222222223333333388888888999999991234";
+//		System.out.println(content.length());
+//		for (int i = 0; i < 1000000; i ++) {
+//			if (i % 5000 == 0) {
+//				time.printMs(""+i);
+//			}
+//			String encode = DesUtil.encrypt(content, k);
+//			DesUtil.decrypt(encode, k);
+//		}
+		time.printMs("total");
+		time2.printMs("total");
+//		System.out.println("1:" + DesUtil.encrypt("http://baidu.com", "12345678"));
+//		System.out.println("1:" + DesUtil.encrypt(DesUtil.encrypt("http://baidu.com", "12345678"), "12345678"));
+//		System.out.println("2:" + DesUtil.encrypt("http://www.baidu.com", "URIW853FACSDQWEZ"));
+//		System.out.println("2:" + DesUtil.encrypt("http://www.baidu.com", "URIW853FACSDQWEZ"));
+//		System.out.println();
+//		url = DesUtil.decrypt("AC11168CCE5F7CDF1A26708E9B8B4399845EA9A37066A2604EF77570F171DEC1F7DEA244AE5A9F9279D6F0039CDAA372FEB959B7D4642FCB", "12345678");
+//		url = DesUtil.decrypt("49D7997FAA52E7F76BD7B9DFBEAD8203FEB959B7D4642FCB", "12345678");
 		System.out.println(url);
 	}
+
 }

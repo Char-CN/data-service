@@ -9,12 +9,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.blazer.dataservice.body.Body;
 import org.blazer.dataservice.body.LoginBody;
-import org.blazer.dataservice.body.ParamsBody;
 import org.blazer.dataservice.cache.PermissionsCache;
 import org.blazer.dataservice.cache.SessionCache;
 import org.blazer.dataservice.cache.UserCache;
+import org.blazer.dataservice.model.LoginType;
 import org.blazer.dataservice.model.PermissionsModel;
 import org.blazer.dataservice.model.UserModel;
+import org.blazer.dataservice.util.DesUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +29,14 @@ public class UserServiceAction extends BaseAction {
 
 	private static Logger logger = LoggerFactory.getLogger(UserServiceAction.class);
 	private static final String SESSION_KEY = "MYSESSIONID";
+	private static final String COOKIE_PATH = "/";
+	private static final int COOKIE_SECONDS = 1000;
+	// LoginType,UserId,UserName
+	private static final String LOGGIN_FORMAT = "%s,%s,%s";
 
-	@Autowired
-	SessionCache sessionCache;
-	
+//	@Autowired
+//	SessionCache sessionCache;
+
 	@Autowired
 	UserCache userCache;
 
@@ -41,6 +46,18 @@ public class UserServiceAction extends BaseAction {
 	@RequestMapping("/getlogin")
 	public String getLogin(HttpServletRequest request, HttpServletResponse response) {
 		return "/login.html";
+	}
+
+	@ResponseBody
+	@RequestMapping("/logout")
+	public Body logout(HttpServletRequest request, HttpServletResponse response) {
+		String sessionId = getSessionId(request);
+		logger.debug("logout session id : " + sessionId);
+		Cookie cookie = new Cookie(SESSION_KEY, sessionId);
+		cookie.setPath(COOKIE_PATH);
+		cookie.setMaxAge(0);
+		response.addCookie(cookie);
+		return new Body().setStatus("200").setMessage("注销成功");
 	}
 
 	@ResponseBody
@@ -60,33 +77,46 @@ public class UserServiceAction extends BaseAction {
 		logger.debug("user password : " + um.getPassword());
 		logger.debug("params password : " + params.get("password"));
 		if (um.getPassword().equals(params.get("password").toString())) {
-			String sessionId = sessionCache.add(um);
+			String sessionId = DesUtil.encrypt(String.format(LOGGIN_FORMAT, LoginType.userName.index, um.getId(), um.getUserName()));
+//			String sessionId = sessionCache.add(um);
 			Cookie cookie = new Cookie(SESSION_KEY, sessionId);
-			cookie.setPath("/");
+			cookie.setPath(COOKIE_PATH);
+			cookie.setMaxAge(COOKIE_SECONDS);
 			response.addCookie(cookie);
 			return new LoginBody().setSessionId(sessionId).setMessage("登录成功");
 		}
 		return new Body().setStatus("201").setMessage("密码不对，登录失败");
 
-//		String sessionId = getSessionId(request);
-//		if (sessionId != null && sessionCache.contains(sessionId)) {
-//			logger.debug("sessionid : " + sessionId);
-//		} else {
-//			System.out.println(UUID.randomUUID().toString().length());
-//			Cookie cookie = new Cookie(SESSION_KEY, UUID.randomUUID().toString());
-//			response.addCookie(cookie);
-//		}
+		// String sessionId = getSessionId(request);
+		// if (sessionId != null && sessionCache.contains(sessionId)) {
+		// logger.debug("sessionid : " + sessionId);
+		// } else {
+		// System.out.println(UUID.randomUUID().toString().length());
+		// Cookie cookie = new Cookie(SESSION_KEY,
+		// UUID.randomUUID().toString());
+		// response.addCookie(cookie);
+		// }
 	}
 
 	@ResponseBody
 	@RequestMapping("/getuser")
 	public UserModel getUser(HttpServletRequest request, HttpServletResponse response) {
 		String sessionId = getSessionId(request);
-		UserModel um = sessionCache.get(sessionId);
+		sessionId = DesUtil.decrypt(sessionId);
+		String[] contents = StringUtils.splitByWholeSeparator(sessionId, ",");
+		if (sessionId == null || contents.length != 3) {
+			return new UserModel();
+		}
+		UserModel um = userCache.get(contents[2]);
 		if (um == null) {
 			um = new UserModel();
 		}
 		um.setPermissionsBitmap(null);
+//		UserModel um = sessionCache.get(sessionId);
+//		if (um == null) {
+//			um = new UserModel();
+//		}
+//		um.setPermissionsBitmap(null);
 		return um;
 	}
 
@@ -94,22 +124,40 @@ public class UserServiceAction extends BaseAction {
 	@RequestMapping("/checkuser")
 	public boolean checkUser(HttpServletRequest request, HttpServletResponse response) {
 		String sessionId = getSessionId(request);
-		return sessionCache.contains(sessionId);
+		sessionId = DesUtil.decrypt(sessionId);
+		String[] contents = StringUtils.splitByWholeSeparator(sessionId, ",");
+		if (sessionId == null || contents.length != 3) {
+			return false;
+		}
+		return true;
+//		String sessionId = getSessionId(request);
+//		return sessionCache.contains(sessionId);
 	}
 
 	@ResponseBody
 	@RequestMapping("/delay")
 	public boolean delay(HttpServletRequest request, HttpServletResponse response) {
 		String sessionId = getSessionId(request);
-		return sessionCache.contains(sessionId);
+		if (sessionId == null) {
+			return false;
+		}
+		Cookie cookie = new Cookie(SESSION_KEY, sessionId);
+		cookie.setPath(COOKIE_PATH);
+		cookie.setMaxAge(COOKIE_SECONDS);
+		response.addCookie(cookie);
+		return true;
 	}
 
 	@ResponseBody
 	@RequestMapping("/checkurl")
 	public boolean checkUrl(HttpServletRequest request, HttpServletResponse response) {
 		String sessionId = getSessionId(request);
-		UserModel um = sessionCache.get(sessionId);
-		logger.debug("user : " + um);
+		sessionId = DesUtil.decrypt(sessionId);
+		String[] contents = StringUtils.splitByWholeSeparator(sessionId, ",");
+		UserModel um = userCache.get(contents[2]);
+//		String sessionId = getSessionId(request);
+//		UserModel um = sessionCache.get(sessionId);
+//		logger.debug("user : " + um);
 		if (um == null) {
 			logger.debug("check user is null...");
 			return false;

@@ -120,6 +120,7 @@ public class UserAction extends BaseAction {
 		try {
 			userService.saveUser(user, roleIds);
 		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 			return new Body().error().setMessage("保存失败：" + e.getMessage());
 		}
 		return new Body().setMessage("保存成功！");
@@ -132,6 +133,7 @@ public class UserAction extends BaseAction {
 		try {
 			userService.delUser(id);
 		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 			return new Body().error().setMessage("删除失败：" + e.getMessage());
 		}
 		return new Body().setMessage("删除成功！");
