@@ -32,7 +32,7 @@ public class UserServiceAction extends BaseAction {
 	private static final String COOKIE_PATH = "/";
 	private static final int COOKIE_SECONDS = 1000;
 	// LoginType,UserId,UserName
-	private static final String LOGGIN_FORMAT = "%s,%s,%s";
+	private static final String LOGGIN_FORMAT = "%s,%s,%s,%s";
 
 //	@Autowired
 //	SessionCache sessionCache;
@@ -53,7 +53,7 @@ public class UserServiceAction extends BaseAction {
 	public Body logout(HttpServletRequest request, HttpServletResponse response) {
 		String sessionId = getSessionId(request);
 		logger.debug("logout session id : " + sessionId);
-		Cookie cookie = new Cookie(SESSION_KEY, sessionId);
+		Cookie cookie = new Cookie(SESSION_KEY, null);
 		cookie.setPath(COOKIE_PATH);
 		cookie.setMaxAge(0);
 		response.addCookie(cookie);
@@ -77,7 +77,7 @@ public class UserServiceAction extends BaseAction {
 		logger.debug("user password : " + um.getPassword());
 		logger.debug("params password : " + params.get("password"));
 		if (um.getPassword().equals(params.get("password").toString())) {
-			String sessionId = DesUtil.encrypt(String.format(LOGGIN_FORMAT, LoginType.userName.index, um.getId(), um.getUserName()));
+			String sessionId = DesUtil.encrypt(String.format(LOGGIN_FORMAT, LoginType.userName.index, um.getId(), um.getUserName(), getExpire()));
 //			String sessionId = sessionCache.add(um);
 			Cookie cookie = new Cookie(SESSION_KEY, sessionId);
 			cookie.setPath(COOKIE_PATH);
@@ -104,7 +104,7 @@ public class UserServiceAction extends BaseAction {
 		String sessionId = getSessionId(request);
 		sessionId = DesUtil.decrypt(sessionId);
 		String[] contents = StringUtils.splitByWholeSeparator(sessionId, ",");
-		if (sessionId == null || contents.length != 3) {
+		if (sessionId == null || contents.length != 4) {
 			return new UserModel();
 		}
 		UserModel um = userCache.get(contents[2]);
@@ -126,7 +126,10 @@ public class UserServiceAction extends BaseAction {
 		String sessionId = getSessionId(request);
 		sessionId = DesUtil.decrypt(sessionId);
 		String[] contents = StringUtils.splitByWholeSeparator(sessionId, ",");
-		if (sessionId == null || contents.length != 3) {
+		if (sessionId == null || contents.length != 4) {
+			return false;
+		}
+		if (Long.parseLong(contents[3]) > System.currentTimeMillis()) {
 			return false;
 		}
 		return true;
@@ -141,6 +144,8 @@ public class UserServiceAction extends BaseAction {
 		if (sessionId == null) {
 			return false;
 		}
+		String[] contents = StringUtils.splitByWholeSeparator(sessionId, ",");
+		String.format(LOGGIN_FORMAT, contents[0], contents[1], contents[2], getExpire());
 		Cookie cookie = new Cookie(SESSION_KEY, sessionId);
 		cookie.setPath(COOKIE_PATH);
 		cookie.setMaxAge(COOKIE_SECONDS);
@@ -171,6 +176,14 @@ public class UserServiceAction extends BaseAction {
 			return false;
 		}
 		return true;
+	}
+
+	private long getExpire() {
+		return COOKIE_SECONDS * 1000 + System.currentTimeMillis();
+	}
+
+	private void removeCookie(HttpServletRequest request) {
+		HashMap<String, String> params = getParamMap(request);
 	}
 
 	private String getSystemName_Url(HttpServletRequest request) {
