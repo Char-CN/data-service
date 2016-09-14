@@ -13,6 +13,11 @@
 	    }
 	    return null;
 	};
+	$.get("/userservice/checkuser.do", function(data) {
+		if (data != undefined && data == true) {
+			location.href = getQueryString("url");
+		}
+	});
 	var login = function() {
 		var userName = document.getElementById("userName").value;
 		var password = document.getElementById("password").value;

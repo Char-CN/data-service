@@ -35,7 +35,7 @@
 		name="user_cache"
 		eternal="false"
 		diskPersistent="false"
-		timeToIdleSeconds="100"
+		timeToIdleSeconds="10"
 		timeToLiveSeconds="0"
 		memoryStoreEvictionPolicy="LRU"
 		maxElementsInMemory="100"

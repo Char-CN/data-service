@@ -47,6 +47,9 @@ public final class DesUtil {
 	}
 
 	public static String decrypt(final String data, final String key) {
+		if (data == null || key == null) {
+			return null;
+		}
 		String rst = data;
 		try {
 			for (int i = key.length() / 8 - 1; i >= 0; i--) {
@@ -65,6 +68,9 @@ public final class DesUtil {
 	}
 
 	public static String encrypt(final String data, final String key) {
+		if (data == null || key == null) {
+			return null;
+		}
 		String rst = data;
 		try {
 			for (int i = 0; i < key.length() / 8; i++) {
