@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class UserServiceAction extends BaseAction {
 
 	private static Logger logger = LoggerFactory.getLogger(UserServiceAction.class);
-	private static final String SESSION_KEY = "MYSESSIONID";
+	private static final String COOKIE_KEY = "MYSESSIONID";
 	private static final String COOKIE_PATH = "/";
 	private static final int COOKIE_SECONDS = 10;
 	// LoginType,UserId,UserName,ExpireTime
@@ -47,14 +47,15 @@ public class UserServiceAction extends BaseAction {
 
 	@ResponseBody
 	@RequestMapping("/logout")
-	public Body logout(HttpServletRequest request, HttpServletResponse response) {
+	public String logout(HttpServletRequest request, HttpServletResponse response) {
 		String sessionId = getSessionId(request);
 		logger.debug("logout session id : " + sessionId);
-		Cookie cookie = new Cookie(SESSION_KEY, null);
+		Cookie cookie = new Cookie(COOKIE_KEY, null);
 		cookie.setPath(COOKIE_PATH);
 		cookie.setMaxAge(0);
 		response.addCookie(cookie);
-		return new Body().setStatus("200").setMessage("注销成功");
+//		return new Body().setStatus("200").setMessage("注销成功");
+		return true + "," + null;
 	}
 
 	@ResponseBody
@@ -80,7 +81,7 @@ public class UserServiceAction extends BaseAction {
 		logger.debug("params password : " + params.get("password"));
 		if (um.getPassword().equals(params.get("password").toString())) {
 			String sessionId = DesUtil.encrypt(String.format(LOGGIN_FORMAT, LoginType.userName.index, um.getId(), um.getUserName(), getExpire()));
-			Cookie cookie = new Cookie(SESSION_KEY, sessionId);
+			Cookie cookie = new Cookie(COOKIE_KEY, sessionId);
 			cookie.setPath(COOKIE_PATH);
 			cookie.setMaxAge(COOKIE_SECONDS);
 			response.addCookie(cookie);
@@ -103,22 +104,22 @@ public class UserServiceAction extends BaseAction {
 
 	@ResponseBody
 	@RequestMapping("/checkuser")
-	public boolean checkUser(HttpServletRequest request, HttpServletResponse response) {
+	public String checkUser(HttpServletRequest request, HttpServletResponse response) {
 		String sessionStr = getSessionId(request);
 		sessionStr = DesUtil.decrypt(sessionStr);
 		SessionModel sessionModel = new SessionModel(sessionStr);
-		delay(sessionModel, response);
-		return checkUser(sessionModel);
+//		delay(sessionModel, response);
+		return checkUser(sessionModel) + "," + delay(sessionModel, response);
 	}
 
 	@ResponseBody
 	@RequestMapping("/delay")
-	public boolean delay(HttpServletRequest request, HttpServletResponse response) {
+	public String delay(HttpServletRequest request, HttpServletResponse response) {
 		String sessionStr = getSessionId(request);
 		sessionStr = DesUtil.decrypt(sessionStr);
 		SessionModel sessionModel = new SessionModel(sessionStr);
-		delay(sessionModel, response);
-		return delay(sessionModel, response) != null;
+		String newSession = delay(sessionModel, response);
+		return (newSession != null) + "," + newSession;
 	}
 
 	@ResponseBody
@@ -129,11 +130,13 @@ public class UserServiceAction extends BaseAction {
 		SessionModel sessionModel = new SessionModel(sessionStr);
 		String newSession = delay(sessionModel, response);
 		if (!checkUser(sessionModel)) {
-			return "false," + newSession;
+			logger.debug("checkurl by 1 false");
+			return false + "," + newSession;
 		}
 		UserModel um = getUser(sessionModel);
 		if (um == null) {
-			return "false," + newSession;
+			logger.debug("checkurl by 2 false");
+			return false + "," + newSession;
 		}
 		PermissionsModel permissionsModel = permissionsCache.get(permissionsCache.get(getSystemName_Url(request)));
 		logger.debug("url key : " + getSystemName_Url(request));
@@ -141,9 +144,11 @@ public class UserServiceAction extends BaseAction {
 		logger.debug("bitmap : " + um.getPermissionsBitmap());
 		// 系统存了该URL并且该URL的bitmap是没有值的
 		if (permissionsModel != null && um.getPermissionsBitmap() != null && !um.getPermissionsBitmap().contains(permissionsModel.getId())) {
-			return "false," + newSession;
+			logger.debug("checkurl by 3 false");
+			return false + "," + newSession;
 		}
-		return "true," + newSession;
+		logger.debug("checkurl true");
+		return true + "," + newSession;
 	}
 
 	private UserModel getUser(SessionModel sessionModel) {
@@ -181,7 +186,7 @@ public class UserServiceAction extends BaseAction {
 			return null;
 		}
 		String newSessionId = DesUtil.encrypt(String.format(LOGGIN_FORMAT, LoginType.userName.index, um.getId(), um.getUserName(), getExpire()));
-		Cookie cookie = new Cookie(SESSION_KEY, newSessionId);
+		Cookie cookie = new Cookie(COOKIE_KEY, newSessionId);
 		cookie.setPath(COOKIE_PATH);
 		cookie.setMaxAge(COOKIE_SECONDS);
 		response.addCookie(cookie);
@@ -202,14 +207,14 @@ public class UserServiceAction extends BaseAction {
 		Cookie sessionCookie = null;
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {
-				if (SESSION_KEY.equals(cookie.getName())) {
+				if (COOKIE_KEY.equals(cookie.getName())) {
 					logger.debug("cookie : " + cookie.getName() + " | " + cookie.getValue());
 					sessionCookie = cookie;
 					break;
 				}
 			}
 		}
-		String paramKey = getParamMap(request).get(SESSION_KEY);
+		String paramKey = getParamMap(request).get(COOKIE_KEY);
 		if (StringUtils.isNotBlank(paramKey)) {
 			return paramKey;
 		}
