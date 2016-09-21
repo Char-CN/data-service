@@ -49,8 +49,11 @@ var $userservice = function() {
 	};
 
 	var logout = function() {
-		$.cookie(cookie_id, "", { path: "/", expires: -1});
-		location.reload(true);
+		var r=confirm("您确定退出登录吗？");
+		if (r) {
+			$.cookie(cookie_id, "", { path: "/", expires: -1});
+			location.href = getlogin + "?url=" + encodeURIComponent(location.href);
+		}
 	};
 
 	init();
