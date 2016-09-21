@@ -67,7 +67,7 @@
 		</init-param>
 		<init-param>
 			<param-name>serviceUrl</param-name>
-			<param-value>http://bigdata.blazer.org:8030/userservice</param-value>
+			<param-value>http://bigdata.blazer.org:8030/user/userservice</param-value>
 		</init-param>
 		<init-param>
 			<param-name>noPermissionsPage</param-name>
@@ -75,7 +75,7 @@
 		</init-param>
 		<init-param>
 			<param-name>cookieSeconds</param-name>
-			<param-value>10</param-value>
+			<param-value>1800</param-value>
 		</init-param>
 	</filter>
 	<filter-mapping>
@@ -85,6 +85,10 @@
 	<filter-mapping>
 		<filter-name>PermissionsFilter</filter-name>
 		<url-pattern>*.action</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>PermissionsFilter</filter-name>
+		<url-pattern>*.html</url-pattern>
 	</filter-mapping>
 
 	<!-- druid config -->

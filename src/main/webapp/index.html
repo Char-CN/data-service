@@ -16,11 +16,13 @@
 <link rel="stylesheet" type="text/css" href="css/commons.css">
 <!-- js引入顺序，不可置换 -->
 <script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
 <script type="text/javascript" src="js/jquery.easyui.min.js"></script>
 <script type="text/javascript" src="js/jquery.easyui.commons.js"></script>
 <script type="text/javascript" src="js/jquery.easyui.extends.js"></script>
 <script type="text/javascript" src="js/Sortable.js"></script>
 <script type="text/javascript" src="js/locale/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="js/userservice.js"></script>
 <script>
 	window.onload = function() {
 		// 初始化west
@@ -30,12 +32,21 @@
 			$("#center").panel('refresh', 'manager.html');
 			$("#center").panel('setTitle', '管理首页');
 		}).click();
+		var logout = $('<a href="javascript:void(0);">登出</a>');
+		logout.click(function() {
+			$userservice.logout();
+		});
+		var login = $('<span style="float: right; padding: 7px;">' + $userservice.userName + '&nbsp;&nbsp;</span>');
+		login.append(logout);
+		$("#foot").append(login);
 	};
 </script>
 </head>
 <body>
 	<div id="main" class="easyui-layout" data-options="fit:true">
-		<div id="north" data-options="region:'north'" style="height: 100px; overflow: hidden;"></div>
+		<div id="north" data-options="region:'north'" style="height: 100px; overflow: hidden;">
+			asdasd
+		</div>
 		<div id="west" class="easyui-panel"
 			data-options="region:'west',split:false,collapsed:false,
                 hideExpandTool: true,

@@ -31,6 +31,47 @@ public class PermissionsFilter implements Filter {
 	private Integer cookieSeconds = null;
 	private boolean onOff = false;
 
+	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
+		HttpServletRequest request = (HttpServletRequest) req;
+		HttpServletResponse response = (HttpServletResponse) resp;
+		String sessionid = getSessionId(request);
+		System.out.println(request.getRequestURL());
+		System.out.println(request.getRequestURI());
+		System.out.println(request.getRemoteHost());
+		System.out.println(request.getRemoteAddr());
+		if (!onOff) {
+			chain.doFilter(req, resp);
+			return;
+		}
+		String url = request.getRequestURI();
+		try {
+//			String content = executeGet(serviceUrl + "/getuser.do?" + SESSION_KEY + "=" + sessionid);
+//			ObjectMapper mapper = new ObjectMapper();
+//			UserModel um = mapper.readValue(content, UserModel.class);
+//			System.out.println(um);
+			StringBuilder requestUrl = new StringBuilder(serviceUrl);
+			requestUrl.append("/checkurl.do?");
+			requestUrl.append(COOKIE_KEY).append("=").append(sessionid);
+			requestUrl.append("&").append("url").append("=").append(url);
+			requestUrl.append("&").append("systemName").append("=").append(systemName);
+			String content = executeGet(requestUrl.toString());
+			System.out.println(content);
+			String[] contents = content.split(",", 2);
+			if (contents.length == 2) {
+				delay(response, contents[1]);
+			}
+			if ("false".equals(contents[0])) {
+				System.out.println("dispatcher");
+				RequestDispatcher rd = request.getRequestDispatcher(noPermissionsPage);
+				rd.forward(req, resp);
+				return;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		chain.doFilter(req, resp);
+	}
+
 	public String executeGet(String url) throws Exception {
 		BufferedReader in = null;
 		String content = null;
@@ -60,47 +101,6 @@ public class PermissionsFilter implements Filter {
 			}
 		}
 		return content;
-	}
-
-	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
-		if (!onOff) {
-			chain.doFilter(req, resp);
-			return;
-		}
-		HttpServletRequest request = (HttpServletRequest) req;
-		HttpServletResponse response = (HttpServletResponse) resp;
-		String sessionid = getSessionId(request);
-		System.out.println(request.getRequestURL());
-		System.out.println(request.getRequestURI());
-		System.out.println(request.getRemoteHost());
-		System.out.println(request.getRemoteAddr());
-		String url = request.getRequestURI();
-		try {
-//			String content = executeGet(serviceUrl + "/getuser.do?" + SESSION_KEY + "=" + sessionid);
-//			ObjectMapper mapper = new ObjectMapper();
-//			UserModel um = mapper.readValue(content, UserModel.class);
-//			System.out.println(um);
-			StringBuilder requestUrl = new StringBuilder(serviceUrl);
-			requestUrl.append("/checkurl.do?");
-			requestUrl.append(COOKIE_KEY).append("=").append(sessionid);
-			requestUrl.append("&").append("url").append("=").append(url);
-			requestUrl.append("&").append("systemName").append("=").append(systemName);
-			String content = executeGet(requestUrl.toString());
-			System.out.println(content);
-			String[] contents = content.split(",", 2);
-			if (contents.length == 2) {
-				delay(response, contents[1]);
-			}
-			if ("false".equals(contents[0])) {
-				System.out.println("dispatcher");
-				RequestDispatcher rd = request.getRequestDispatcher(noPermissionsPage);
-				rd.forward(req, resp);
-				return;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		chain.doFilter(req, resp);
 	}
 
 	private void delay(HttpServletResponse response, String newSession) {
