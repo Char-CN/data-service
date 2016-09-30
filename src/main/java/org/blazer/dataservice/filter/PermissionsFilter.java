@@ -19,6 +19,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.blazer.dataservice.util.StringUtil;
 
 public class PermissionsFilter implements Filter {
 
@@ -58,7 +59,7 @@ public class PermissionsFilter implements Filter {
 			System.out.println(content);
 			String[] contents = content.split(",", 2);
 			if (contents.length == 2) {
-				delay(response, contents[1]);
+				delay(response, request, contents[1]);
 			}
 			if ("false".equals(contents[0])) {
 				System.out.println("dispatcher");
@@ -103,13 +104,17 @@ public class PermissionsFilter implements Filter {
 		return content;
 	}
 
-	private void delay(HttpServletResponse response, String newSession) {
+	private void delay(HttpServletResponse response, HttpServletRequest request, String newSession) {
 		if ("".equals(newSession)) {
 			newSession = null;
 		}
+		String domain = StringUtil.findOneStrByReg(request.getRequestURL().toString(), "[http|https]://([a-zA-Z0-9.]*).*");
 		System.out.println("delay ~ new session : " + newSession);
 		Cookie cookie = new Cookie(COOKIE_KEY, newSession);
 		cookie.setPath(COOKIE_PATH);
+		domain = ".blazer2.org";
+		System.out.println("domain ~ " + domain);
+		cookie.setDomain(domain);
 		cookie.setMaxAge(cookieSeconds);
 		response.addCookie(cookie);
 	}
