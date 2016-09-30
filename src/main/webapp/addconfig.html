@@ -31,11 +31,12 @@
 		var group_id = $.ds.getQueryString(queryString, "group_id");
 		var this_window = $("#" + windowId);
 		
-		
+		var isAdd = true;
 		// 提示
 		if (id == null) {
 			$.ds.show("您正在新增配置项。");
 		} else {
+			isAdd = false;
 			$.ds.show('您正在修改[' + this_window.window('options').title + "]");
 		}
 
@@ -112,6 +113,9 @@
 							this_window.DSFind('details').find('li').each(function(i, o){
 								$(this).DSFind("panel").panel('expand');
 							});
+							if (isAdd) {
+								this_window.window('close');
+							}
 							setTimeout("$.ds.commons.referCenterByMenuId("+group_id+")", 3000);
 						},
 						error : function(XMLHttpRequest, textStatus, errorThrown) {
