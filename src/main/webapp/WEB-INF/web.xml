@@ -30,10 +30,6 @@
 		<servlet-name>springmvc-default-servlet</servlet-name>
 		<url-pattern>*.do</url-pattern>
 	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>springmvc-default-servlet</servlet-name>
-		<url-pattern>*.action</url-pattern>
-	</servlet-mapping>
 
 	<!-- init encoding filter -->
 	<filter>
@@ -81,10 +77,6 @@
 	<filter-mapping>
 		<filter-name>PermissionsFilter</filter-name>
 		<url-pattern>*.do</url-pattern>
-	</filter-mapping>
-	<filter-mapping>
-		<filter-name>PermissionsFilter</filter-name>
-		<url-pattern>*.action</url-pattern>
 	</filter-mapping>
 	<filter-mapping>
 		<filter-name>PermissionsFilter</filter-name>
