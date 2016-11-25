@@ -3,8 +3,8 @@
 正在开发中。。。待完善
 
 
-logo.pngz生成地址：
-http://xiuxiu.web.meitu.com/main.html
+logo.png生成地址：http://xiuxiu.web.meitu.com/main.html
+<br>
 生成格式：
 100x400
 方正隶变简体
