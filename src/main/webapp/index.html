@@ -22,8 +22,9 @@
 <script type="text/javascript" src="js/jquery.easyui.extends.js"></script>
 <script type="text/javascript" src="js/Sortable.js"></script>
 <script type="text/javascript" src="js/locale/easyui-lang-zh_CN.js"></script>
-<script type="text/javascript" src="js/userservice.js"></script>
+<script type="text/javascript" src="http://bigdata.blazer.org:8030/js/userservice.js"></script>
 <script>
+	var $userservice = new $userservice("data-service");
 	window.onload = function() {
 		// 初始化west
 		$("#west").panel('refresh', 'west.html');
@@ -36,7 +37,7 @@
 		logout.click(function() {
 			$userservice.logout();
 		});
-		var login = $('<span style="float: right; padding: 7px;">' + $userservice.userName + '&nbsp;&nbsp;</span>');
+		var login = $('<span style="float: right; padding: 7px;">' + $userservice.userName + '('+ $userservice.userNameCn+')&nbsp;&nbsp;</span>');
 		login.append(logout);
 		$("#foot").append(login);
 	};
@@ -45,7 +46,6 @@
 <body>
 	<div id="main" class="easyui-layout" data-options="fit:true">
 		<div id="north" data-options="region:'north'" style="height: 100px; overflow: hidden;">
-			asdasd
 		</div>
 		<div id="west" class="easyui-panel"
 			data-options="region:'west',split:false,collapsed:false,
