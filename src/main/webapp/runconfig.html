@@ -234,7 +234,7 @@
 				}
 				// 接口地址
 				this_window.DSFind("td_interface").empty();
-				var te = $('<input>').DSAdd('interface').val($.ds.url.root + $.ds.url.get_config + params_str);
+				var te = $('<input>').DSAdd('interface').val($.ds.url.root() + $.ds.url.get_config + params_str);
 				this_window.DSFind("td_interface").append(te);
 				te.textbox({
 					readonly : true,

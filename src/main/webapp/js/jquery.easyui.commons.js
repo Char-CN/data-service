@@ -1,7 +1,13 @@
 $(function() {
 	$.ds = {
 		url : {
-			root : window.location.href,
+			root : function() {
+				var urls = window.location.href.match(new RegExp("([a-zA-Z:]*//[.a-zA-Z0-9:]*/).*"));
+				if (urls == null) {
+					return window.location.href;
+				}
+				return urls[1];
+			},
 			get_params : "dataservice/getparams.do",
 			get_config : "dataservice/getconfig.do",
 			tree : "view/getTree.do",

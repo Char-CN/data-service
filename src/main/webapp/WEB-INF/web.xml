@@ -4,7 +4,7 @@
 	<display-name>data-service</display-name>
 
 	<welcome-file-list>
-		<welcome-file>index.html</welcome-file>
+		<welcome-file>toindex.html</welcome-file>
 	</welcome-file-list>
 
 	<!-- init applicationContext.xml -->
