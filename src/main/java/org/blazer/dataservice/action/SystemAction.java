@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.blazer.dataservice.cache.ConfigCache;
 import org.blazer.dataservice.cache.DataSourceCache;
 import org.blazer.dataservice.exception.UnknowDataSourceException;
+import org.blazer.userservice.core.filter.PermissionsFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

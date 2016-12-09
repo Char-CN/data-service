@@ -50,6 +50,19 @@
 		});
 
 		center_menu.menu('appendItem', {
+			text : '执行2',
+			iconCls : $.ds.icon.run_cls,
+			onclick : function() {
+				if (center_choose_li_id == "") {
+					return $.ds.show('请选择一项配置执行!');
+				}
+				var id = center_choose_li_id;
+				var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
+				$.ds.commons.openWindow("center_run_config_" + id, $.ds.icon.run, title, "runconfig2.html", "id=" + id);
+			}
+		});
+
+		center_menu.menu('appendItem', {
 			text : '新增配置项',
 			iconCls : $.ds.icon.add_cls,
 			disabled : false,
