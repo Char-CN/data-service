@@ -1,5 +1,7 @@
 package org.blazer.scheduler.core;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,7 +46,8 @@ public class ExpressionUtil {
 	private static final Pattern pattern = Pattern.compile(EXPRESSION);
 
 	public static void main(String[] args) {
-		String str = "*/2 * * * *";
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String str = "* 5 * * *";
 		System.out.println(check(str));
 
 		String[] arr = toArray(str);
@@ -52,9 +55,7 @@ public class ExpressionUtil {
 			System.out.println(a);
 		}
 
-		TimeModel tm = DateUtil.now();
-		System.out.println(tm);
-		System.out.println(getNextDate(arr, tm));
+		System.out.println(sdf.format(getNextDate(DateUtil.newDate(), toArray(str))));
 	}
 
 	public static String[] toArray(String expression) {
@@ -68,30 +69,78 @@ public class ExpressionUtil {
 		return arr;
 	}
 
-	public static TimeModel getNextDate(String[] array, TimeModel tm) {
+	public static Date getNextDate(Date date, String[] array) {
+		// 最小粒度每分钟执行1次
+		// */2 * * * *
 		// */2 * * * *
 		String minute = array[0];
 		String hour = array[1];
 		String day = array[2];
 		String month = array[3];
 		String weekday = array[4];
-		
+		Date _date = new Date(date.getTime());
+		if (weekday.matches(R1)) {
+			// do nothing
+		}
+		if (weekday.matches(R2)) {
+			String[] strs = weekday.split("/");
+			_date = DateUtil.getNextWeekStep(_date, IntegerUtil.getInt0(strs[1]));
+		}
+		if (weekday.matches(R3)) {
+			_date = DateUtil.getNextWeek(_date, IntegerUtil.getInt0(weekday));
+		}
+
+
 		if (month.matches(R1)) {
-			
+			// do nothing
 		}
-		
+		if (month.matches(R2)) {
+			String[] strs = month.split("/");
+			_date = DateUtil.getNextMonthStep(_date, IntegerUtil.getInt0(strs[1]));
+		}
+		if (month.matches(R3)) {
+			_date = DateUtil.getNextMonth(_date, IntegerUtil.getInt0(month));
+		}
+
+
+		if (day.matches(R1)) {
+			// do nothing
+		}
+		if (day.matches(R2)) {
+			String[] strs = day.split("/");
+			_date = DateUtil.getNextDayStep(_date, IntegerUtil.getInt0(strs[1]));
+		}
+		if (day.matches(R3)) {
+			_date = DateUtil.getNextDay(_date, IntegerUtil.getInt0(day));
+		}
+
+
+		if (hour.matches(R1)) {
+			// do nothing
+		}
+		if (hour.matches(R2)) {
+			String[] strs = hour.split("/");
+			_date = DateUtil.getNextHourStep(_date, IntegerUtil.getInt0(strs[1]));
+		}
+		if (hour.matches(R3)) {
+			_date = DateUtil.getNextHour(_date, IntegerUtil.getInt0(hour));
+		}
+
+
 		if (minute.matches(R1)) {
-			System.out.println("111");
-		} else if (minute.matches(R2)) {
-			int step = IntegerUtil.getInt0(minute.replace("*/", ""));
-			System.out.println(222);
-			System.out.println("now minute : " + tm.getMinute());
-			System.out.println("step" + step);
-		} else {
-			System.out.println(333);
+			// 从第一分钟起
+			// do nothing
+		}
+		if (minute.matches(R2)) {
+			String[] strs = minute.split("/");
+			_date = DateUtil.getNextMinuteStep(_date, IntegerUtil.getInt0(strs[1]));
+		}
+		if (minute.matches(R3)) {
+			_date = DateUtil.getNextMinute(_date, IntegerUtil.getInt0(minute));
 		}
 		
-		return null;
+		
+		return _date;
 //		return getNextDate(array, tm, 1).get(0);
 	}
 

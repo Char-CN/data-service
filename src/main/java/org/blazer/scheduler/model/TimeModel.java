@@ -22,7 +22,6 @@ public class TimeModel {
 		final Calendar c = Calendar.getInstance();
 		c.set(year, month - 1, day, hour, minute, seconds);
 		this.date = c.getTime();
-		System.out.println();
 	}
 	
 	public Integer getMinute(){
