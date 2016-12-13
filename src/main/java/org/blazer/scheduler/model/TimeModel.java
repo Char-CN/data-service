@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.blazer.scheduler.util.DateUtil;
+import org.blazer.scheduler.util.DateUtilBak;
 
 public class TimeModel {
 
@@ -13,7 +13,7 @@ public class TimeModel {
 	public static void main(String[] args) {
 		TimeModel tm = new TimeModel(2016, 12, 9, 15, 32, 33);
 		System.out.println(tm);
-		System.out.println(DateUtil.now());
+		System.out.println(DateUtilBak.now());
 	}
 
 	private Date date;

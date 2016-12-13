@@ -1,43 +1,28 @@
-package org.blazer.dataservice.util;
+package org.blazer.scheduler.util;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.lang.management.ManagementFactory;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-public class JavaShellUtil {
+public class ExecutorUtil {
 
-	public static final String basePath = "/Users/hyy/";
-
-	public static final String shellFile = basePath + "zz.sh";
-
-	public static void run(String cmd, String log, String errorLog) {
-		Thread t = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Process process = Runtime.getRuntime().exec(cmd);
-					log2File(log, process.getInputStream());
-					log2File(errorLog, process.getErrorStream());
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		t.start();
+	public static Process run(String cmd, String logPath, String errorLogPath) {
+		Process process = null;
+		try {
+			process = Runtime.getRuntime().exec(cmd);
+			log2File(logPath, process.getInputStream());
+			log2File(errorLogPath, process.getErrorStream());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return process;
 	}
 
 	public static void log2File(String path, InputStream is) throws IOException {
@@ -45,18 +30,33 @@ public class JavaShellUtil {
 		Thread t = new Thread(new Runnable() {
 			@Override
 			public void run() {
+				OutputStreamWriter osw = null;
+				BufferedReader br = null;
 				try {
-					OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(new File(path)), "utf-8");
-					BufferedReader br = new BufferedReader(new InputStreamReader(is));
+					osw = new OutputStreamWriter(new FileOutputStream(new File(path)), "utf-8");
+					br = new BufferedReader(new InputStreamReader(is));
 					String line = null;
 					while (br != null && (line = br.readLine()) != null) {
 						osw.write(System.currentTimeMillis() + "|" + line + "\n");
 						osw.flush();
 					}
-					osw.close();
-					br.close();
 				} catch (Exception e) {
 					e.printStackTrace();
+				} finally {
+					try {
+						if (osw != null) {
+							osw.close();
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					try {
+						if (br != null) {
+							br.close();
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		});
@@ -118,9 +118,23 @@ public class JavaShellUtil {
 	}
 
 	public static void main(String[] args) throws Exception {
-		System.out.println(ManagementFactory.getRuntimeMXBean().getName());
-		run("sh " + shellFile + " wwww sdsdsds aaasdasdaa", shellFile + ".input", shellFile + ".error");
-		System.out.println(readLog(shellFile + ".input", shellFile + ".error"));
+		String basePath = "/Users/hyy/";
+		String shellFile = basePath + "zz.sh";
+
+		// System.out.println(ManagementFactory.getRuntimeMXBean().getName());
+		Process process = run("sh " + shellFile + " wwww sdsdsds aaasdasdaa", shellFile + ".input", shellFile + ".error");
+		// int i = process.waitFor();
+		// System.out.println(i);
+		// System.out.println(readLog(shellFile + ".input", shellFile +
+		// ".error"));
+		System.out.println("heheehee");
+		Thread.sleep(5000);
+		if (process.isAlive()) {
+			process.getOutputStream().close();
+			process.getInputStream().close();
+			process.getErrorStream().close();
+			process.destroy();
+		}
 	}
 
 }
