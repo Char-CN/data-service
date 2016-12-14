@@ -1,15 +1,22 @@
 package org.blazer.scheduler.util;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
 public class DateUtil {
 
+	public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
+
 	public static Date newDate() {
 		Calendar c = Calendar.getInstance();
 		c.set(Calendar.SECOND, 0);
 		return c.getTime();
+	}
+
+	public static String showDate(Date date) {
+		return sdf.format(date);
 	}
 
 	public static final HashMap<Integer, Integer> WEEK2FIELD = new HashMap<Integer, Integer>() {

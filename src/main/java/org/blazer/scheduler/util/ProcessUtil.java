@@ -11,7 +11,12 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExecutorUtil {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class ProcessUtil {
+
+	private static Logger logger = LoggerFactory.getLogger(ProcessUtil.class);
 
 	public static Process run(String cmd, String logPath, String errorLogPath) {
 		Process process = null;
@@ -25,8 +30,8 @@ public class ExecutorUtil {
 		return process;
 	}
 
-	public static void log2File(String path, InputStream is) throws IOException {
-		System.out.println("new thread start : " + path);
+	public static void log2File(final String path, final InputStream is) throws IOException {
+		logger.debug("new thread start : " + path);
 		Thread t = new Thread(new Runnable() {
 			@Override
 			public void run() {

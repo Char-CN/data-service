@@ -11,9 +11,11 @@
 		http://www.springframework.org/schema/aop  http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
         ">
 
-	<context:component-scan base-package="org.blazer.**"></context:component-scan>
-
 	<util:properties id="dataSourceProperties" location="classpath:datasource.properties"></util:properties>
+
+	<util:properties id="schedulerProperties" location="classpath:scheduler.properties"></util:properties>
+
+	<context:component-scan base-package="org.blazer.**"></context:component-scan>
 
 	<bean id="propertyConfigurer4Server" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="ignoreResourceNotFound" value="true" />
