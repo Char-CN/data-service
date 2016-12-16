@@ -1,4 +1,4 @@
-package org.blazer.scheduler.util;
+package org.blazer.scheduler.core;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import org.blazer.dataservice.util.IntegerUtil;
 import org.blazer.scheduler.expression.CronException;
+import org.blazer.scheduler.util.DateUtil;
 
 /**
  * cron表达式解释
@@ -31,7 +32,7 @@ import org.blazer.scheduler.expression.CronException;
  * 每一位支持的语法：[*]或者[* / 2]或者[1,2,3]或者[1-3]或者[1]
  * 
  */
-public class CronParserUtil {
+public class CronParserHelper {
 
 	// *
 	public static final String R1 = "[*]";

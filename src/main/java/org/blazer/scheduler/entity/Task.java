@@ -5,12 +5,15 @@ import java.util.Date;
 public class Task {
 
 	private Integer id;
-	private Integer job_id;
-	private Integer status_id;
-	private String task_name;
-	private Date execute_time;
-	private Date end_time;
+	private Integer jobId;
+	private Integer statusId;
+	private String typeName;
+	private String taskName;
+	private Date executeTime;
+	private Date endTime;
 	private String command;
+	private String logPath;
+	private String errorLogPath;
 
 	public Integer getId() {
 		return id;
@@ -20,44 +23,52 @@ public class Task {
 		this.id = id;
 	}
 
-	public Integer getJob_id() {
-		return job_id;
+	public Integer getJobId() {
+		return jobId;
 	}
 
-	public void setJob_id(Integer job_id) {
-		this.job_id = job_id;
+	public void setJobId(Integer jobId) {
+		this.jobId = jobId;
 	}
 
-	public Integer getStatus_id() {
-		return status_id;
+	public Integer getStatusId() {
+		return statusId;
 	}
 
-	public void setStatus_id(Integer status_id) {
-		this.status_id = status_id;
+	public void setStatusId(Integer statusId) {
+		this.statusId = statusId;
 	}
 
-	public String getTask_name() {
-		return task_name;
+	public String getTypeName() {
+		return typeName;
 	}
 
-	public void setTask_name(String task_name) {
-		this.task_name = task_name;
+	public void setTypeName(String typeName) {
+		this.typeName = typeName;
 	}
 
-	public Date getExecute_time() {
-		return execute_time;
+	public String getTaskName() {
+		return taskName;
 	}
 
-	public void setExecute_time(Date execute_time) {
-		this.execute_time = execute_time;
+	public void setTaskName(String taskName) {
+		this.taskName = taskName;
 	}
 
-	public Date getEnd_time() {
-		return end_time;
+	public Date getExecuteTime() {
+		return executeTime;
 	}
 
-	public void setEnd_time(Date end_time) {
-		this.end_time = end_time;
+	public void setExecuteTime(Date executeTime) {
+		this.executeTime = executeTime;
+	}
+
+	public Date getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
 	}
 
 	public String getCommand() {
@@ -66,6 +77,28 @@ public class Task {
 
 	public void setCommand(String command) {
 		this.command = command;
+	}
+
+	public String getLogPath() {
+		return logPath;
+	}
+
+	public void setLogPath(String logPath) {
+		this.logPath = logPath;
+	}
+
+	public String getErrorLogPath() {
+		return errorLogPath;
+	}
+
+	public void setErrorLogPath(String errorLogPath) {
+		this.errorLogPath = errorLogPath;
+	}
+
+	@Override
+	public String toString() {
+		return "Task [id=" + id + ", jobId=" + jobId + ", statusId=" + statusId + ", typeName=" + typeName + ", taskName=" + taskName + ", executeTime="
+				+ executeTime + ", endTime=" + endTime + ", command=" + command + ", logPath=" + logPath + ", errorLogPath=" + errorLogPath + "]";
 	}
 
 }

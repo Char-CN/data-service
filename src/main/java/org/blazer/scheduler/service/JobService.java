@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 @Service(value = "jobService")
 public class JobService {
 
-	private static Logger logger = LoggerFactory.getLogger(JobService.class);
+	private static final Logger logger = LoggerFactory.getLogger("scheduler");
 
 	@Autowired
 	JdbcTemplate jdbcTemplate;

@@ -15,8 +15,27 @@ public class DateUtil {
 		return c.getTime();
 	}
 
+	public static Date newDate(Integer addSeconds) {
+		Calendar c = Calendar.getInstance();
+		c.set(Calendar.SECOND, 0);
+		c.add(Calendar.SECOND, addSeconds);
+		return c.getTime();
+	}
+
+	public static String newDateStr() {
+		return sdf.format(newDate());
+	}
+
+	public static String newDateStrNextMinute() {
+		return sdf.format(newDate(60));
+	}
+
 	public static String showDate(Date date) {
 		return sdf.format(date);
+	}
+
+	public static int getSeconds() {
+		return Calendar.getInstance().get(Calendar.SECOND);
 	}
 
 	public static final HashMap<Integer, Integer> WEEK2FIELD = new HashMap<Integer, Integer>() {

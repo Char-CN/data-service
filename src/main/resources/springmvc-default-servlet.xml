@@ -6,6 +6,7 @@
         http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd">
 
 	<context:component-scan base-package="org.blazer.dataservice.action.**"></context:component-scan>
+	<context:component-scan base-package="org.blazer.scheduler.action.**"></context:component-scan>
 
 	<!-- Convert 1 : Object2ResponseBody -->
 	<bean id="mappingJacksonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">

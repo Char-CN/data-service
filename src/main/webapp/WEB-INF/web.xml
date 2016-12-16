@@ -68,7 +68,7 @@
 		<!-- 过滤url -->
 		<init-param>
 			<param-name>ignoreUrls</param-name>
-			<param-value>/dataservice/*</param-value>
+			<param-value>/dataservice/*,/scheduler/*</param-value>
 		</init-param>
 	</filter>
 	<filter-mapping>

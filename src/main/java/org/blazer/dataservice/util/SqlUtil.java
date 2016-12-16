@@ -23,7 +23,7 @@ public class SqlUtil {
 
 	public static String Show(String sql, Object... objs) {
 		for (Object obj : objs) {
-			sql = sql.replaceFirst("[?]", StringUtil.getStr(obj));
+			sql = sql.replaceFirst("[?]", "'" + StringUtil.getStr(obj) + "'");
 		}
 		return sql;
 	}

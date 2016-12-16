@@ -1,4 +1,4 @@
-package org.blazer.scheduler.util;
+package org.blazer.scheduler.core;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,26 +11,60 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProcessUtil {
+public class ProcessHelper {
 
-	private static Logger logger = LoggerFactory.getLogger(ProcessUtil.class);
+	private static final Logger logger = LoggerFactory.getLogger("scheduler");
 
 	public static Process run(String cmd, String logPath, String errorLogPath) {
+		return run(cmd, logPath, errorLogPath, true);
+	}
+
+	public static Process run(String cmd, String logPath, String errorLogPath, boolean appendLog) {
 		Process process = null;
 		try {
 			process = Runtime.getRuntime().exec(cmd);
-			log2File(logPath, process.getInputStream());
-			log2File(errorLogPath, process.getErrorStream());
+			log2File(logPath, process.getInputStream(), appendLog);
+			log2File(errorLogPath, process.getErrorStream(), appendLog);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		return process;
 	}
 
-	public static void log2File(final String path, final InputStream is) throws IOException {
+	public static void log2File(final String path, final String log, boolean appendLog) throws IOException {
+		logger.debug("new thread start : " + path);
+		Thread t = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				OutputStreamWriter osw = null;
+				try {
+					osw = new OutputStreamWriter(new FileOutputStream(new File(path), appendLog), "utf-8");
+					String[] logs = log.split("\n");
+					for (String line : logs) {
+						osw.write(System.currentTimeMillis() + "|" + line + "\n");
+					}
+					osw.flush();
+				} catch (Exception e) {
+					e.printStackTrace();
+				} finally {
+					try {
+						if (osw != null) {
+							osw.close();
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+		t.start();
+	}
+
+	public static void log2File(final String path, final InputStream is, final boolean appendLog) throws IOException {
 		logger.debug("new thread start : " + path);
 		Thread t = new Thread(new Runnable() {
 			@Override
@@ -38,7 +72,7 @@ public class ProcessUtil {
 				OutputStreamWriter osw = null;
 				BufferedReader br = null;
 				try {
-					osw = new OutputStreamWriter(new FileOutputStream(new File(path)), "utf-8");
+					osw = new OutputStreamWriter(new FileOutputStream(new File(path), appendLog), "utf-8");
 					br = new BufferedReader(new InputStreamReader(is));
 					String line = null;
 					while (br != null && (line = br.readLine()) != null) {
@@ -127,7 +161,15 @@ public class ProcessUtil {
 		String shellFile = basePath + "zz.sh";
 
 		// System.out.println(ManagementFactory.getRuntimeMXBean().getName());
-		Process process = run("sh " + shellFile + " wwww sdsdsds aaasdasdaa", shellFile + ".input", shellFile + ".error");
+
+		String cmd = ";;sleep ;echo \"hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh............hhhhhhhhhhhhhhhhh\";sleep 3s;echo `date +%Y%m%d%H%M%S`;sh " + shellFile + " wwww sdsdsds aaasdasdaa;";
+		String[] cmds = StringUtils.split(cmd, ";");
+		System.out.println(cmds.length);
+		Process process = null;
+		for (String c : cmds) {
+			process = run(c, shellFile + ".input", shellFile + ".error");
+			System.out.println(c + " | " + process.waitFor());
+		}
 		// int i = process.waitFor();
 		// System.out.println(i);
 		// System.out.println(readLog(shellFile + ".input", shellFile +
