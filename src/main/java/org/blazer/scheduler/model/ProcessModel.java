@@ -11,7 +11,7 @@ public class ProcessModel {
 	private String nextTime;
 	// 执行的命令索引
 	private Integer cmdIndex;
-	// 命令集合，以；分隔，如果一条命令有多个；，则会逐步执行。
+	// 命令集合，以；分隔，如果一条命令有多个；分号，则会逐步执行。
 	private String[] cmdArray;
 	// 当前执行的Process
 	private Process process;

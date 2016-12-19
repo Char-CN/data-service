@@ -4,11 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.blazer.dataservice.util.HMap;
-import org.blazer.dataservice.util.SqlUtil;
-import org.blazer.dataservice.util.StringUtil;
 import org.blazer.scheduler.entity.Task;
 import org.blazer.scheduler.entity.TaskType;
-import org.blazer.userservice.core.util.IntegerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

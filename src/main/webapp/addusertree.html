@@ -1,0 +1,112 @@
+用户列表：
+<select ds_index="user_list" class="easyui-combobox" style="width: 200px;" editable="false"></select>
+<br/>
+目录列表：
+<select ds_index="users_tree" class="easyui-combotree" style="width: 500px;height:160px;" multiple="true" multiline="true" editable="false">
+</select>
+<script>
+	$(function() {
+		// 初始化参数、定义参数
+		var queryString = '$queryString';
+		var windowId = '$windowId';
+		var this_window = $("#" + windowId);
+
+		var userId = 0;
+		
+		this_window.DSFind("users_tree").combotree({
+			url : $.ds.url.treeAll,
+			onLoadSuccess : function(node, data) {
+				this_window.DSFind("users_tree").combotree("tree").tree("options").url = '';
+				this_window.DSFind("users_tree").combotree("tree").tree('expandAll');
+			}
+		});
+
+		var init = function() {
+			var select = this_window.DSFind("user_list");
+			var op = $('<option value="-1" selected>--请选择用户--</option>');
+			select.append(op);
+			$.ajax({
+				url : $.ds.url.get_user_all,
+				type : 'post',
+				async : false,
+				success : function(data) {
+					for ( var i in data) {
+						var op = $('<option value="' + data[i].id + '">' + data[i].userName + '</option>');
+						select.append(op);
+					}
+				},
+				fail : function() {
+					$.ds.show("出现莫名失败。");
+				}
+			});
+
+			this_window.DSFind("user_list").combobox({
+				onChange : function(newValue, oldValue) {
+// 					if (newValue == -1) {
+// 						return;
+// 					}
+					userId = newValue;
+					refer();
+				}
+			});
+		};
+
+		var refer = function() {
+			$.ajax({
+				url : $.ds.url.get_user_group_ids + "?id=" + userId,
+				type : 'post',
+				async : false,
+				success : function(data) {
+					if (data == 0) {
+						return;
+					}
+					this_window.DSFind("users_tree").combotree("setValues", data);
+				},
+				fail : function() {
+					$.ds.show("出现莫名失败。");
+				}
+			});
+		};
+
+// 		// 刷新
+// 		var refreshRoot = function() {
+// 			var url = $.ds.url.find_permissions_by_parent_id + "?parentId=-1&systemId=" + systemId;
+// 			this_window.DSFind("permissions_table").treegrid("options").url = url;
+// 			table.treegrid('reload');
+// 		};
+// 		var a_reload = $('<a href="javascript:void(0)" class="icon-reload"></a>');
+// 		this_window.parent().find(" .panel-tool").prepend(a_reload);
+// 		a_reload.click(function() {
+// 			refreshRoot();
+// 		});
+		// 保存
+		var a_save = $('<a href="javascript:void(0)" class="icon-save"></a>');
+		this_window.parent().find(" .panel-tool").prepend(a_save);
+		a_save.click(function() {
+			var group_ids = "";
+			var checks = this_window.DSFind("users_tree").combotree("tree").tree("getChecked", ['checked','indeterminate']);
+			alert(JSON.stringify(checks));
+			for (var i in checks) {
+				group_ids += checks[i].id + ",";
+			}
+			if (group_ids != "") {
+				group_ids = group_ids.substring(0, group_ids.length - 1);
+			}
+			alert(group_ids);
+			$.ajax({
+				url : $.ds.url.save_user_group,
+				data : { id : userId, group_ids:group_ids },
+				type : 'post',
+				async : false,
+				success : function(data) {
+					alert(data.message);
+				},
+				fail : function() {
+					$.ds.show("出现莫名失败。");
+				}
+			});
+		});
+		
+		init();
+	});
+</script>

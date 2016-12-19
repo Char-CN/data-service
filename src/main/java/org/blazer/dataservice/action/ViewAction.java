@@ -10,12 +10,17 @@ import javax.servlet.http.HttpServletResponse;
 import org.blazer.dataservice.body.Body;
 import org.blazer.dataservice.body.DataSourceBody;
 import org.blazer.dataservice.body.GroupBody;
+import org.blazer.dataservice.body.TreeBody;
 import org.blazer.dataservice.body.view.ViewConfigBody;
 import org.blazer.dataservice.cache.ConfigCache;
 import org.blazer.dataservice.cache.DataSourceCache;
 import org.blazer.dataservice.exception.UnknowDataSourceException;
 import org.blazer.dataservice.service.ViewService;
 import org.blazer.dataservice.util.IntegerUtil;
+import org.blazer.userservice.core.filter.CheckUrlStatus;
+import org.blazer.userservice.core.filter.PermissionsFilter;
+import org.blazer.userservice.core.model.SessionModel;
+import org.blazer.userservice.core.model.UserModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,18 +43,74 @@ public class ViewAction extends BaseAction {
 
 	@Autowired
 	ConfigCache configCache;
+	
+	@ResponseBody
+	@RequestMapping("/getAllUser")
+	public List<UserModel> getAllUser(HttpServletRequest request, HttpServletResponse response) {
+		List<UserModel> list = null;
+		try {
+			list = PermissionsFilter.findAllUserBySystemNameAndUrl(PermissionsFilter.getSystemName(), "isuser");
+		} catch (Exception e) {
+			list = new ArrayList<UserModel>();
+			logger.error(e.getMessage(), e);
+		}
+		return list;
+	}
+
+	@ResponseBody
+	@RequestMapping("/getUserGroupIds")
+	public List<Integer> getUserGroupIds(HttpServletRequest request, HttpServletResponse response) {
+		logger.debug("map : " + getParamMap(request));
+		List<Integer> list = viewService.findUserGroupIds(getParamMap(request));
+		return list;
+	}
+	
+	@ResponseBody
+	@RequestMapping("/saveUserGroup")
+	public Body saveUserGroup(HttpServletRequest request, HttpServletResponse response) {
+		HashMap<String, String> params = getParamMap(request);
+		try {
+			viewService.saveUserGroup(params);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return fail().setMessage(e.getMessage());
+		}
+		return success().setMessage("保存成功！");
+	}
+
+	@ResponseBody
+	@RequestMapping("/getTreeAll")
+	public List<TreeBody> getTreeAll(HttpServletRequest request, HttpServletResponse response) {
+		List<TreeBody> list = null;
+		try {
+			list = viewService.findTreeAllByParentId(-1);
+		} catch (Exception e) {
+			list = new ArrayList<TreeBody>();
+			logger.error(e.getMessage(), e);
+		}
+		return list;
+	}
 
 	@ResponseBody
 	@RequestMapping("/getTree")
 	public List<GroupBody> getGroup(HttpServletRequest request, HttpServletResponse response) {
 		logger.debug("map : " + getParamMap(request));
-		// String str = "[{\"text\" : \"Item1\",\"state\" : \"closed\", \"id\" :
-		// \"-1\"}, {\"text\" : \"Item2\",\"state\" : \"closed\", \"id\" :
-		// \"2\"}]";
-		// if (getParamMap(request).get("id").equals("-1")) {
-		// return str;
-		// }
-		return viewService.findTreeById(getParamMap(request));
+		SessionModel sm = PermissionsFilter.getSessionModel(request);
+		logger.debug("session model : " + sm);
+		try {
+			CheckUrlStatus cus = PermissionsFilter.checkUrl(request, response, "isadmin");
+			if (cus == CheckUrlStatus.Success) {
+				return viewService.findTreeById(getParamMap(request), sm);
+			}
+			cus = PermissionsFilter.checkUrl(request, response, "isuser");
+			if (cus == CheckUrlStatus.Success) {
+				return viewService.findTreeByIdAndUserId(getParamMap(request), sm);
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		logger.info("返回了空目录。");
+		return new ArrayList<GroupBody>();
 	}
 
 	@ResponseBody

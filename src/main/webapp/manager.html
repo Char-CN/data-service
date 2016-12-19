@@ -1,18 +1,31 @@
 <script>
 	$(function() {
-		var windowId = 'center';
+		var windowId = 'manager';
 		var this_window = $("#" + windowId);
 		var this_ul = this_window.find("#center_ul");
-		this_window.find('.dsli').bind('click', function() {
+		this_window.find('.datasource').bind('click', function() {
 			$.ds.alert('抱歉，该功能暂未开放，配置数据源请联系管理员。');
 		});
+		if ($userservice.checkurl("isadmin")) {
+			this_window.find('.permissions').bind('click', function() {
+				$.ds.commons.openWindow("center_add_user_tree", $.ds.icon.add , "新增用户目录", "addusertree.html").dialog('resize', {
+					height : 320,
+					top: 100
+				});;
+			});
+		} else if ($userservice.checkurl("isuser")) {
+			this_window.find(".dsmanager").css("display", "none");
+		} else {
+			this_window.find(".dsmanager").css("display", "none");
+		}
 	});
 </script>
 <div>
-	<fieldset style="margin-top: 20px; padding-bottom: 5px; border: 1px solid;">
+	<fieldset class="dsmanager" style="margin-top: 20px; padding-bottom: 5px; border: 1px solid;">
 		<legend>数据服务模块</legend>
 		<ul class="dsul">
 			<li class="dsli datasource"><i class="fa fa-database fa-3x" aria-hidden="true"></i>数据源管理</li>
+			<li class="dsli permissions"><i class="fa fa-user fa-3x" aria-hidden="true"></i>分配用户目录</li>
 		</ul>
 	</fieldset>
 </div>
