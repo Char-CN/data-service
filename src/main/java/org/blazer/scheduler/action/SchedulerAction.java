@@ -8,7 +8,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.blazer.dataservice.action.BaseAction;
 import org.blazer.dataservice.util.IntegerUtil;
 import org.blazer.scheduler.core.SchedulerServer;
+import org.blazer.scheduler.entity.Job;
 import org.blazer.scheduler.entity.Task;
+import org.blazer.scheduler.service.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,9 @@ public class SchedulerAction extends BaseAction {
 
 	@Autowired
 	SchedulerServer schedulerServer;
+	
+	@Autowired
+	TaskService taskService;
 
 	/**
 	 * 根据id与参数获取配置执行的结果值
@@ -38,7 +43,27 @@ public class SchedulerAction extends BaseAction {
 	public Task add(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		HashMap<String, String> paramMap = getParamMap(request);
 		logger.debug("job id : " + paramMap.get("jobId"));
-		return schedulerServer.spawnRightNowTaskProcess(IntegerUtil.getInt0(paramMap.get("jobId"))).getTask();
+		return schedulerServer.spawnRightNowTaskProcess(schedulerServer.getJobById(IntegerUtil.getInt0(paramMap.get("jobId")))).getTask();
+	}
+
+	@ResponseBody
+	@RequestMapping("/addcustom")
+	public Task addCustom(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		HashMap<String, String> paramMap = getParamMap(request);
+		logger.debug("job id : " + paramMap.get("jobId"));
+		Job job = new Job();
+		job.setId(0);
+		job.setCommand(paramMap.get("command"));
+		job.setJobName("即时查询");
+		return schedulerServer.spawnRightNowTaskProcess(job).getTask();
+	}
+
+	@ResponseBody
+	@RequestMapping("/findTaskByName")
+	public Task findTaskByName(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		HashMap<String, String> paramMap = getParamMap(request);
+		String taskName = paramMap.get("taskName");
+		return taskService.findTaskByName(taskName);
 	}
 
 }

@@ -151,6 +151,8 @@ $(function() {
 			}
 		},
 		icon : {
+			clock_cls : 'fa fa-clock-o fa-1x',
+			clock : '<i class="fa fa-clock-o fa-1x"></i>',
 			cube3_cls : 'fa fa-cube fa-3x',
 			cube3 : '<i class="fa fa-cube fa-3x"></i>',
 			run_cls : 'fa fa-play-circle fa-1x',

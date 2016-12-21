@@ -57,7 +57,8 @@
 				type : 'post',
 				async : false,
 				success : function(data) {
-					if (data == 0) {
+					if (data == undefined || data == null || data == "" || data == 0) {
+						this_window.DSFind("users_tree").combotree("setValues", []);
 						return;
 					}
 					this_window.DSFind("users_tree").combotree("setValues", data);
@@ -68,31 +69,31 @@
 			});
 		};
 
-// 		// 刷新
-// 		var refreshRoot = function() {
-// 			var url = $.ds.url.find_permissions_by_parent_id + "?parentId=-1&systemId=" + systemId;
-// 			this_window.DSFind("permissions_table").treegrid("options").url = url;
-// 			table.treegrid('reload');
-// 		};
-// 		var a_reload = $('<a href="javascript:void(0)" class="icon-reload"></a>');
-// 		this_window.parent().find(" .panel-tool").prepend(a_reload);
-// 		a_reload.click(function() {
-// 			refreshRoot();
-// 		});
+		// 刷新
+		var a_reload = $('<a href="javascript:void(0)" class="icon-reload"></a>');
+		this_window.parent().find(" .panel-tool").prepend(a_reload);
+		a_reload.click(function() {
+			refer();
+		});
+
 		// 保存
 		var a_save = $('<a href="javascript:void(0)" class="icon-save"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_save);
 		a_save.click(function() {
+			if (userId == -1) {
+				alert("请选择普通用户进行保存。");
+				return;
+			}
 			var group_ids = "";
 			var checks = this_window.DSFind("users_tree").combotree("tree").tree("getChecked", ['checked','indeterminate']);
-			alert(JSON.stringify(checks));
+// 			alert(JSON.stringify(checks));
 			for (var i in checks) {
 				group_ids += checks[i].id + ",";
 			}
 			if (group_ids != "") {
 				group_ids = group_ids.substring(0, group_ids.length - 1);
 			}
-			alert(group_ids);
+// 			alert(group_ids);
 			$.ajax({
 				url : $.ds.url.save_user_group,
 				data : { id : userId, group_ids:group_ids },

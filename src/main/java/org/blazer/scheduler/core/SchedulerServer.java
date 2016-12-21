@@ -74,6 +74,10 @@ public class SchedulerServer extends Thread implements InitializingBean {
 	// 任务日志
 	private static String task_log_path;
 
+	public Job getJobById(Integer jobId) {
+		return jobIdToJobMap.get(jobId);
+	}
+
 	public void initJob(Job job) throws Exception {
 		if (job == null) {
 			throw new NullPointerException("job is null.");
@@ -87,7 +91,6 @@ public class SchedulerServer extends Thread implements InitializingBean {
 		logger.info("init job in scheduler : " + job);
 		jobIdToJobMap.put(job.getId(), job);
 		waitSpawnTaskJobIdQueue.add(job.getId());
-		// addTime2JobId(job);
 	}
 
 	public void removeJob(Integer jonId) {
@@ -96,18 +99,38 @@ public class SchedulerServer extends Thread implements InitializingBean {
 	public void cancelTaskByName(String taskName) {
 		for (ProcessModel pm : processTaskList) {
 			if (pm.getTask().getTaskName().equals(taskName) && pm.getProcess() != null && pm.getProcess().isAlive()) {
-
+				processTaskList.remove(pm);
+				try {
+					pm.getProcess().destroy();
+				} catch (Exception e) {
+				}
+				pm.getTask().setStatusId(Status.CANCEL.getId());
+				taskService.updateEndTimeNowAndStatus(pm.getTask());
 			}
 		}
 	}
 
-	public ProcessModel spawnRightNowTaskProcess(Integer jobId) throws Exception {
-		ProcessModel pm = spawnTaskProcess(jobId, TaskType.right_now);
+	/**
+	 * 根据JobId生成一个立即执行的任务
+	 * 
+	 * @param jobId
+	 * @return
+	 * @throws Exception
+	 */
+	public ProcessModel spawnRightNowTaskProcess(Job job) throws Exception {
+		ProcessModel pm = spawnTaskProcess(job, TaskType.right_now);
 		return pm;
 	}
 
-	private ProcessModel spawnTaskProcess(Integer jobId, TaskType taskType) throws Exception {
-		Job job = jobIdToJobMap.get(jobId);
+	/**
+	 * 根据JobId和任务类型生成任务
+	 * 
+	 * @param jobId
+	 * @param taskType
+	 * @return
+	 * @throws Exception
+	 */
+	private ProcessModel spawnTaskProcess(Job job, TaskType taskType) throws Exception {
 		if (taskType == TaskType.cron_auto && CronParserHelper.isNotValid(job.getCron())) {
 			throw new CronException("cron [" + job.getCron() + "] expression is not valid.");
 		}
@@ -120,16 +143,15 @@ public class SchedulerServer extends Thread implements InitializingBean {
 		if (StringUtils.isBlank(job.getCommand())) {
 			throw new CmdException("cmd [" + job.getCommand() + "] is not valid.");
 		}
-		String currentTime = DateUtil.newDateStr();
 		ProcessModel pm = new ProcessModel();
 		// task entity
 		Task task = new Task();
 		String typeName = taskType.toString();
 		String taskName = null;
 		if (TaskType.cron_auto == taskType) {
-			taskName = currentTime + "_" + job.getId() + "_" + typeName + "_00001";
+			taskName = nextTime + "_" + job.getId() + "_" + typeName + "_00001";
 		} else {
-			taskName = currentTime + "_" + job.getId() + "_" + typeName + "_" + SequenceUtil.getStr0();
+			taskName = nextTime + "_" + job.getId() + "_" + typeName + "_" + SequenceUtil.getStr0();
 		}
 		task.setJobId(job.getId());
 		task.setTypeName(typeName);
@@ -137,12 +159,14 @@ public class SchedulerServer extends Thread implements InitializingBean {
 		task.setStatusId(Status.WAIT.getId());
 		task.setLogPath(task_log_path);
 		task.setErrorLogPath(task_log_path);
+		task.setCommand(job.getCommand());
 		task = taskService.add(task);
 		// process model
 		pm.setJob(job);
 		pm.setTask(task);
 		pm.setCmdIndex(0);
-		pm.setCmdArray(cmdArray(job));
+		// split commands by ;
+		pm.setCmdArray(StringUtils.split(job.getCommand(), ";"));
 		pm.setNextTime(nextTime);
 		if (!timeToProcessModelMap.containsKey(pm.getNextTime())) {
 			timeToProcessModelMap.put(pm.getNextTime(), new ConcurrentLinkedQueue<ProcessModel>());
@@ -151,13 +175,11 @@ public class SchedulerServer extends Thread implements InitializingBean {
 		return pm;
 	}
 
-	public static String[] cmdArray(Job job) {
-		return StringUtils.split(job.getCommand(), ";");
-	}
-
 	@Override
 	public void run() {
-		// TODO : 1.等待根据JobId生成Task的守护线程
+		/**
+		 * TODO : 1.等待根据JobId生成Task的守护线程
+		 */
 		Thread waitSpawnTaskThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -170,7 +192,7 @@ public class SchedulerServer extends Thread implements InitializingBean {
 							continue;
 						}
 						Integer jobId = waitSpawnTaskJobIdQueue.element();
-						ProcessModel pm = spawnTaskProcess(jobId, TaskType.cron_auto);
+						ProcessModel pm = spawnTaskProcess(jobIdToJobMap.get(jobId), TaskType.cron_auto);
 						logger.debug("spawn cron auto task process : " + pm);
 						waitSpawnTaskJobIdQueue.remove();
 						error = false;
@@ -190,7 +212,9 @@ public class SchedulerServer extends Thread implements InitializingBean {
 			}
 		});
 		waitSpawnTaskThread.start();
-		// TODO : 2.当前时间需要调度的守护线程
+		/**
+		 * TODO : 2.当前时间需要调度的守护线程
+		 */
 		Thread schedulerThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -207,12 +231,17 @@ public class SchedulerServer extends Thread implements InitializingBean {
 						} else {
 							ProcessModel pm = pmQueue.element();
 							Job job = pm.getJob();
-							Process process = ProcessHelper.run(pm.getCmdArray()[pm.getCmdIndex()], pm.getTask().getLogPath(), pm.getTask().getErrorLogPath(),
-									false);
+							String cmd = pm.getCmdArray()[pm.getCmdIndex()];
+							String logPath = pm.getTask().getLogPath();
+							String errorLogPath = pm.getTask().getErrorLogPath();
+							String[] params = pm.getCmdParams();
+							Process process = ProcessHelper.run(cmd, params, logPath, errorLogPath, false);
 							pm.setProcess(process);
 							if (TaskType.cron_auto.toString().equals(pm.getTask().getTypeName())) {
 								waitSpawnTaskJobIdQueue.add(job.getId());
 							}
+							pm.getTask().setStatusId(Status.RUN.getId());
+							taskService.updateExecuteTimeNowAndStatus(pm.getTask());
 							processTaskList.add(pm);
 							pmQueue.remove();
 						}
@@ -227,7 +256,9 @@ public class SchedulerServer extends Thread implements InitializingBean {
 			}
 		});
 		schedulerThread.start();
-		// TODO : 3.每一个Job的Task实例需要逐步执行命令的守护线程。
+		/**
+		 * TODO : 3.每一个Job的Task实例需要逐步执行命令的守护线程。
+		 */
 		Thread processThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -239,23 +270,45 @@ public class SchedulerServer extends Thread implements InitializingBean {
 						}
 						// 线程安全List可以在循环内直接删除元素。因为在源码中remove方法的时候会调用ReentrantLock。
 						for (ProcessModel pm : processTaskList) {
-							// 当前程序跑完了
-							if (pm.getProcess() == null || !pm.getProcess().isAlive()) {
-								if (pm.getProcess() != null) {
-									pm.getProcess().destroy();
-								}
-								// 任务跑完了
-								if (pm.getCmdArray().length - 1 == pm.getCmdIndex()) {
-									// logger.debug("remove : " + pm);
+							// process对象对null，此情况判定为任务执行失败
+							if (pm.getProcess() == null) {
+								processTaskList.remove(pm);
+								pm.getTask().setStatusId(Status.FAIL.getId());
+								taskService.updateEndTimeNowAndStatus(pm.getTask());
+								continue;
+							}
+							// 当前任务跑完了
+							if (!pm.getProcess().isAlive()) {
+								// process返回值不等于0，此情况判定为任务执行失败
+								if (pm.getProcess().exitValue() != 0) {
 									processTaskList.remove(pm);
-								} else {
+									pm.getTask().setStatusId(Status.FAIL.getId());
+									taskService.updateEndTimeNowAndStatus(pm.getTask());
+									continue;
+								}
+								// 手动杀死任务
+								try {
+									pm.getProcess().destroy();
+								} catch (Exception e) {
+								}
+								// 任务组跑完了
+								if (pm.getCmdArray().length - 1 == pm.getCmdIndex()) {
+									processTaskList.remove(pm);
+									pm.getTask().setStatusId(Status.SUCCESS.getId());
+									taskService.updateEndTimeNowAndStatus(pm.getTask());
+								}
+								// 任务组没有跑完，执行下一个command
+								else {
 									pm.setCmdIndex(pm.getCmdIndex() + 1);
-									// System.out.println(pm + "|" +
-									// pm.getCmdArray());
 									String cmd = pm.getCmdArray()[pm.getCmdIndex()];
-									Process process = ProcessHelper.run(cmd, pm.getTask().getLogPath(), pm.getTask().getErrorLogPath());
+									String logPath = pm.getTask().getLogPath();
+									String errorLogPath = pm.getTask().getErrorLogPath();
+									String[] params = pm.getCmdParams();
+									Process process = ProcessHelper.run(cmd, params, logPath, errorLogPath, false);
 									pm.setProcess(process);
 								}
+							} else {
+								// waitFor...
 							}
 						}
 						Thread.sleep(1000);
@@ -270,7 +323,9 @@ public class SchedulerServer extends Thread implements InitializingBean {
 			}
 		});
 		processThread.start();
-		// TODO : 4.打印日志的守护线程
+		/**
+		 * TODO : 4.打印日志的守护线程
+		 */
 		Thread loggerThread = new Thread(new Runnable() {
 			@Override
 			public void run() {

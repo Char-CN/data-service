@@ -1,5 +1,11 @@
 package org.blazer.scheduler.util;
 
+/**
+ * 自定义序列，保证多线程取到的是唯一id
+ * 
+ * @author hyy
+ *
+ */
 public class SequenceUtil {
 
 	private static int n = 1;

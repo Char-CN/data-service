@@ -10,6 +10,10 @@
 				<td width="80%" ds_index="td_name"></td>
 			</tr>
 			<tr>
+				<td colspan="2">以下是所有参数信息：</td>
+			</tr>
+			<tbody ds_index="params"></tbody>
+			<tr>
 				<td colspan="2">以下是配置所有的详细信息：</td>
 			</tr>
 			<tr>
@@ -30,6 +34,8 @@
 		var id = $.ds.getQueryString(queryString, "id");
 		var group_id = $.ds.getQueryString(queryString, "group_id");
 		var this_window = $("#" + windowId);
+// 		var params_reg = "[$][{][a-zA-Z0-9:._-]*[}]";
+		var params_reg = /[$][{][a-zA-Z0-9:._-]*[}]/gim;
 		
 		var isAdd = true;
 		// 提示
@@ -132,6 +138,7 @@
 		// 初始化
 		var init = function() {
 			sortable.option("disabled", true);
+			this_window.DSFind("params").empty();
 			// 新增文本框
 			this_window.DSFind("td_datasource").empty();
 			this_window.DSFind("td_datasource").append($('<select style="width: 100%"></select>').DSAdd('datasource'));
@@ -257,7 +264,10 @@
 				width : "100%",
 				height : 200,
 				multiline : true,
-				value : values
+				value : values,
+				onChange : function(newValue, oldValue) {
+					alert(newValue);
+				}
 			});
 			addDetailCount++;
 		};

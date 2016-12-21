@@ -34,8 +34,8 @@
 		$("#west").panel('refresh', 'west.html');
 		$("#north").panel('refresh', 'north.html');
 		$("#titlebar .home").click(function(){
-			$("#manager").panel('refresh', 'manager.html');
-			$("#manager").panel('setTitle', '首页');
+			$("#center").panel('refresh', 'manager.html');
+			$("#center").panel('setTitle', '首页');
 		}).click();
 		var logout = $('<a href="javascript:void(0);">登出</a>');
 		logout.click(function() {
@@ -61,7 +61,7 @@
                     return $('#titlebar');
                 }"
 			title="目录" style="width: 200px;"></div>
-		<div id="manager" class="easyui-panel" data-options="region:'center',title:' '"></div>
+		<div id="center" class="easyui-panel" data-options="region:'center',title:' '"></div>
 		<div id="foot" data-options="region:'south'" style="height: 31px;"></div>
 	</div>
 	<div id="titlebar" style="padding: 2px">

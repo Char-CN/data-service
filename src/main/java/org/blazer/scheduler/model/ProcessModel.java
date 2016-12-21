@@ -13,12 +13,22 @@ public class ProcessModel {
 	private Integer cmdIndex;
 	// 命令集合，以；分隔，如果一条命令有多个；分号，则会逐步执行。
 	private String[] cmdArray;
+	// 命令所带参数，每一个参数的格式的为name=hyy
+	private String[] cmdParams;
 	// 当前执行的Process
 	private Process process;
 	// Job引用
 	private Job job;
 	// Task引用
 	private Task task;
+
+	public String[] getCmdParams() {
+		return cmdParams;
+	}
+
+	public void setCmdParams(String[] cmdParams) {
+		this.cmdParams = cmdParams;
+	}
 
 	public String getNextTime() {
 		return nextTime;
@@ -70,8 +80,8 @@ public class ProcessModel {
 
 	@Override
 	public String toString() {
-		return "ProcessModel [nextTime=" + nextTime + ", cmdIndex=" + cmdIndex + ", cmdArray=" + Arrays.toString(cmdArray) + ", process=" + process + ", job="
-				+ job + ", task=" + task + "]";
+		return "ProcessModel [nextTime=" + nextTime + ", cmdIndex=" + cmdIndex + ", cmdArray=" + Arrays.toString(cmdArray) + ", cmdParams=" + Arrays.toString(cmdParams)
+				+ ", process=" + process + ", job=" + job + ", task=" + task + "]";
 	}
 
 }

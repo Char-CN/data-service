@@ -11,6 +11,9 @@
 		$("#center_menu_sort").remove();
 		$("#center_menu_save_cancel").remove();
 
+		var isadmin = $userservice.checkurl('isadmin');
+		var isuser = $userservice.checkurl('isuser');
+
 		var lock_menu = false;
 		var center_choose_li_id = "";
 		var sortable = Sortable.create(this_ul[0]);
@@ -36,148 +39,176 @@
 			}
 		});
 
-		center_menu.menu('appendItem', {
-			text : '执行',
-			iconCls : $.ds.icon.run_cls,
-			onclick : function() {
-				if (center_choose_li_id == "") {
-					return $.ds.show('请选择一项配置执行!');
-				}
-				var id = center_choose_li_id;
-				var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
-				$.ds.commons.openWindow("center_run_config_" + id, $.ds.icon.run, title, "runconfig.html", "id=" + id);
-			}
-		});
-
-		center_menu.menu('appendItem', {
-			text : '执行2',
-			iconCls : $.ds.icon.run_cls,
-			onclick : function() {
-				if (center_choose_li_id == "") {
-					return $.ds.show('请选择一项配置执行!');
-				}
-				var id = center_choose_li_id;
-				var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
-				$.ds.commons.openWindow("center_run_config_" + id, $.ds.icon.run, title, "runconfig2.html", "id=" + id);
-			}
-		});
-
-		center_menu.menu('appendItem', {
-			text : '新增配置项',
-			iconCls : $.ds.icon.add_cls,
-			disabled : false,
-			onclick : function() {
-				$.ds.commons.openWindow("center_add_config", $.ds.icon.add , "新增配置项", "addconfig.html", "group_id=" + id);
-			}
-		});
-
-		center_menu.menu('appendItem', {
-			text : '修改',
-			iconCls : $.ds.icon.edit_cls,
-			onclick : function() {
-				if (center_choose_li_id == "") {
-					return $.ds.show('请选择一项配置进行修改!');
-				}
-				var id = center_choose_li_id;
-				var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
-				openConfig(id, title);
-			}
-		});
-
-		center_menu.menu('appendItem', {
-			text : '删除',
-			iconCls : $.ds.icon.remove_cls,
-			onclick : function() {
-				if (center_choose_li_id == "") {
-					return $.ds.show('请选择一项配置进行删除!');
-				}
-				var id = center_choose_li_id;
-				var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
-				$.messager.confirm('确定', '您确定要删除[' + title + ']吗？删除后不可恢复。请谨慎操作。', function(r){
-					if (r){
-						$.post($.ds.url.delete_config, {id: id}, function(data) {
-							$.ds.show(data.message);
-							this_ul.find("li[ds_index='" + center_choose_li_id + "']").remove();
-						});
-					} else {
-						$.ds.show('您已取消删除' + title + '。');
+		if (isadmin) {
+			center_menu.menu('appendItem', {
+				text : '执行',
+				iconCls : $.ds.icon.run_cls,
+				onclick : function() {
+					if (center_choose_li_id == "") {
+						return $.ds.show('请选择一项配置执行!');
 					}
-				});
-// 				openConfig(id, title);
-// 				return $.ds.show('修改!');
-			}
-		});
+					var id = center_choose_li_id;
+					var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
+					$.ds.commons.openWindow("center_run_config_" + id, $.ds.icon.run, title, "runconfig.html", "id=" + id);
+				}
+			});
+		}
 
-		center_menu.append($('<div class="menu-sep"></div>'));
+		if (!isadmin && isuser) {
+			center_menu.menu('appendItem', {
+				text : '任务执行',
+				iconCls : $.ds.icon.run_cls,
+				onclick : function() {
+					if (center_choose_li_id == "") {
+						return $.ds.show('请选择一项配置执行!');
+					}
+					var id = center_choose_li_id;
+					var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
+					$.ds.commons.openWindow("center_run_config_" + id, $.ds.icon.run, title, "runconfig2.html", "id=" + id);
+				}
+			});
+		}
 
-		center_menu.menu('appendItem', {
-			text : '自定义排序',
-			iconCls : $.ds.icon.list_cls,
-			onclick : function() {
-				this_window.unbind('contextmenu');
-				this_window.bind('contextmenu', function(e) {
-					e.preventDefault();
-					$('#center_menu_save_cancel').menu('show', {
-						left : e.pageX,
-						top : e.pageY
+		if (isadmin) {
+			center_menu.menu('appendItem', {
+				text : '新增配置项',
+				iconCls : $.ds.icon.add_cls,
+				disabled : false,
+				onclick : function() {
+					$.ds.commons.openWindow("center_add_config", $.ds.icon.add , "新增配置项", "addconfig.html", "group_id=" + id);
+				}
+			});
+		}
+
+		if (isadmin) {
+			center_menu.menu('appendItem', {
+				text : '修改',
+				iconCls : $.ds.icon.edit_cls,
+				onclick : function() {
+					if (center_choose_li_id == "") {
+						return $.ds.show('请选择一项配置进行修改!');
+					}
+					var id = center_choose_li_id;
+					var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
+					openConfig(id, title);
+				}
+			});
+		}
+
+
+		if (isadmin) {
+			center_menu.menu('appendItem', {
+				text : '删除',
+				iconCls : $.ds.icon.remove_cls,
+				onclick : function() {
+					if (center_choose_li_id == "") {
+						return $.ds.show('请选择一项配置进行删除!');
+					}
+					var id = center_choose_li_id;
+					var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
+					$.messager.confirm('确定', '您确定要删除[' + title + ']吗？删除后不可恢复。请谨慎操作。', function(r){
+						if (r){
+							$.post($.ds.url.delete_config, {id: id}, function(data) {
+								$.ds.show(data.message);
+								this_ul.find("li[ds_index='" + center_choose_li_id + "']").remove();
+							});
+						} else {
+							$.ds.show('您已取消删除' + title + '。');
+						}
 					});
-				});
-				sortable.option("disabled", false);
-				return $.ds.show('您已经开启了自定义排序功能，请拖动列表，然后右键→保存!');
-			}
-		});
+	// 				openConfig(id, title);
+	// 				return $.ds.show('修改!');
+				}
+			});
+		}
 
-		center_menu.menu('appendItem', {
-			text : '刷新',
-			iconCls : $.ds.icon.refresh_cls,
-			onclick : function() {
-				init();
-			}
-		});
-
-		var menuSaveCancel = $('<div id="center_menu_save_cancel"></div>');
-		menuSaveCancel.appendTo(this_window).menu({});
-		menuSaveCancel.menu('appendItem', {
-			text : '保存',
-			iconCls : $.ds.icon.save_cls,
-			onclick : function() {
-				this_window.unbind('contextmenu');
-				this_window.bind('contextmenu', function(e) {
-					bindContextMenu(e);
-				});
-				sortable.option("disabled", true);
-				var configs = [ ];
-				this_ul.find("li").each(function(){
-					configs.push({ id : $(this).DSGetIndex() });
-				});
-				$.ajax({
-					url : $.ds.url.save_config_order,
-					type : "post",
-					data : JSON.stringify(configs),
-					dataType : "json",
-					contentType : "application/json",
-					success : function(data) {
-						$.ds.show(data.message);
-					},
-					error : function(data) {
-						$.ds.show(data.message);
-						init();
+		if (isadmin) {
+			center_menu.menu('appendItem', {
+				text : '配置定时任务',
+				iconCls : $.ds.icon.clock_cls,
+				onclick : function() {
+					if (center_choose_li_id == "") {
+						return $.ds.show('请选择一项配置加入定时任务!');
 					}
-				});
-			}
-		}).menu('appendItem', {
-			text : '取消',
-			iconCls : $.ds.icon.remove_cls,
-			onclick : function() {
-				this_window.unbind('contextmenu');
-				this_window.bind('contextmenu', function(e) {
-					bindContextMenu(e);
-				});
-				sortable.option("disabled", true);
-				init();
-				return $.ds.show('您取消了本次自定义排序操作!');
-			}
-		});
+					var id = center_choose_li_id;
+					var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
+					$.ds.commons.openWindow("center_add_scheduler_" + id, $.ds.icon.clock, title, "addscheduler.html", "id=" + id);
+				}
+			});
+		}
+
+		if (isadmin) {
+			center_menu.append($('<div class="menu-sep"></div>'));
+	
+			center_menu.menu('appendItem', {
+				text : '自定义排序',
+				iconCls : $.ds.icon.list_cls,
+				onclick : function() {
+					this_window.unbind('contextmenu');
+					this_window.bind('contextmenu', function(e) {
+						e.preventDefault();
+						$('#center_menu_save_cancel').menu('show', {
+							left : e.pageX,
+							top : e.pageY
+						});
+					});
+					sortable.option("disabled", false);
+					return $.ds.show('您已经开启了自定义排序功能，请拖动列表，然后右键→保存!');
+				}
+			});
+	
+			center_menu.menu('appendItem', {
+				text : '刷新',
+				iconCls : $.ds.icon.refresh_cls,
+				onclick : function() {
+					init();
+				}
+			});
+
+			var menuSaveCancel = $('<div id="center_menu_save_cancel"></div>');
+			menuSaveCancel.appendTo(this_window).menu({});
+			menuSaveCancel.menu('appendItem', {
+				text : '保存',
+				iconCls : $.ds.icon.save_cls,
+				onclick : function() {
+					this_window.unbind('contextmenu');
+					this_window.bind('contextmenu', function(e) {
+						bindContextMenu(e);
+					});
+					sortable.option("disabled", true);
+					var configs = [ ];
+					this_ul.find("li").each(function(){
+						configs.push({ id : $(this).DSGetIndex() });
+					});
+					$.ajax({
+						url : $.ds.url.save_config_order,
+						type : "post",
+						data : JSON.stringify(configs),
+						dataType : "json",
+						contentType : "application/json",
+						success : function(data) {
+							$.ds.show(data.message);
+						},
+						error : function(data) {
+							$.ds.show(data.message);
+							init();
+						}
+					});
+				}
+			}).menu('appendItem', {
+				text : '取消',
+				iconCls : $.ds.icon.remove_cls,
+				onclick : function() {
+					this_window.unbind('contextmenu');
+					this_window.bind('contextmenu', function(e) {
+						bindContextMenu(e);
+					});
+					sortable.option("disabled", true);
+					init();
+					return $.ds.show('您取消了本次自定义排序操作!');
+				}
+			});
+		}
 
 		var openConfig = function(_id, title) {
 			$.ds.commons.openWindow("center_add_config_" + _id, $.ds.icon.edit, title, "addconfig.html", "id=" + _id + "&group_id=" + id);

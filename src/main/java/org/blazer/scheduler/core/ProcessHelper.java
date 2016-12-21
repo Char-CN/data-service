@@ -19,14 +19,14 @@ public class ProcessHelper {
 
 	private static final Logger logger = LoggerFactory.getLogger("scheduler");
 
-	public static Process run(String cmd, String logPath, String errorLogPath) {
-		return run(cmd, logPath, errorLogPath, true);
+	public static Process run(String cmd, String[] params, String logPath, String errorLogPath) {
+		return run(cmd, params, logPath, errorLogPath, true);
 	}
 
-	public static Process run(String cmd, String logPath, String errorLogPath, boolean appendLog) {
+	public static Process run(String cmd, String[] params, String logPath, String errorLogPath, boolean appendLog) {
 		Process process = null;
 		try {
-			process = Runtime.getRuntime().exec(cmd);
+			process = Runtime.getRuntime().exec(cmd, params);
 			log2File(logPath, process.getInputStream(), appendLog);
 			log2File(errorLogPath, process.getErrorStream(), appendLog);
 		} catch (Exception e) {
@@ -156,32 +156,53 @@ public class ProcessHelper {
 		return list;
 	}
 
+	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
-		String basePath = "/Users/hyy/";
-		String shellFile = basePath + "zz.sh";
-
+		// String basePath = "/Users/hyy/";
+		// String shellFile = basePath + "zz.sh";
+		//
+		// //
 		// System.out.println(ManagementFactory.getRuntimeMXBean().getName());
-
-		String cmd = ";;sleep ;echo \"hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh............hhhhhhhhhhhhhhhhh\";sleep 3s;echo `date +%Y%m%d%H%M%S`;sh " + shellFile + " wwww sdsdsds aaasdasdaa;";
+		//
+		// String cmd = ";;sleep ;echo
+		// \"hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh............hhhhhhhhhhhhhhhhh\";sleep
+		// 3s;echo `date +%Y%m%d%H%M%S`;sh " + shellFile + " wwww sdsdsds
+		// aaasdasdaa;";
+		// String[] cmds = StringUtils.split(cmd, ";");
+		// System.out.println(cmds.length);
+		// Process process = null;
+		// for (String c : cmds) {
+		// process = run(c, shellFile + ".input", shellFile + ".error");
+		// System.out.println(c + " | " + process.waitFor());
+		// }
+		// // int i = process.waitFor();
+		// // System.out.println(i);
+		// // System.out.println(readLog(shellFile + ".input", shellFile +
+		// // ".error"));
+		// System.out.println("heheehee");
+		// Thread.sleep(5000);
+		// if (process.isAlive()) {
+		// process.getOutputStream().close();
+		// process.getInputStream().close();
+		// process.getErrorStream().close();
+		// process.destroy();
+		// }
+//		String cmd = "sh /Users/hyy/test/hyy.sh hhh";
+//		String[] cmds = StringUtils.split(cmd, ";");
+//		Process process = null;
+//		String[] params = { "aaa=hyyyy" };
+//		for (String c : cmds) {
+//			process = run(c, params, "/Users/hyy/test/hyy.input", "/Users/hyy/test/hyy.error", false);
+//			System.out.println(c + " | " + process.waitFor());
+//		}
+//		System.out.println(process.exitValue());
+		String cmd = "sh /Users/hyy/test/sleep.sh";
 		String[] cmds = StringUtils.split(cmd, ";");
-		System.out.println(cmds.length);
-		Process process = null;
-		for (String c : cmds) {
-			process = run(c, shellFile + ".input", shellFile + ".error");
-			System.out.println(c + " | " + process.waitFor());
-		}
-		// int i = process.waitFor();
-		// System.out.println(i);
-		// System.out.println(readLog(shellFile + ".input", shellFile +
-		// ".error"));
-		System.out.println("heheehee");
-		Thread.sleep(5000);
-		if (process.isAlive()) {
-			process.getOutputStream().close();
-			process.getInputStream().close();
-			process.getErrorStream().close();
-			process.destroy();
-		}
+		String[] params = { "aaa=hyyyy" };
+		Process	process = run(cmd, params, "/Users/hyy/test/sleep.input", "/Users/hyy/test/sleep.error");
+		Thread.sleep(12000);
+		process.destroy();
+		System.out.println(process.exitValue());
 	}
 
 }

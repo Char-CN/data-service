@@ -14,6 +14,15 @@ public class Task {
 	private String command;
 	private String logPath;
 	private String errorLogPath;
+	private String exception;
+
+	public String getException() {
+		return exception;
+	}
+
+	public void setException(String exception) {
+		this.exception = exception;
+	}
 
 	public Integer getId() {
 		return id;
@@ -97,8 +106,8 @@ public class Task {
 
 	@Override
 	public String toString() {
-		return "Task [id=" + id + ", jobId=" + jobId + ", statusId=" + statusId + ", typeName=" + typeName + ", taskName=" + taskName + ", executeTime="
-				+ executeTime + ", endTime=" + endTime + ", command=" + command + ", logPath=" + logPath + ", errorLogPath=" + errorLogPath + "]";
+		return "Task [id=" + id + ", jobId=" + jobId + ", statusId=" + statusId + ", typeName=" + typeName + ", taskName=" + taskName + ", executeTime=" + executeTime
+				+ ", endTime=" + endTime + ", command=" + command + ", logPath=" + logPath + ", errorLogPath=" + errorLogPath + "]";
 	}
 
 }

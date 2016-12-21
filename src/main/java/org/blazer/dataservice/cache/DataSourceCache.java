@@ -116,9 +116,9 @@ public class DataSourceCache implements InitializingBean {
 			dataSource.setUrl(url);
 			dataSource.setPassword(password);
 			// 配置参数，需要后期优化
-			dataSource.setInitialSize(10);
-			dataSource.setMinIdle(10);
-			dataSource.setMaxActive(100);
+			dataSource.setInitialSize(50);
+			dataSource.setMinIdle(50);
+			dataSource.setMaxActive(200);
 			// 对于长时间不使用的连接强制关闭
 			dataSource.setRemoveAbandoned(true);
 			// 数据库链接超过多少分钟开始关闭空闲连接,秒为单位

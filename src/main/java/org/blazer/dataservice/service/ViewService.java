@@ -2,8 +2,10 @@ package org.blazer.dataservice.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.blazer.dataservice.body.GroupBody;
@@ -80,11 +82,34 @@ public class ViewService {
 	}
 
 	public List<Integer> findUserGroupIds(HashMap<String, String> params) {
-		String sql = "select * from ds_user_group where user_id = ? and group_id not in(select id from ds_group where parent_id=-1)";
+		// 逻辑：一级目录下有子目录的则过滤掉该一级目录id，若没有子目录，则需要加上该目录id
+		String sql = "select dg.* from ds_user_group dug inner join ds_group dg on dug.group_id=dg.id where dug.user_id = ?";
 		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, IntegerUtil.getInt0(params.get("id")));
 		List<Integer> rstList = new ArrayList<Integer>();
+		List<Integer> rootList = new ArrayList<Integer>();
+		Set<Integer> rootSet = new HashSet<Integer>();
+		// 先获取根目录
 		for (Map<String, Object> map : list) {
-			rstList.add(IntegerUtil.getInt0(map.get("group_id")));
+			if (IntegerUtil.getInt0(map.get("parent_id")) == -1) {
+				rootList.add(IntegerUtil.getInt0(map.get("id")));
+			}
+		}
+		// 再把子目录加上
+		for (Map<String, Object> map : list) {
+			if (IntegerUtil.getInt0(map.get("parent_id")) == -1) {
+				continue;
+			}
+			rstList.add(IntegerUtil.getInt0(map.get("id")));
+			rootSet.add(IntegerUtil.getInt0(map.get("parent_id")));
+		}
+		// 如果存在根目录则不加入结果集
+		for (Map<String, Object> map : list) {
+			if (IntegerUtil.getInt0(map.get("parent_id")) == -1) {
+				Integer id = IntegerUtil.getInt0(map.get("id"));
+				if (!rootSet.contains(id)) {
+					rstList.add(id);
+				}
+			}
 		}
 		return rstList;
 	}

@@ -1,0 +1,60 @@
+<div style="width: 98%;">
+	<form method="post" ds_index="form">
+		<table style="border-collapse: separate; border-spacing: 10px; width: 100%;">
+			<tbody>
+				<tr>
+					<td width="20%"><span>名称:</span></td>
+					<td width="80%" ds_index="td_name"></td>
+				</tr>
+			</tbody>
+			<tbody ds_index="params"></tbody>
+		</table>
+	</form>
+</div>
+<script>
+	$(function() {
+		// 初始化参数、定义参数
+		var queryString = '$queryString';
+		var windowId = '$windowId';
+		var id = $.ds.getQueryString(queryString, "id");
+		var group_id = $.ds.getQueryString(queryString, "group_id");
+		var this_window = $("#" + windowId);
+		
+		// 保存
+		var a_save = $('<a href="javascript:void(0)" class="icon-save"></a>');
+		this_window.parent().find(" .panel-tool").prepend(a_save);
+		a_save.click(function() {
+		});
+
+		// 初始化
+		var init = function() {
+			// 新增文本框
+			this_window.DSFind("td_name").empty();
+			var input_id = $('<input type="hidden">').DSAdd('id');
+			this_window.DSFind("td_name").append(input_id);
+			var te = $('<input>').DSAdd('name');
+			this_window.DSFind("td_name").append(te);
+			te.textbox({
+				readonly : true,
+				validateOnCreate : false,
+				validateOnBlur : true,
+				width : "100%",
+				multiline : false
+			});
+			var url = $.ds.url.config_by_id + "?id=" + id;
+			$.post(url, function(data) {
+				this_window.DSFind("id").val(data.id);
+				this_window.DSFind("name").textbox('initValue', data.configName);
+				if (data.list.length == 0) {
+					addDetailPanel();
+				} else {
+					for (var i in data.list) {
+						addDetailPanel(data.list[i].key, data.list[i].values);
+					}
+				}
+			});
+		};
+
+		init();
+	});
+</script>
