@@ -78,6 +78,21 @@ public class SchedulerServer extends Thread implements InitializingBean {
 		return jobIdToJobMap.get(jobId);
 	}
 
+	public void reloadJob(Job job) throws Exception {
+		// 先清除time中已经生成的process task
+		for (String time : timeToProcessModelMap.keySet()) {
+			for (ProcessModel pm : timeToProcessModelMap.get(time)) {
+				if (pm.getJob().getId() == job.getId()) {
+					pm.getTask().setStatusId(Status.CANCEL.getId());
+					taskService.updateEndTimeNowAndStatus(pm.getTask());
+					timeToProcessModelMap.get(time).remove(pm);
+				}
+			}
+		}
+		// 再init
+		initJob(job);
+	}
+
 	public void initJob(Job job) throws Exception {
 		if (job == null) {
 			throw new NullPointerException("job is null.");
@@ -160,7 +175,7 @@ public class SchedulerServer extends Thread implements InitializingBean {
 		task.setLogPath(task_log_path);
 		task.setErrorLogPath(task_log_path);
 		task.setCommand(job.getCommand());
-		task = taskService.add(task);
+		task = taskService.addOrGet(task);
 		// process model
 		pm.setJob(job);
 		pm.setTask(task);
@@ -168,6 +183,7 @@ public class SchedulerServer extends Thread implements InitializingBean {
 		// split commands by ;
 		pm.setCmdArray(StringUtils.split(job.getCommand(), ";"));
 		pm.setNextTime(nextTime);
+		// 不存在该时间点的。new一个出来。
 		if (!timeToProcessModelMap.containsKey(pm.getNextTime())) {
 			timeToProcessModelMap.put(pm.getNextTime(), new ConcurrentLinkedQueue<ProcessModel>());
 		}
@@ -379,8 +395,8 @@ public class SchedulerServer extends Thread implements InitializingBean {
 			}
 		}
 		logger.info("初始化JobList：" + jobList);
-		SchedulerServer s = new SchedulerServer();
-		s.start();
+//		SchedulerServer s = new SchedulerServer();
+//		s.start();
 		logger.info("启动scheduler服务成功。");
 	}
 

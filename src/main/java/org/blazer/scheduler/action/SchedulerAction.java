@@ -26,7 +26,7 @@ public class SchedulerAction extends BaseAction {
 
 	@Autowired
 	SchedulerServer schedulerServer;
-	
+
 	@Autowired
 	TaskService taskService;
 

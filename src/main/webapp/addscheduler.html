@@ -3,8 +3,24 @@
 		<table style="border-collapse: separate; border-spacing: 10px; width: 100%;">
 			<tbody>
 				<tr>
+					<td width="20%"><span>数据源:</span></td>
+					<td width="80%" ds_index="td_datasource"></td>
+				</tr>
+				<tr>
 					<td width="20%"><span>名称:</span></td>
 					<td width="80%" ds_index="td_name"></td>
+				</tr>
+			</tbody>
+			<tbody>
+				<tr>
+					<td colspan="2">以下是所有调度信息：</td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<div ds_index="schedulers">
+							<!-- 							<ul ds_index="schedulers" class="dsul"></ul> -->
+						</div>
+					</td>
 				</tr>
 			</tbody>
 			<tbody ds_index="params"></tbody>
@@ -19,7 +35,8 @@
 		var id = $.ds.getQueryString(queryString, "id");
 		var group_id = $.ds.getQueryString(queryString, "group_id");
 		var this_window = $("#" + windowId);
-		
+
+		var params = [];
 		// 保存
 		var a_save = $('<a href="javascript:void(0)" class="icon-save"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_save);
@@ -28,6 +45,8 @@
 
 		// 初始化
 		var init = function() {
+			this_window.DSFind("td_datasource").empty();
+			this_window.DSFind("td_datasource").append($('<select style="width: 100%"></select>').DSAdd('datasource'));
 			// 新增文本框
 			this_window.DSFind("td_name").empty();
 			var input_id = $('<input type="hidden">').DSAdd('id');
@@ -41,18 +60,117 @@
 				width : "100%",
 				multiline : false
 			});
+			// 获取数据源的下拉框
+			$.ajax({
+				url : $.ds.url.datasource_all,
+				type : 'post',
+				async : false,
+				success : function(data) {
+					var select = this_window.DSFind("datasource");
+					for ( var i in data) {
+						var sel = "";
+						var op = $('<option value="' + data[i].id + '" ' + sel +'>' + data[i].databaseName + '[' + data[i].title + ']</option>');
+						select.append(op);
+					}
+					select.combobox({
+						readonly : true,
+						panelMaxHeight : 88
+					});
+				},
+				fail : function() {
+					$.ds.show("出现莫名失败。");
+				}
+			});
+			// 获取所有参数
+			$.ajax({
+				url : $.ds.url.get_params + "?id=" + id,
+				type : 'post',
+				async : false,
+				success : function(data) {
+					var rst = eval(data);
+					for ( var i in rst.params) {
+						params.push($.ds.getCustomKey(rst.params[i]));
+					}
+				}
+			});
+
 			var url = $.ds.url.config_by_id + "?id=" + id;
 			$.post(url, function(data) {
 				this_window.DSFind("id").val(data.id);
 				this_window.DSFind("name").textbox('initValue', data.configName);
-				if (data.list.length == 0) {
-					addDetailPanel();
-				} else {
-					for (var i in data.list) {
-						addDetailPanel(data.list[i].key, data.list[i].values);
-					}
-				}
+				addSchedulerPanel();
 			});
+		};
+
+		// 增加调度面板
+		var addSchedulerCount = 1;
+		var addSchedulerPanel = function(cron) {
+			var index = addSchedulerCount;
+			var title = "";
+			if (cron == undefined) {
+				title = "【新增调度】" + addSchedulerCount;
+				cron = "";
+			} else {
+				title = '【配置调度】' + cron;
+			}
+			var details = this_window.DSFind("schedulers");
+			var pan = $('<div ds_index="panel"></div>');
+			details.append(pan);
+			pan.panel({
+				border : true,
+				// bodyCls: 'padding-10px',
+				cls : addSchedulerCount == 1 ? 'margin-top-10px' : 'margin-top-30px',
+				style : 'margin-top: 20px',
+				collapsible : true,
+				title : title,
+				width : details.width(),
+				tools : [ {
+					iconCls : 'icon-add',
+					handler : function() {
+						addSchedulerPanel();
+					}
+				}, {
+					iconCls : 'icon-remove',
+					handler : function() {
+						var dom = $(this);
+						$.messager.confirm('确定', '您确定要删除该详情吗?', function(r) {
+							if (r) {
+								pan.panel('destroy');
+							}
+						});
+					}
+				} ]
+			});
+			pan.append($('<table style="width:100%;" ds_index="scheduler' + index + '"><table>'));
+			var tb = this_window.DSFind('scheduler' + index);
+			tb.append('<tr style="width:100%;"><td style="width:20%;">cron表达式</td><td style="width:80%;"><input ds_index="cron'+index+'"></td></tr>');
+// 			tb.find("tr").eq(0).find("td").eq(1).append('');
+			this_window.DSFind('cron' + index).textbox({
+				required : true,
+				validateOnCreate : false,
+				validType : ['cron'],
+				width : "100%",
+				multiline : false,
+				value : cron
+			});
+			tb.append('<tr style="width:100%;"><td colspan="2">以下是所有参数信息：</td></tr>');
+			if (params.length == 0) {
+				tb.append('<tr><td width="20%"></td><td width="80%">没有任何参数。</td></tr>');
+			} else {
+				for ( var i in params) {
+					tb.append('<tr style="width:100%;"><td style="width:20%;" align="center">' + params[i] + '</td><td style="width:80%;"><input ds_index="param_' + index + '_' + (i+2) + '"></td></tr>');
+//	 				tb.find("tr").eq(i+2).find("td").eq(1).append('aaaaaa');
+					this_window.DSFind('param_' + index + '_' + (i+2)).textbox({
+// 						required : true,
+						validateOnCreate : false,
+						width : "100%",
+						multiline : false,
+						value : ''
+					});
+				}
+			}
+			// 			tb.append('<tr style="width:100%;"><td style="width:20%;">cron表达式222</td><td style="width:80%;"></td></tr>');
+			addSchedulerCount++;
 		};
 
 		init();

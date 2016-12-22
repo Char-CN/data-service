@@ -56,6 +56,7 @@ public class CronParserHelper {
 	public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	public static void main(String[] args) throws Exception {
+		System.out.println(EXPRESSION);
 		String cron = null;
 		Date next = null;
 		long l1 = 0;

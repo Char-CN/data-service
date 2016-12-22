@@ -29,7 +29,7 @@ public class TaskService {
 	 * @return
 	 * @throws Exception
 	 */
-	public Task add(Task task) throws Exception {
+	public Task addOrGet(Task task) throws Exception {
 		logger.debug("add task : " + task);
 		if (TaskType.cron_auto.toString().equals(task.getTypeName())) {
 			return add2CronAuto(task);

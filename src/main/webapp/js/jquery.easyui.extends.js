@@ -43,6 +43,12 @@ $(function() {
 			},
 			message : '您填写的值不能包含空白字符!'
 		},
+		cron : {
+			validator : function(value) {
+				return /^([*]|[*]\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\d+|[\d,]*|\d+[-]\d+)$/i.test(value);
+			},
+			message : '该项必须满足 [ minite(0-59) hour(0-24) day(1-31) month(1-12) week(1-7) ] 的格式,[*]表示任意时间!'
+		},
 		// 一组textbox的唯一值验证
 		onlyValue : {
 			// 例如一组标签 ：

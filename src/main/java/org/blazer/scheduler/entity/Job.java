@@ -1,5 +1,7 @@
 package org.blazer.scheduler.entity;
 
+import java.util.List;
+
 public class Job {
 
 	private Integer id;
@@ -7,6 +9,15 @@ public class Job {
 	private String jobName;
 	private String cron;
 	private String command;
+	private List<JobParam> params;
+
+	public List<JobParam> getParams() {
+		return params;
+	}
+
+	public void setParams(List<JobParam> params) {
+		this.params = params;
+	}
 
 	public Integer getId() {
 		return id;

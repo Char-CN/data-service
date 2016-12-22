@@ -35,7 +35,7 @@ public class ProcessHelper {
 		return process;
 	}
 
-	public static void log2File(final String path, final String log, boolean appendLog) throws IOException {
+	public static void log2File(final String path, final String log, final boolean appendLog) throws IOException {
 		logger.debug("new thread start : " + path);
 		Thread t = new Thread(new Runnable() {
 			@Override
