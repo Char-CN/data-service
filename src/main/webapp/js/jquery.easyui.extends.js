@@ -45,9 +45,22 @@ $(function() {
 		},
 		cron : {
 			validator : function(value) {
-				return /^([*]|[*]\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\d+|[\d,]*|\d+[-]\d+)$/i.test(value);
+				return /^([*]|[*]\/\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\/\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\/\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\/\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\/\d+|[\d,]*|\d+[-]\d+)$/i.test(value);
 			},
-			message : '该项必须满足 [ minite(0-59) hour(0-24) day(1-31) month(1-12) week(1-7) ] 的格式,[*]表示任意时间!'
+			message : '格式[ minite(0-59) hour(0-24) day(1-31) month(1-12) week(1-7) ] *表示任意时间!'
+		},
+		multiEmail : {
+			validator : function(value) {
+				var values = value.split(",");
+				for (var i in values) {
+					bol = /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i.test(values[i])
+					if (!bol) {
+						return bol;
+					}
+				}
+				return true;
+			},
+			message : '请填写正确邮箱并且用英文逗号分割!'
 		},
 		// 一组textbox的唯一值验证
 		onlyValue : {

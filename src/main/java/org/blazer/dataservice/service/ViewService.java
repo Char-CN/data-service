@@ -12,14 +12,20 @@ import org.blazer.dataservice.body.GroupBody;
 import org.blazer.dataservice.body.TreeBody;
 import org.blazer.dataservice.body.view.ViewConfigBody;
 import org.blazer.dataservice.body.view.ViewConfigDetailBody;
+import org.blazer.dataservice.body.view.ViewMappingConfigJobBody;
+import org.blazer.dataservice.cache.ConfigCache;
 import org.blazer.dataservice.entity.DSGroup;
+import org.blazer.dataservice.entity.MappingConfigJob;
 import org.blazer.dataservice.util.HMap;
 import org.blazer.dataservice.util.IntegerUtil;
 import org.blazer.dataservice.util.StringUtil;
+import org.blazer.scheduler.core.SchedulerServer;
+import org.blazer.scheduler.service.JobService;
 import org.blazer.userservice.core.model.SessionModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +36,64 @@ public class ViewService {
 
 	@Autowired
 	JdbcTemplate jdbcTemplate;
+	
+	@Autowired
+	JobService jobService;
+	
+	@Autowired
+	ConfigCache configCache;
+	
+	@Autowired
+	SchedulerServer schedulerServer;
+
+	@Value("#{scriptProperties.script_path}")
+	private String scriptPath;
+
+	public List<MappingConfigJob> findSchedulersByConfigId(Integer id) throws Exception {
+		String sql = "select * from mapping_config_job where config_id=? and enable=1";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, id);
+		List<MappingConfigJob> rst = HMap.toList(list, MappingConfigJob.class);
+		for (MappingConfigJob mcj : rst) {
+			mcj.setJob(schedulerServer.getJobById(mcj.getJobId()));
+		}
+		return rst;
+	}
+
+	public void deleteMappingConfigJob(Integer id) throws Exception {
+		logger.debug("delete mapping config job : " + id);
+		String sql = "update mapping_config_job set enable=0 where id=?";
+		jdbcTemplate.update(sql, id);
+	}
+
+	public void saveMappingConfigJob(ViewMappingConfigJobBody vBody, SessionModel sm) throws Exception {
+		HashMap<Integer, Integer> existsMap = new HashMap<Integer, Integer>();
+		if (vBody.getConfigId() != null) {
+			String sql = "select id, job_id from mapping_config_job where config_id=? and enable=1";
+			List<Map<String, Object>> existsList = jdbcTemplate.queryForList(sql, vBody.getConfigId());
+			for (Map<String, Object> map : existsList) {
+				existsMap.put(IntegerUtil.getInt0(map.get("id")), IntegerUtil.getInt0(map.get("job_id")));
+			}
+		}
+		for (MappingConfigJob mcj : vBody.getList()) {
+			mcj.getJob().setCommand("sh " + scriptPath);
+			jobService.saveJob(mcj.getJob());
+			if (mcj.getId() == null) {
+				String sql = "insert into mapping_config_job(config_id, job_id, user_id, result_mode, email) values(?, ?, ?, ?, ?)";
+				jdbcTemplate.update(sql, mcj.getConfigId(), mcj.getJob().getId(), sm.getUserId(), mcj.getResultMode(), mcj.getEmail());
+			} else {
+				String sql = "update mapping_config_job set config_id=?, job_id=?, user_id=?, result_mode=?, email=? where id=?";
+				jdbcTemplate.update(sql, mcj.getConfigId(), mcj.getJob().getId(), sm.getUserId(), mcj.getResultMode(), mcj.getEmail(), mcj.getId());
+				existsMap.remove(mcj.getId());
+			}
+			schedulerServer.reloadJob(mcj.getJob());
+		}
+		// remove job and mapping
+		for (Integer id : existsMap.keySet()) {
+			jobService.deleteJob(existsMap.get(id));
+			deleteMappingConfigJob(id);
+			schedulerServer.removeJob(existsMap.get(id));
+		}
+	}
 
 	public List<GroupBody> findTreeById(HashMap<String, String> params, SessionModel sm) {
 		logger.debug("qeury id " + params.get("id"));

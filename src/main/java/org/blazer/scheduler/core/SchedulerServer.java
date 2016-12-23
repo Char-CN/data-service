@@ -80,15 +80,16 @@ public class SchedulerServer extends Thread implements InitializingBean {
 
 	public void reloadJob(Job job) throws Exception {
 		// 先清除time中已经生成的process task
-		for (String time : timeToProcessModelMap.keySet()) {
-			for (ProcessModel pm : timeToProcessModelMap.get(time)) {
-				if (pm.getJob().getId() == job.getId()) {
-					pm.getTask().setStatusId(Status.CANCEL.getId());
-					taskService.updateEndTimeNowAndStatus(pm.getTask());
-					timeToProcessModelMap.get(time).remove(pm);
-				}
-			}
-		}
+//		for (String time : timeToProcessModelMap.keySet()) {
+//			for (ProcessModel pm : timeToProcessModelMap.get(time)) {
+//				if (pm.getJob().getId() == job.getId()) {
+//					pm.getTask().setStatusId(Status.CANCEL.getId());
+//					taskService.updateEndTimeNowAndStatus(pm.getTask());
+//					timeToProcessModelMap.get(time).remove(pm);
+//				}
+//			}
+//		}
+		removeJob(job.getId());
 		// 再init
 		initJob(job);
 	}
@@ -97,18 +98,33 @@ public class SchedulerServer extends Thread implements InitializingBean {
 		if (job == null) {
 			throw new NullPointerException("job is null.");
 		}
-		if (CronParserHelper.isNotValid(job.getCron())) {
-			throw new CronException("cron [" + job.getCron() + "] expression is not valid.");
-		}
-		if (StringUtils.isBlank(job.getCommand())) {
-			throw new CmdException("cmd [" + job.getCommand() + "] is not valid.");
-		}
+//		if (CronParserHelper.isNotValid(job.getCron())) {
+//			throw new CronException("cron [" + job.getCron() + "] expression is not valid.");
+//		}
+//		if (StringUtils.isBlank(job.getCommand())) {
+//			throw new CmdException("cmd [" + job.getCommand() + "] is not valid.");
+//		}
 		logger.info("init job in scheduler : " + job);
 		jobIdToJobMap.put(job.getId(), job);
 		waitSpawnTaskJobIdQueue.add(job.getId());
 	}
 
+	public void removeJob(Job job) {
+		removeJob(job.getId());
+	}
+
 	public void removeJob(Integer jonId) {
+		// 先清除time中已经生成的process task
+		for (String time : timeToProcessModelMap.keySet()) {
+			for (ProcessModel pm : timeToProcessModelMap.get(time)) {
+				if (pm.getJob().getId() == jonId) {
+					pm.getTask().setStatusId(Status.CANCEL.getId());
+					taskService.updateEndTimeNowAndStatus(pm.getTask());
+					timeToProcessModelMap.get(time).remove(pm);
+				}
+			}
+		}
+		jobIdToJobMap.remove(jonId);
 	}
 
 	public void cancelTaskByName(String taskName) {
@@ -149,14 +165,14 @@ public class SchedulerServer extends Thread implements InitializingBean {
 		if (taskType == TaskType.cron_auto && CronParserHelper.isNotValid(job.getCron())) {
 			throw new CronException("cron [" + job.getCron() + "] expression is not valid.");
 		}
+		if (StringUtils.isBlank(job.getCommand())) {
+			throw new CmdException("cmd [" + job.getCommand() + "] is not valid.");
+		}
 		String nextTime = null;
 		if (taskType == TaskType.cron_auto) {
 			nextTime = DateUtil.showDate(CronParserHelper.getNextDate(job.getCron()));
 		} else {
 			nextTime = DateUtil.getSeconds() > 50 ? DateUtil.newDateStrNextMinute() : DateUtil.newDateStr();
-		}
-		if (StringUtils.isBlank(job.getCommand())) {
-			throw new CmdException("cmd [" + job.getCommand() + "] is not valid.");
 		}
 		ProcessModel pm = new ProcessModel();
 		// task entity

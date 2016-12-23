@@ -72,6 +72,7 @@ public class JobService {
 
 	@Transactional
 	public void saveJob(Job job) throws Exception {
+		logger.debug("save job : " + job);
 		if (job.getId() != null) {
 			String sql = "update scheduler_job set type=?, job_name=?, cron=?, command=? where id=?";
 			jdbcTemplate.update(sql, job.getType(), job.getJobName(), job.getCron(), job.getCommand(), job.getId());
@@ -89,6 +90,14 @@ public class JobService {
 				jdbcTemplate.update(sql, job.getId(), jp.getParamName(), jp.getTitleName(), jp.getDefaultValue());
 			}
 		}
+		logger.debug("save job end : " + job);
+	}
+
+	@Transactional
+	public void deleteJob(Integer jobId) throws Exception {
+		logger.debug("delete job : " + jobId);
+		String sql = "update scheduler_job set enable=0 where id=?";
+		jdbcTemplate.update(sql, jobId);
 	}
 
 }

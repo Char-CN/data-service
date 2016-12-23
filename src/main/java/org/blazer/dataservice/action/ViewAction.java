@@ -12,8 +12,10 @@ import org.blazer.dataservice.body.DataSourceBody;
 import org.blazer.dataservice.body.GroupBody;
 import org.blazer.dataservice.body.TreeBody;
 import org.blazer.dataservice.body.view.ViewConfigBody;
+import org.blazer.dataservice.body.view.ViewMappingConfigJobBody;
 import org.blazer.dataservice.cache.ConfigCache;
 import org.blazer.dataservice.cache.DataSourceCache;
+import org.blazer.dataservice.entity.MappingConfigJob;
 import org.blazer.dataservice.exception.UnknowDataSourceException;
 import org.blazer.dataservice.service.ViewService;
 import org.blazer.dataservice.util.IntegerUtil;
@@ -43,7 +45,40 @@ public class ViewAction extends BaseAction {
 
 	@Autowired
 	ConfigCache configCache;
-	
+
+	@ResponseBody
+	@RequestMapping("/saveScheduler")
+	public Body saveScheduler(HttpServletRequest request, HttpServletResponse response, @RequestBody MappingConfigJob s) {
+		logger.debug(s.toString());
+		return success().setMessage("保存成功！");
+	}
+
+	@ResponseBody
+	@RequestMapping("/saveSchedulers")
+	public Body saveSchedulers(HttpServletRequest request, HttpServletResponse response, @RequestBody ViewMappingConfigJobBody vBody) {
+		SessionModel sm = PermissionsFilter.getSessionModel(request);
+		try {
+			viewService.saveMappingConfigJob(vBody, sm);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return fail().setMessage(e.getMessage());
+		}
+		return success().setMessage("保存成功！");
+	}
+
+	@ResponseBody
+	@RequestMapping("/findSchedulers")
+	public List<MappingConfigJob> findSchedulers(HttpServletRequest request, HttpServletResponse response) {
+		HashMap<String, String> params = getParamMap(request);
+		List<MappingConfigJob> list = null;
+		try {
+			list = viewService.findSchedulersByConfigId(IntegerUtil.getInt0(params.get("config_id")));
+		} catch (Exception e) {
+			list = new ArrayList<MappingConfigJob>();
+		}
+		return list;
+	}
+
 	@ResponseBody
 	@RequestMapping("/getAllUser")
 	public List<UserModel> getAllUser(HttpServletRequest request, HttpServletResponse response) {
@@ -64,7 +99,7 @@ public class ViewAction extends BaseAction {
 		List<Integer> list = viewService.findUserGroupIds(getParamMap(request));
 		return list;
 	}
-	
+
 	@ResponseBody
 	@RequestMapping("/saveUserGroup")
 	public Body saveUserGroup(HttpServletRequest request, HttpServletResponse response) {

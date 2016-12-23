@@ -8,6 +8,9 @@ $(function() {
 				}
 				return urls[1];
 			},
+			find_schedulers : "view/findSchedulers.do",
+			save_schedulers : "view/saveSchedulers.do",
+			save_scheduler : "view/saveScheduler.do",
 			get_params : "dataservice/getparams.do",
 			get_config : "dataservice/getconfig.do",
 			tree : "view/getTree.do",
