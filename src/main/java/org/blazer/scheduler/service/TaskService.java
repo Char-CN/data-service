@@ -2,6 +2,7 @@ package org.blazer.scheduler.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UnknownFormatConversionException;
 
 import org.blazer.dataservice.util.HMap;
 import org.blazer.scheduler.entity.Task;
@@ -11,8 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-
-import net.sf.ehcache.search.attribute.UnknownAttributeException;
 
 @Service(value = "taskService")
 public class TaskService {
@@ -36,7 +35,7 @@ public class TaskService {
 		} else if (TaskType.right_now.toString().equals(task.getTypeName())) {
 			return add2RightNow(task);
 		}
-		throw new UnknownAttributeException("task type [" + task.getTypeName() + "] is not valid.");
+		throw new UnknownFormatConversionException("task type [" + task.getTypeName() + "] is not valid.");
 	}
 
 	/**

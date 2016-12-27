@@ -23,6 +23,10 @@ public class SequenceUtil {
 		return n++;
 	}
 
+	public static String getStrMin() {
+		return "00001";
+	}
+
 	public static String getStr0() {
 		int newNumber = get();
 		if (newNumber < 10) {

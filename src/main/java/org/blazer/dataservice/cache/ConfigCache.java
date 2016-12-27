@@ -95,15 +95,19 @@ public class ConfigCache extends BaseCache implements InitializingBean {
 	public void initConfigEntity() throws UnknowDataSourceException {
 		// 先清空
 		this.clear();
-		List<Map<String, Object>> configList = jdbcTemplate.queryForList("select id,datasource_id,config_name,config_type from ds_config where enable=1");
+		List<Map<String, Object>> configList = jdbcTemplate.queryForList("select id,datasource_id,config_name,config_type,group_id from ds_config where enable=1");
 		for (Map<String, Object> configMap : configList) {
 			ConfigModel config = new ConfigModel();
 			config.setId(IntegerUtil.getInt0(configMap.get("id")));
+			config.setGroupId(IntegerUtil.getInt0(configList.get(0).get("group_id")));
 			// 找不到数据源使用默认数据源
 			if (StringUtils.isBlank(StringUtil.getStr(configMap.get("datasource_id")))) {
 				config.setDataSource(dataSourceCache.getDao(1));
+				config.setDataSourceModel(dataSourceCache.getDataSourceBean(1));
 			} else {
-				config.setDataSource(dataSourceCache.getDao(IntegerUtil.getInt0(configMap.get("datasource_id"))));
+				Integer datasourceId = IntegerUtil.getInt0(configMap.get("datasource_id"));
+				config.setDataSource(dataSourceCache.getDao(datasourceId));
+				config.setDataSourceModel(dataSourceCache.getDataSourceBean(datasourceId));
 			}
 			config.setConfigName(StringUtil.getStrEmpty(configMap.get("config_name")));
 			config.setConfigType(StringUtil.getStrEmpty(configMap.get("config_type")));
@@ -137,18 +141,22 @@ public class ConfigCache extends BaseCache implements InitializingBean {
 		// 先清除
 		this.remove(id);
 		List<Map<String, Object>> configList = jdbcTemplate
-				.queryForList("select id,datasource_id,config_name,config_type from ds_config where enable=1 and id=?", id);
+				.queryForList("select id,datasource_id,config_name,config_type,group_id from ds_config where enable=1 and id=?", id);
 		if (configList.size() == 0) {
 			logger.info("config is not found, id : " + id + ", init fail");
 			return;
 		}
 		ConfigModel config = new ConfigModel();
 		config.setId(IntegerUtil.getInt0(configList.get(0).get("id")));
+		config.setGroupId(IntegerUtil.getInt0(configList.get(0).get("group_id")));
 		// 找不到数据源使用默认数据源
 		if (StringUtils.isBlank(StringUtil.getStr(configList.get(0).get("datasource_id")))) {
 			config.setDataSource(dataSourceCache.getDao(1));
+			config.setDataSourceModel(dataSourceCache.getDataSourceBean(1));
 		} else {
-			config.setDataSource(dataSourceCache.getDao(IntegerUtil.getInt0(configList.get(0).get("datasource_id"))));
+			Integer datasourceId = IntegerUtil.getInt0(configList.get(0).get("datasource_id"));
+			config.setDataSource(dataSourceCache.getDao(datasourceId));
+			config.setDataSourceModel(dataSourceCache.getDataSourceBean(datasourceId));
 		}
 		config.setConfigName(StringUtil.getStrEmpty(configList.get(0).get("config_name")));
 		config.setConfigType(StringUtil.getStrEmpty(configList.get(0).get("config_type")));

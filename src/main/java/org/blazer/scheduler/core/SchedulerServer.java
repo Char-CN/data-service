@@ -7,8 +7,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.blazer.dataservice.util.TimeUtil;
 import org.blazer.scheduler.entity.Job;
+import org.blazer.scheduler.entity.JobParam;
 import org.blazer.scheduler.entity.Status;
 import org.blazer.scheduler.entity.Task;
 import org.blazer.scheduler.entity.TaskType;
@@ -71,6 +74,8 @@ public class SchedulerServer extends Thread implements InitializingBean {
 
 	private static final JobService jobService = (JobService) SpringContextUtil.getBean("jobService");
 
+	private static final String TASK_NAME = "%s_%s_%s_%s";
+
 	// 任务日志
 	private static String task_log_path;
 
@@ -95,8 +100,8 @@ public class SchedulerServer extends Thread implements InitializingBean {
 	}
 
 	public void initJob(Job job) throws Exception {
-		if (job == null) {
-			throw new NullPointerException("job is null.");
+		if (job == null || job.getId() == null) {
+			throw new NullPointerException("job or job id is null.");
 		}
 //		if (CronParserHelper.isNotValid(job.getCron())) {
 //			throw new CronException("cron [" + job.getCron() + "] expression is not valid.");
@@ -154,6 +159,23 @@ public class SchedulerServer extends Thread implements InitializingBean {
 	}
 
 	/**
+	 * 根据命令以及JobParam生成一个立即执行的任务
+	 * @param cmd
+	 * @param params
+	 * @return
+	 * @throws Exception
+	 */
+	public ProcessModel spawnRightNowTaskProcess(String cmd, List<JobParam> params) throws Exception {
+		Job job = new Job();
+		job.setId(0);
+		job.setJobName("即时调度");
+		job.setCommand(cmd);
+		job.setParams(params);
+		ProcessModel pm = spawnTaskProcess(job, TaskType.right_now);
+		return pm;
+	}
+
+	/**
 	 * 根据JobId和任务类型生成任务
 	 * 
 	 * @param jobId
@@ -178,12 +200,8 @@ public class SchedulerServer extends Thread implements InitializingBean {
 		// task entity
 		Task task = new Task();
 		String typeName = taskType.toString();
-		String taskName = null;
-		if (TaskType.cron_auto == taskType) {
-			taskName = nextTime + "_" + job.getId() + "_" + typeName + "_00001";
-		} else {
-			taskName = nextTime + "_" + job.getId() + "_" + typeName + "_" + SequenceUtil.getStr0();
-		}
+		// taskName = nextTime + "_" + job.getId() + "_" + typeName + "_" + SequenceUtil.getStrMin();
+		String taskName = String.format(TASK_NAME, nextTime, job.getId(), typeName, TaskType.cron_auto == taskType ? SequenceUtil.getStrMin() : SequenceUtil.getStr0());
 		task.setJobId(job.getId());
 		task.setTypeName(typeName);
 		task.setTaskName(taskName);
@@ -205,6 +223,17 @@ public class SchedulerServer extends Thread implements InitializingBean {
 		}
 		timeToProcessModelMap.get(pm.getNextTime()).add(pm);
 		return pm;
+	}
+
+	/**
+	 * 系统参数增加
+	 * @param params
+	 * @param task
+	 * @return
+	 */
+	private String[] addSystemParams(String[] params, Task task) {
+		params = ArrayUtils.add(params, "SYS_TASK_NAME=" + task.getTaskName());
+		return params;
 	}
 
 	@Override
@@ -244,6 +273,7 @@ public class SchedulerServer extends Thread implements InitializingBean {
 			}
 		});
 		waitSpawnTaskThread.start();
+
 		/**
 		 * TODO : 2.当前时间需要调度的守护线程
 		 */
@@ -261,16 +291,19 @@ public class SchedulerServer extends Thread implements InitializingBean {
 						if (pmQueue.isEmpty()) {
 							timeToProcessModelMap.remove(currentTime);
 						} else {
+							// 执行任务
 							ProcessModel pm = pmQueue.element();
-							Job job = pm.getJob();
 							String cmd = pm.getCmdArray()[pm.getCmdIndex()];
 							String logPath = pm.getTask().getLogPath();
 							String errorLogPath = pm.getTask().getErrorLogPath();
-							String[] params = pm.getCmdParams();
+							// 执行时候增加系统参数处理
+							String[] params = pm.getJob().toArrayParams();
+							params = addSystemParams(params, pm.getTask());
+							pm.setCmdParams(params);
 							Process process = ProcessHelper.run(cmd, params, logPath, errorLogPath, false);
 							pm.setProcess(process);
 							if (TaskType.cron_auto.toString().equals(pm.getTask().getTypeName())) {
-								waitSpawnTaskJobIdQueue.add(job.getId());
+								waitSpawnTaskJobIdQueue.add(pm.getJob().getId());
 							}
 							pm.getTask().setStatusId(Status.RUN.getId());
 							taskService.updateExecuteTimeNowAndStatus(pm.getTask());
@@ -288,10 +321,11 @@ public class SchedulerServer extends Thread implements InitializingBean {
 			}
 		});
 		schedulerThread.start();
+
 		/**
 		 * TODO : 3.每一个Job的Task实例需要逐步执行命令的守护线程。
 		 */
-		Thread processThread = new Thread(new Runnable() {
+		Thread processTaskThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				while (true) {
@@ -329,7 +363,7 @@ public class SchedulerServer extends Thread implements InitializingBean {
 									pm.getTask().setStatusId(Status.SUCCESS.getId());
 									taskService.updateEndTimeNowAndStatus(pm.getTask());
 								}
-								// 任务组没有跑完，执行下一个command
+								// 任务组没有跑完，执行下一个任务
 								else {
 									pm.setCmdIndex(pm.getCmdIndex() + 1);
 									String cmd = pm.getCmdArray()[pm.getCmdIndex()];
@@ -354,7 +388,8 @@ public class SchedulerServer extends Thread implements InitializingBean {
 				}
 			}
 		});
-		processThread.start();
+		processTaskThread.start();
+
 		/**
 		 * TODO : 4.打印日志的守护线程
 		 */
@@ -395,6 +430,8 @@ public class SchedulerServer extends Thread implements InitializingBean {
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		// 获取配置路径
+		TimeUtil tu = TimeUtil.createAndPoint();
+		tu.setLogger(logger);
 		Properties properties = (Properties) SpringContextUtil.getBean("schedulerProperties");
 		task_log_path = (String) properties.get("task_log_path");
 		// 设置默认值
@@ -410,10 +447,12 @@ public class SchedulerServer extends Thread implements InitializingBean {
 				logger.error(e.getMessage(), e);
 			}
 		}
+		Job systemJob = new Job();
+		systemJob.setId(0);
 		logger.info("初始化JobList：" + jobList);
-//		SchedulerServer s = new SchedulerServer();
-//		s.start();
-		logger.info("启动scheduler服务成功。");
+		SchedulerServer s = new SchedulerServer();
+		s.start();
+		tu.printMs("启动scheduler服务成功。");
 	}
 
 }

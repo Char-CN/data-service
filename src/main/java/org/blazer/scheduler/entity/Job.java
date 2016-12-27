@@ -11,6 +11,17 @@ public class Job {
 	private String command;
 	private List<JobParam> params;
 
+	public String[] toArrayParams() {
+		if (params == null) {
+			return new String[0];
+		}
+		String[] arr = new String[params.size()];
+		for (int i = 0; i < params.size(); i++) {
+			arr[i] = params.get(i).getParamName() + "=" + params.get(i).getDefaultValue();
+		}
+		return arr;
+	}
+
 	public List<JobParam> getParams() {
 		return params;
 	}

@@ -1,14 +1,17 @@
 package org.blazer.scheduler.action;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.blazer.dataservice.action.BaseAction;
 import org.blazer.dataservice.util.IntegerUtil;
+import org.blazer.dataservice.util.StringUtil;
 import org.blazer.scheduler.core.SchedulerServer;
-import org.blazer.scheduler.entity.Job;
+import org.blazer.scheduler.entity.JobParam;
 import org.blazer.scheduler.entity.Task;
 import org.blazer.scheduler.service.TaskService;
 import org.slf4j.Logger;
@@ -50,12 +53,14 @@ public class SchedulerAction extends BaseAction {
 	@RequestMapping("/addcustom")
 	public Task addCustom(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		HashMap<String, String> paramMap = getParamMap(request);
-		logger.debug("job id : " + paramMap.get("jobId"));
-		Job job = new Job();
-		job.setId(0);
-		job.setCommand(paramMap.get("command"));
-		job.setJobName("即时查询");
-		return schedulerServer.spawnRightNowTaskProcess(job).getTask();
+		logger.debug("params:" + paramMap);
+		List<JobParam> list = new ArrayList<JobParam>();
+		for (String param : StringUtil.getStrEmpty(paramMap.get("params")).split(",")) {
+			String[] strs = param.split("=");
+			JobParam jp = new JobParam(strs[0], strs[1]);
+			list.add(jp);
+		}
+		return schedulerServer.spawnRightNowTaskProcess(paramMap.get("command"), list).getTask();
 	}
 
 	@ResponseBody

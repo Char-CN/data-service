@@ -9,10 +9,28 @@ public class ConfigModel implements Serializable {
 
 	private static final long serialVersionUID = 462879975846041095L;
 	private Integer id;
+	private Integer groupId;
 	private Dao dataSource;
+	private DataSourceModel dataSourceModel;
 	private String configName;
 	private String configType;
 	private List<ConfigDetailModel> detailList;
+
+	public DataSourceModel getDataSourceModel() {
+		return dataSourceModel;
+	}
+
+	public void setDataSourceModel(DataSourceModel dataSourceModel) {
+		this.dataSourceModel = dataSourceModel;
+	}
+
+	public Integer getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(Integer groupId) {
+		this.groupId = groupId;
+	}
 
 	public Integer getId() {
 		return id;

@@ -1,5 +1,6 @@
 package org.blazer.dataservice.service;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,10 +17,13 @@ import org.blazer.dataservice.body.view.ViewMappingConfigJobBody;
 import org.blazer.dataservice.cache.ConfigCache;
 import org.blazer.dataservice.entity.DSGroup;
 import org.blazer.dataservice.entity.MappingConfigJob;
+import org.blazer.dataservice.exception.NoPermissionsException;
 import org.blazer.dataservice.util.HMap;
 import org.blazer.dataservice.util.IntegerUtil;
 import org.blazer.dataservice.util.StringUtil;
 import org.blazer.scheduler.core.SchedulerServer;
+import org.blazer.scheduler.entity.JobParam;
+import org.blazer.scheduler.entity.Task;
 import org.blazer.scheduler.service.JobService;
 import org.blazer.userservice.core.model.SessionModel;
 import org.slf4j.Logger;
@@ -36,18 +40,50 @@ public class ViewService {
 
 	@Autowired
 	JdbcTemplate jdbcTemplate;
-	
+
 	@Autowired
 	JobService jobService;
-	
+
 	@Autowired
 	ConfigCache configCache;
-	
+
 	@Autowired
 	SchedulerServer schedulerServer;
 
 	@Value("#{scriptProperties.script_path}")
 	private String scriptPath;
+
+	@Value("#{scriptProperties.script_name}")
+	private String scriptName;
+
+	@Value("#{scriptProperties.result_path}")
+	private String resultPath;
+
+	public Task addTask(HashMap<String, String> params, SessionModel sm) throws Exception {
+		List<JobParam> list = new ArrayList<JobParam>();
+		list.add(new JobParam("workspace", scriptPath));
+		list.add(new JobParam("result_path", resultPath));
+		if (StringUtils.isNotBlank(params.get("params"))) {
+			for (String param : StringUtil.getStrEmpty(params.get("params")).split(",")) {
+				String[] strs = param.split("=");
+				JobParam jp = new JobParam(strs[0], strs[1]);
+				list.add(jp);
+			}
+		}
+		Integer configId = IntegerUtil.getInt0(params.get("config_id"));
+		// 判断权限
+		if (!checkUserOnGroup(sm.getUserId(), configCache.get(configId).getGroupId())) {
+			throw new NoPermissionsException("该用户无权执行该配置。");
+		}
+		String cmd = "sh " + scriptPath + File.separator + scriptName + " " + configId + " " + sm.getEmail();
+		return schedulerServer.spawnRightNowTaskProcess(cmd, list).getTask();
+	}
+
+	public boolean checkUserOnGroup(Integer userId, Integer groupId) {
+		String sql = "select 1 from ds_user_group where user_id=? and group_id=?";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, userId, groupId);
+		return !(list == null || list.size() == 0);
+	}
 
 	public List<MappingConfigJob> findSchedulersByConfigId(Integer id) throws Exception {
 		String sql = "select * from mapping_config_job where config_id=? and enable=1";
@@ -75,16 +111,25 @@ public class ViewService {
 			}
 		}
 		for (MappingConfigJob mcj : vBody.getList()) {
-			mcj.getJob().setCommand("sh " + scriptPath);
+			mcj.getJob().setCommand("sh " + scriptPath + File.separator + scriptName);
+			mcj.getJob().getParams().add(new JobParam("workspace", scriptPath));
+			mcj.getJob().getParams().add(new JobParam("result_path", resultPath));
 			jobService.saveJob(mcj.getJob());
 			if (mcj.getId() == null) {
 				String sql = "insert into mapping_config_job(config_id, job_id, user_id, result_mode, email) values(?, ?, ?, ?, ?)";
 				jdbcTemplate.update(sql, mcj.getConfigId(), mcj.getJob().getId(), sm.getUserId(), mcj.getResultMode(), mcj.getEmail());
+				sql = "select max(id) as id from mapping_config_job";
+				mcj.setId(IntegerUtil.getInt0(jdbcTemplate.queryForList(sql).get(0).get("id")));
 			} else {
 				String sql = "update mapping_config_job set config_id=?, job_id=?, user_id=?, result_mode=?, email=? where id=?";
 				jdbcTemplate.update(sql, mcj.getConfigId(), mcj.getJob().getId(), sm.getUserId(), mcj.getResultMode(), mcj.getEmail(), mcj.getId());
 				existsMap.remove(mcj.getId());
 			}
+			// 单独增加参数
+			JobParam param2 = new JobParam("mapping_config_job_id", "" + mcj.getId());
+			param2.setJobId(mcj.getJob().getId());
+			jobService.saveJobParam(param2);
+			mcj.getJob().getParams().add(param2);
 			schedulerServer.reloadJob(mcj.getJob());
 		}
 		// remove job and mapping

@@ -8,6 +8,14 @@ public class JobParam {
 	private String titleName;
 	private String defaultValue;
 
+	public JobParam() {
+	}
+
+	public JobParam(String paramName, String defaultValue) {
+		this.paramName = paramName;
+		this.defaultValue = defaultValue;
+	}
+
 	public Integer getId() {
 		return id;
 	}

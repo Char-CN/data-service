@@ -19,6 +19,7 @@ import org.blazer.dataservice.entity.MappingConfigJob;
 import org.blazer.dataservice.exception.UnknowDataSourceException;
 import org.blazer.dataservice.service.ViewService;
 import org.blazer.dataservice.util.IntegerUtil;
+import org.blazer.scheduler.entity.Task;
 import org.blazer.userservice.core.filter.PermissionsFilter;
 import org.blazer.userservice.core.model.CheckUrlStatus;
 import org.blazer.userservice.core.model.SessionModel;
@@ -45,6 +46,21 @@ public class ViewAction extends BaseAction {
 
 	@Autowired
 	ConfigCache configCache;
+
+	@ResponseBody
+	@RequestMapping("/addTask")
+	public Body addTask(HttpServletRequest request, HttpServletResponse response) {
+		HashMap<String, String> params = getParamMap(request);
+		SessionModel sm = PermissionsFilter.getSessionModel(request);
+		Task t = null;
+		try {
+			t = viewService.addTask(params, sm);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return fail().setMessage(e.getMessage());
+		}
+		return success().setMessage("添加任务成功！" + t);
+	}
 
 	@ResponseBody
 	@RequestMapping("/saveScheduler")
