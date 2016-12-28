@@ -54,7 +54,7 @@ public class ViewAction extends BaseAction {
 		SessionModel sm = PermissionsFilter.getSessionModel(request);
 		Task t = null;
 		try {
-			t = viewService.addTask(params, sm);
+			t = viewService.addTask(request,  response, params, sm);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			return fail().setMessage(e.getMessage());

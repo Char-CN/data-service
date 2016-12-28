@@ -45,7 +45,14 @@ $(function() {
 		},
 		cron : {
 			validator : function(value) {
-				return /^([*]|[*]\/\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\/\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\/\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\/\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\/\d+|[\d,]*|\d+[-]\d+)$/i.test(value);
+				var strs = value.split(" ");
+				var flag = true;
+				for (var i in strs)
+					if (strs[i] == "")
+						flag = false;
+				if (!flag)
+					return false;
+				return /^([*]|[*]\/\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\/\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\/\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\/\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\/[0-9]|[0-9,]*|[0-9]+[-][0-9]+)$/gi.test(value);
 			},
 			message : '格式[ minite(0-59) hour(0-24) day(1-31) month(1-12) week(1-7) ] *表示任意时间!'
 		},

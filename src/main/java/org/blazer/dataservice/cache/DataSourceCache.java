@@ -110,49 +110,46 @@ public class DataSourceCache implements InitializingBean {
 	 */
 	public void addDataSource(Integer id, String database_name, String title, String url, String username, String password, String remark) {
 		DataSourceModel dataSourceModel = new DataSourceModel();
+		dataSourceModel.setId(id);
+		dataSourceModel.setDatabase_name(database_name);
+		dataSourceModel.setTitle(title);
+		dataSourceModel.setUrl(url);
+		dataSourceModel.setUsername(username);
+		dataSourceModel.setPassword(password);
+		dataSourceModel.setRemark(remark);
 		try {
-			dataSourceModel.setId(id);
-			dataSourceModel.setDatabase_name(database_name);
-			dataSourceModel.setTitle(title);
-			dataSourceModel.setUrl(url);
-			dataSourceModel.setUsername(username);
-			dataSourceModel.setPassword(password);
-			dataSourceModel.setRemark(remark);
-			if ("mysql".equals(database_name) || "oracle".equals(database_name)) {
-				DruidDataSource dataSource = new DruidDataSource();
-				// 设置连接信息
-				dataSource.setUsername(username);
-				dataSource.setUrl(url);
-				dataSource.setPassword(password);
-				// 配置参数，需要后期优化
-				dataSource.setInitialSize(50);
-				dataSource.setMinIdle(50);
-				dataSource.setMaxActive(200);
-				// 对于长时间不使用的连接强制关闭
-				dataSource.setRemoveAbandoned(true);
-				// 数据库链接超过多少分钟开始关闭空闲连接,秒为单位
-				dataSource.setRemoveAbandonedTimeout(300);
-				// 获取连接时最大等待时间，单位毫秒
-				dataSource.setMaxWait(60000);
-				// Destroy线程会检测连接的间隔时间，testWhileIdle的判断依据，详细看testWhileIdle属性的说明
-				dataSource.setTimeBetweenEvictionRunsMillis(60000);
-				// 配置一个连接在池中最小生存的时间，单位是毫秒
-				dataSource.setMinEvictableIdleTimeMillis(300000);
-				dataSource.setValidationQuery("SELECT 'x'");
-				// 建议配置为true，不影响性能，并且保证安全性。申请连接的时候检测，如果空闲时间大于timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效。
-				dataSource.setTestWhileIdle(true);
-				dataSource.setTestOnBorrow(false);
-				dataSource.setTestOnReturn(false);
-				// 官方建议mysql为false，oracle为true
-				dataSource.setPoolPreparedStatements(false);
-				// dataSource.setMaxPoolPreparedStatementPerConnectionSize(100);
-				Dao dao = new TransactionDao(dataSource);
-				dataSourceModel.setDao(dao);
-			} else {
-				dataSourceModel.setDao(null);
-			}
+			DruidDataSource dataSource = new DruidDataSource();
+			// 设置连接信息
+			dataSource.setUsername(username);
+			dataSource.setUrl(url);
+			dataSource.setPassword(password);
+			// 配置参数，需要后期优化
+			dataSource.setInitialSize(50);
+			dataSource.setMinIdle(50);
+			dataSource.setMaxActive(200);
+			// 对于长时间不使用的连接强制关闭
+			dataSource.setRemoveAbandoned(true);
+			// 数据库链接超过多少分钟开始关闭空闲连接,秒为单位
+			dataSource.setRemoveAbandonedTimeout(300);
+			// 获取连接时最大等待时间，单位毫秒
+			dataSource.setMaxWait(60000);
+			// Destroy线程会检测连接的间隔时间，testWhileIdle的判断依据，详细看testWhileIdle属性的说明
+			dataSource.setTimeBetweenEvictionRunsMillis(60000);
+			// 配置一个连接在池中最小生存的时间，单位是毫秒
+			dataSource.setMinEvictableIdleTimeMillis(300000);
+			dataSource.setValidationQuery("SELECT 'x'");
+			// 建议配置为true，不影响性能，并且保证安全性。申请连接的时候检测，如果空闲时间大于timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效。
+			dataSource.setTestWhileIdle(true);
+			dataSource.setTestOnBorrow(false);
+			dataSource.setTestOnReturn(false);
+			// 官方建议mysql为false，oracle为true
+			dataSource.setPoolPreparedStatements(false);
+			// dataSource.setMaxPoolPreparedStatementPerConnectionSize(100);
+			Dao dao = new TransactionDao(dataSource);
+			dataSourceModel.setDao(dao);
 		} catch (Exception e) {
 			logger.error("ERROR[{}]", e);
+			dataSourceModel.setDao(null);
 		}
 		dataSourceMap.put(id, dataSourceModel);
 	}

@@ -11,7 +11,6 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,8 +155,24 @@ public class ProcessHelper {
 		return list;
 	}
 
-	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
+//		Map m = System.getenv();
+//		for (Iterator it = m.keySet().iterator(); it.hasNext();) {
+//			String key = (String) it.next();
+//			String value = (String) m.get(key);
+//			System.out.println(key + ":" + value);
+//		}
+//		Process process = null;
+//		try {
+//			process = Runtime.getRuntime().exec("sh /Users/hyy/test/sql.sh ${name}", new String[]{"SHELL=asd", "name=hyy"});
+//			BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
+//			String line = null;
+//			while (br != null && (line = br.readLine()) != null) {
+//				System.out.println(line);
+//			}
+//		} catch (Exception e) {
+//			logger.error(e.getMessage(), e);
+//		}
 		// String basePath = "/Users/hyy/";
 		// String shellFile = basePath + "zz.sh";
 		//
@@ -187,22 +202,24 @@ public class ProcessHelper {
 		// process.getErrorStream().close();
 		// process.destroy();
 		// }
-//		String cmd = "sh /Users/hyy/test/hyy.sh hhh";
-//		String[] cmds = StringUtils.split(cmd, ";");
-//		Process process = null;
-//		String[] params = { "aaa=hyyyy" };
-//		for (String c : cmds) {
-//			process = run(c, params, "/Users/hyy/test/hyy.input", "/Users/hyy/test/hyy.error", false);
-//			System.out.println(c + " | " + process.waitFor());
-//		}
-//		System.out.println(process.exitValue());
-		String cmd = "sh /Users/hyy/test/sleep.sh";
-		String[] cmds = StringUtils.split(cmd, ";");
-		String[] params = { "aaa=hyyyy" };
-		Process	process = run(cmd, params, "/Users/hyy/test/sleep.input", "/Users/hyy/test/sleep.error");
-		Thread.sleep(12000);
-		process.destroy();
-		System.out.println(process.exitValue());
+		// String cmd = "sh /Users/hyy/test/hyy.sh hhh";
+		// String[] cmds = StringUtils.split(cmd, ";");
+		// Process process = null;
+		// String[] params = { "aaa=hyyyy" };
+		// for (String c : cmds) {
+		// process = run(c, params, "/Users/hyy/test/hyy.input",
+		// "/Users/hyy/test/hyy.error", false);
+		// System.out.println(c + " | " + process.waitFor());
+		// }
+		// System.out.println(process.exitValue());
+		// String cmd = "sh /Users/hyy/test/sleep.sh";
+		// String[] cmds = StringUtils.split(cmd, ";");
+		// String[] params = { "aaa=hyyyy" };
+		// Process process = run(cmd, params, "/Users/hyy/test/sleep.input",
+		// "/Users/hyy/test/sleep.error");
+		// Thread.sleep(12000);
+		// process.destroy();
+		// System.out.println(process.exitValue());
 	}
 
 }

@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang3.StringUtils;
 import org.blazer.dataservice.body.GroupBody;
 import org.blazer.dataservice.body.TreeBody;
@@ -25,6 +28,8 @@ import org.blazer.scheduler.core.SchedulerServer;
 import org.blazer.scheduler.entity.JobParam;
 import org.blazer.scheduler.entity.Task;
 import org.blazer.scheduler.service.JobService;
+import org.blazer.userservice.core.filter.PermissionsFilter;
+import org.blazer.userservice.core.model.CheckUrlStatus;
 import org.blazer.userservice.core.model.SessionModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +64,7 @@ public class ViewService {
 	@Value("#{scriptProperties.result_path}")
 	private String resultPath;
 
-	public Task addTask(HashMap<String, String> params, SessionModel sm) throws Exception {
+	public Task addTask(HttpServletRequest request, HttpServletResponse response, HashMap<String, String> params, SessionModel sm) throws Exception {
 		List<JobParam> list = new ArrayList<JobParam>();
 		list.add(new JobParam("workspace", scriptPath));
 		list.add(new JobParam("result_path", resultPath));
@@ -72,8 +77,13 @@ public class ViewService {
 		}
 		Integer configId = IntegerUtil.getInt0(params.get("config_id"));
 		// 判断权限
-		if (!checkUserOnGroup(sm.getUserId(), configCache.get(configId).getGroupId())) {
-			throw new NoPermissionsException("该用户无权执行该配置。");
+		CheckUrlStatus cus = PermissionsFilter.checkUrl(request, response, "isadmin");
+		// 如果不是管理员
+		if (cus != CheckUrlStatus.Success) {
+			// 则需要检查数据库
+			if (!checkUserOnGroup(sm.getUserId(), configCache.get(configId).getGroupId())) {
+				throw new NoPermissionsException("该用户无权执行该配置。");
+			}
 		}
 		String cmd = "sh " + scriptPath + File.separator + scriptName + " " + configId + " " + sm.getEmail();
 		return schedulerServer.spawnRightNowTaskProcess(cmd, list).getTask();
@@ -311,12 +321,11 @@ public class ViewService {
 		// 应该加入事务，暂未处理
 		// 新增config
 		if (config.getId() == null) {
-			// 强制设置configType和enable
-			config.setConfigType("1");
-			config.setEnable(1);
-			String insertConfig = "insert into ds_config(group_id,datasource_id,config_name,config_type,enable) values(?,?,?,?,?)";
-			int code = jdbcTemplate.update(insertConfig, config.getGroupId(), config.getDatasourceId(), config.getConfigName(), config.getConfigType(),
-					config.getEnable());
+			// 强制设置configType和enable和orderAsc
+//			config.setConfigType("1");
+//			config.setEnable(1);
+			String insertConfig = "insert into ds_config(group_id,datasource_id,config_name,config_type,order_asc,enable) values(?,?,?,1,99999,1)";
+			int code = jdbcTemplate.update(insertConfig, config.getGroupId(), config.getDatasourceId(), config.getConfigName());
 			logger.debug("inset code : " + code);
 			String selectMaxId = "select max(id) as max_id from ds_config";
 			Integer maxId = IntegerUtil.getInt0(jdbcTemplate.queryForList(selectMaxId).get(0).get("max_id"));
