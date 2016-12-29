@@ -54,7 +54,7 @@
 			});
 		}
 
-		if (!isadmin && isuser) {
+		if (isadmin || isuser) {
 			center_menu.menu('appendItem', {
 				text : '任务执行',
 				iconCls : $.ds.icon.run_cls,
@@ -241,7 +241,12 @@
 						}, function(d) {
 							clearTimeout(_time);
 							_time = setTimeout(function() {
-								$.ds.commons.openWindow("center_run_config_" + d.data.id, $.ds.icon.run, d.data.title, "runconfig.html", "id=" + d.data.id);
+								if (isadmin) {
+									$.ds.commons.openWindow("center_run_config_" + d.data.id, $.ds.icon.run, d.data.title, "runconfig.html", "id=" + d.data.id);
+								}
+								if (!isadmin && isuser) {
+									$.ds.commons.openWindow("center_run_config_" + d.data.id, $.ds.icon.run, d.data.title, "runconfig2.html", "id=" + d.data.id);
+								}
 							}, 300);
 						});
 						li.hover(function() {

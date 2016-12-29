@@ -11,18 +11,6 @@
 				</tr>
 			</tbody>
 			<tbody ds_index="params"></tbody>
-			<tbody>
-				<tr>
-					<td colspan="2">以下是所有详细信息：</td>
-				</tr>
-				<tr>
-					<td colspan="2">
-						<div>
-							<ul ds_index="details" class="dsul"></ul>
-						</div>
-					</td>
-				</tr>
-			</tbody>
 		</table>
 	</form>
 </div>
@@ -52,7 +40,7 @@
 		var run_lock = false;
 		var run = function() {
 			if (run_lock) {
-				$.ds.alert('正在执行查询中，请勿重复提交,如果数据量大请您耐心等待');
+				$.ds.alert('正在执行查询中，请等待接收邮件，请勿重复提交！');
 				return;
 			}
 			run_lock = true;
@@ -63,15 +51,15 @@
 				return false;
 			}
 			// 添加刷新的图标
-			this_window.DSFind("panel").each(function() {
-				$(this).find(".panel").remove();
-				$(this).DSFind("grid_message").remove();
-				var p = $('<p></p>').DSAdd('grid_message');
-				p.append($.ds.icon.loading3 + 'loading...');
-				$(this).append(p);
-			});
+// 			this_window.DSFind("panel").each(function() {
+// 				$(this).find(".panel").remove();
+// 				$(this).DSFind("grid_message").remove();
+// 				var p = $('<p></p>').DSAdd('grid_message');
+// 				p.append($.ds.icon.loading3 + 'loading...');
+// 				$(this).append(p);
+// 			});
 			// 获取参数
-			var params = "?id=" + id;
+			var params = "?config_id=" + id;
 			this_window.DSFind('params').find('tr').each(function() {
 				try {
 					var key = $(this).find('td:eq(0)').text();
@@ -81,56 +69,9 @@
 				}
 			});
 
-			var url = $.ds.url.get_config + params;
+			var url = $.ds.url.add_task + params;
 			$.post(url, function(data) {
-				var rst = eval(data);
-				this_window.DSFind("panel").each(function() {
-					$(this).find(".panel").remove();
-					$(this).DSFind("grid_message").remove();
-					//$(this).DSFind("grid").remove();
-					var key = $(this).panel('options').title;
-					var values = rst.details[key].values;
-					if (rst.details[key].errorMessage != "") {
-						var p = $('<p></p>').DSAdd('grid_message');
-						p.append(rst.details[key].errorMessage);
-						$(this).append(p);
-						return;
-					}
-					var keys = $.ds.getKeys(values[0]);
-					var columns = [];
-					var datas = [];
-					for ( var i in keys) {
-						columns.push({
-							field : keys[i],
-							title : keys[i]
-						});
-					}
-					for ( var i in values) {
-						var data = {};
-						for ( var j in keys) {
-							data[keys[j]] = values[i][keys[j]];
-						}
-						datas.push(data);
-					}
-					if (datas.length == 0) {
-						var p = $('<p>没有查询到任何数据。</p>').DSAdd('grid_message');
-						$(this).append(p);
-						return;
-					}
-					var grid = $('<table></table>').DSAdd('grid');
-					$(this).append(grid);
-					grid.datagrid({
-						loadMsg : '正在加载数据。。。',
-						nowrap : true,
-						striped : true,
-						border : true,
-						collapsible : false,
-						fitColumns : true,
-						fit : true,
-						rownumbers : true,
-						columns : [ columns ]
-					}).datagrid('loadData', datas);
-				});
+// 				alert(data.message);
 				run_lock = false;
 			});
 		};
@@ -157,13 +98,6 @@
 				this_window.DSFind("details").empty();
 				this_window.DSFind("id").val(data.id);
 				this_window.DSFind("name").textbox('initValue', data.configName);
-				if (data.list.length == 0) {
-					addDetailPanel();
-				} else {
-					for ( var i in data.list) {
-						addDetailPanel(data.list[i].key, data.list[i].values);
-					}
-				}
 			});
 			// 获取所有参数
 			var url = $.ds.url.get_params + "?id=" + id;
@@ -190,23 +124,6 @@
 					tbody.append('<tr><td width="20%"></td><td width="80%">没有任何参数。</td></tr>');
 				}
 			});
-		};
-
-		// 增加详情面板
-		var addDetailCount = 1;
-		var addDetailPanel = function(key, values) {
-			var details = this_window.DSFind("details");
-			var pan = $('<div></div>').DSAdd('panel');
-			details.append($('<li"></li>').append(pan));
-			pan.panel({
-				border : true,
-				// bodyCls: 'padding-10px',
-				cls : addDetailCount == 1 ? 'margin-top-10px' : 'margin-top-20px',
-				collapsible : true,
-				title : key,
-				width : details.width()
-			});
-			addDetailCount++;
 		};
 
 		init();

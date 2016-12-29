@@ -15,6 +15,7 @@ public class Task {
 	private String logPath;
 	private String errorLogPath;
 	private String exception;
+	private String remark;
 
 	public String getException() {
 		return exception;
@@ -102,6 +103,14 @@ public class Task {
 
 	public void setErrorLogPath(String errorLogPath) {
 		this.errorLogPath = errorLogPath;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
 
 	@Override

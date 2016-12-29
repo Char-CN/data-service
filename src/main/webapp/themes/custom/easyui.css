@@ -2259,6 +2259,14 @@ textarea, input {
 	border-radius: 5px 5px 5px 5px;
 }
 
+.calendar-menu-month-inner {
+	background-color:white
+}
+
+.calendar-menu-year-inner {
+	background-color:white
+}
+
 .calendar-body th, .calendar-menu-month {
 	color: #dcc5a0;
 }

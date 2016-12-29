@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.blazer.dataservice.body.Body;
 import org.blazer.dataservice.body.DataSourceBody;
 import org.blazer.dataservice.body.GroupBody;
+import org.blazer.dataservice.body.PageBody;
 import org.blazer.dataservice.body.TreeBody;
 import org.blazer.dataservice.body.view.ViewConfigBody;
 import org.blazer.dataservice.body.view.ViewMappingConfigJobBody;
@@ -48,6 +49,19 @@ public class ViewAction extends BaseAction {
 	ConfigCache configCache;
 
 	@ResponseBody
+	@RequestMapping("/findTaskByUser")
+	public PageBody<Task> findTaskByUser(HttpServletRequest request, HttpServletResponse response) {
+		HashMap<String, String> params = getParamMap(request);
+		SessionModel sm = PermissionsFilter.getSessionModel(request);
+		try {
+			return viewService.findTaskByUser(params, sm);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		return new PageBody<Task>();
+	}
+
+	@ResponseBody
 	@RequestMapping("/addTask")
 	public Body addTask(HttpServletRequest request, HttpServletResponse response) {
 		HashMap<String, String> params = getParamMap(request);
@@ -59,7 +73,7 @@ public class ViewAction extends BaseAction {
 			logger.error(e.getMessage(), e);
 			return fail().setMessage(e.getMessage());
 		}
-		return success().setMessage("添加任务成功！" + t);
+		return success().setMessage("添加任务成功！" + t.getTaskName());
 	}
 
 	@ResponseBody

@@ -94,6 +94,12 @@ public class JobService {
 	}
 
 	@Transactional
+	public void updateJobCommand(Integer jobId, String command) throws Exception {
+		String sql = "update scheduler_job set command=? where id=?";
+		jdbcTemplate.update(sql, command, jobId);
+	}
+
+	@Transactional
 	public void saveJobParam(JobParam param) throws Exception {
 		String sql = "insert into scheduler_job_param(job_id, param_name, title_name, default_value) values(?, ?, ?, ?)";
 		jdbcTemplate.update(sql, param.getJobId(), param.getParamName(), param.getTitleName(), param.getDefaultValue());

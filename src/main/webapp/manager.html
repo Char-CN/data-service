@@ -12,17 +12,22 @@
 
 		if (isadmin) {
 			this_window.find('.permissions').bind('click', function() {
-				$.ds.commons.openWindow("center_add_user_tree", $.ds.icon.add , "新增用户目录", "addusertree.html").dialog('resize', {
+				$.ds.commons.openWindow("center_add_user_tree", $.ds.icon.add , "分配用户目录权限", "addusertree.html").dialog('resize', {
 					height : 320,
 					top: 100
-				});;
+				});
+			});
+			this_window.find('.my_task_list').bind('click', function() {
+				$.ds.commons.openWindow("alltasklist", $.ds.icon.list , "所有任务列表", "alltasklist.html");
 			});
 		} else if (isuser) {
 			this_window.find(".dsmanager").css("display", "none");
 			this_window.find(".scheduler_manager").css("display", "none");
+			this_window.find(".all_task_list").css("display", "none");
 		} else {
 			this_window.find(".dsmanager").css("display", "none");
 			this_window.find(".scheduler_manager").css("display", "none");
+			this_window.find(".all_task_list").css("display", "none");
 		}
 	});
 </script>
@@ -31,14 +36,15 @@
 		<legend>数据服务模块</legend>
 		<ul class="dsul">
 			<li class="dsli datasource"><i class="fa fa-database fa-3x" aria-hidden="true"></i>数据源管理</li>
-			<li class="dsli permissions"><i class="fa fa-user fa-3x" aria-hidden="true"></i>分配用户目录</li>
+			<li class="dsli permissions"><i class="fa fa-user fa-3x" aria-hidden="true"></i>分配用户目录权限</li>
 		</ul>
 	</fieldset>
 	<fieldset class="dsscheduler" style="margin-top: 20px; padding-bottom: 5px; border: 1px solid;">
 		<legend>定时任务模块</legend>
 		<ul class="dsul">
 			<li class="dsli scheduler_manager"><i class="fa fa-clock-o fa-3x" aria-hidden="true"></i>调度任务管理</li>
-			<li class="dsli task_list"><i class="fa fa-tasks fa-3x" aria-hidden="true"></i>执行任务列表</li>
+			<li class="dsli all_task_list"><i class="fa fa-tasks fa-3x" aria-hidden="true"></i>所有任务列表</li>
+			<li class="dsli my_task_list"><i class="fa fa-tasks fa-3x" aria-hidden="true"></i>我的任务列表</li>
 		</ul>
 	</fieldset>
 </div>

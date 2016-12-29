@@ -12,7 +12,7 @@ public class SqlUtil {
 	}
 
 	public static List<String> ExtractParams(String sql) {
-		Pattern p = Pattern.compile("[$][{][a-zA-Z0-9:._-]*[}]");
+		Pattern p = Pattern.compile("[$][{][\u4e00-\u9fa5a-zA-Z0-9:._-]*[}]");
 		Matcher m = p.matcher(sql);
 		List<String> result = new ArrayList<String>();
 		while (m.find()) {
