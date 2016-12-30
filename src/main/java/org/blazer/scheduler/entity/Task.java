@@ -6,6 +6,7 @@ public class Task {
 
 	private Integer id;
 	private Integer jobId;
+	private Status status;
 	private Integer statusId;
 	private String typeName;
 	private String taskName;
@@ -16,6 +17,14 @@ public class Task {
 	private String errorLogPath;
 	private String exception;
 	private String remark;
+
+	public Status getStatus() {
+		return status;
+	}
+
+	public void setStatus(Status status) {
+		this.status = status;
+	}
 
 	public String getException() {
 		return exception;

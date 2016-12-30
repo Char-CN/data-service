@@ -1,8 +1,9 @@
 #!/bin/sh
 source ~/.bash_profile
 
-mysql_path="/usr/local/mysql/bin/mysql"
-hive_path="/Users/hyy/Work/hive-1.2.1-bin/bin/hive"
+mysql_path="/usr/local/mysql/bin/mysql";
+hive_path="/Users/hyy/Work/hive-1.2.1-bin/bin/hive";
+conn="${mysql_path} -hms -udev -pdev123456 -Ddw_dataservice -N -e";
 
 echo "################## 获取当前路径"
 SOURCE="$0"
@@ -65,7 +66,6 @@ echo "邮箱     : ${emails}"
 echo "参数1    : $1"
 echo "参数2    : $2"
 
-conn="${mysql_path} -hms -udev -pdev123456 -Ddw_dataservice -N -e";
 exec_cmd=""
 
 echo "################## config_id存在表示即时查询的任务"
@@ -114,7 +114,7 @@ echo "config   : ${config_name}"
 echo "################## 判断是mysql类型还是hive类型"
 if [ ${db_type} == "mysql" ];
 then
-  exec_cmd="${mysql_path} -h${host} -u${username} -p${password} -D${dbname} -N -e"
+  exec_cmd="${mysql_path} -h${host} -u${username} -p${password} -P${port} -D${dbname} -N -e"
 else
   exec_cmd="${hive_path} -e"
 fi

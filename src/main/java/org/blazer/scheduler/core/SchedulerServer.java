@@ -415,6 +415,7 @@ public class SchedulerServer extends Thread implements InitializingBean {
 								logger.debug("                | process model : " + pm);
 							}
 						}
+						logger.debug("jobIdToJobMap              size : " + jobIdToJobMap.size());
 						Thread.sleep(10000);
 					} catch (Exception e) {
 						logger.error(e.getMessage(), e);

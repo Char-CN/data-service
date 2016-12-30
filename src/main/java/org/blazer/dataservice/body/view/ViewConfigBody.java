@@ -10,6 +10,7 @@ public class ViewConfigBody {
 	private String configName;
 	private String configType;
 	private Integer enable;
+	private List<ViewConfigDetailBody> list;
 
 	public Integer getEnable() {
 		return enable;
@@ -19,7 +20,6 @@ public class ViewConfigBody {
 		this.enable = enable;
 	}
 
-	private List<ViewConfigDetailBody> list;
 
 	public Integer getGroupId() {
 		return groupId;

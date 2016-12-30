@@ -30,6 +30,7 @@ import org.blazer.dataservice.util.SqlUtil;
 import org.blazer.dataservice.util.StringUtil;
 import org.blazer.scheduler.core.SchedulerServer;
 import org.blazer.scheduler.entity.JobParam;
+import org.blazer.scheduler.entity.Status;
 import org.blazer.scheduler.entity.Task;
 import org.blazer.scheduler.service.JobService;
 import org.blazer.scheduler.service.TaskService;
@@ -85,6 +86,9 @@ public class ViewService {
 		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, sm.getUserId(), yyyy_MM_dd + " 00:00:00", yyyy_MM_dd + " 23:59:59", start, end);
 		logger.debug("list size : " + list.size());
 		List<Task> taskList = HMap.toList(list, Task.class);
+		for (Task task : taskList) {
+			task.setStatus(Status.get(task.getStatusId()));
+		}
 		sql = "select count(0) as ct from mapping_user_task mut inner join scheduler_task st on st.task_name=mut.task_name where mut.user_id=? and st.execute_time>=? and st.end_time<=? ";
 		pb.setTotal(IntegerUtil.getInt0(jdbcTemplate.queryForList(sql, sm.getUserId(), yyyy_MM_dd + " 00:00:00", yyyy_MM_dd + " 23:59:59").get(0).get("ct")));
 		pb.setRows(taskList);
@@ -373,10 +377,10 @@ public class ViewService {
 		try {
 			if (config.getId() == null) {
 				// 强制设置configType和enable和orderAsc
-//				config.setConfigType("1");
-//				config.setEnable(1);
-				String insertConfig = "insert into ds_config(group_id,datasource_id,config_name,config_type,order_asc,enable) values(?,?,?,1,99999,1)";
-				int code = jdbcTemplate.update(insertConfig, config.getGroupId(), config.getDatasourceId(), config.getConfigName());
+				config.setConfigType("1");
+				config.setEnable(1);
+				String insertConfig = "insert into ds_config(group_id,datasource_id,config_name,config_type,order_asc,enable) values(?,?,?,?,99999,?)";
+				int code = jdbcTemplate.update(insertConfig, config.getGroupId(), config.getDatasourceId(), config.getConfigName(), config.getConfigType(), config.getEnable());
 				logger.debug("inset code : " + code);
 				String selectMaxId = "select max(id) as max_id from ds_config";
 				Integer maxId = IntegerUtil.getInt0(jdbcTemplate.queryForList(selectMaxId).get(0).get("max_id"));
@@ -385,20 +389,21 @@ public class ViewService {
 					return;
 				}
 				config.setId(maxId);
-				HashMap<String, String> params = new HashMap<String, String>();
-				params.put("id", "" + maxId);
-				ViewConfigBody maxConfigBody = getConfigById(params);
-				if (config.getId() != maxConfigBody.getId() || config.getGroupId() != maxConfigBody.getGroupId()
-						|| config.getDatasourceId() != maxConfigBody.getDatasourceId() || !config.getConfigName().equals(maxConfigBody.getConfigName())
-						|| !config.getConfigType().equals(maxConfigBody.getConfigType()) || config.getEnable() != maxConfigBody.getEnable()) {
-					logger.info("getId:" + config.getId() + "|" + maxConfigBody.getId());
-					logger.info("getDatasourceId:" + config.getDatasourceId() + "|" + maxConfigBody.getDatasourceId());
-					logger.info("getConfigName:" + config.getConfigName() + "|" + maxConfigBody.getConfigName());
-					logger.info("getConfigType:" + config.getConfigType() + "|" + maxConfigBody.getConfigType());
-					logger.info("getEnable:" + config.getEnable() + "|" + maxConfigBody.getEnable());
-					logger.error("save config [" + config.getId() + "] fail.");
-					return;
-				}
+//				HashMap<String, String> params = new HashMap<String, String>();
+//				params.put("id", "" + maxId);
+//				ViewConfigBody maxConfigBody = getConfigById(params);
+//				// 比较
+//				if (config.getId() != maxConfigBody.getId() || config.getGroupId() != maxConfigBody.getGroupId()
+//						|| config.getDatasourceId() != maxConfigBody.getDatasourceId() || !config.getConfigName().equals(maxConfigBody.getConfigName())
+//						|| !config.getConfigType().equals(maxConfigBody.getConfigType()) || config.getEnable() != maxConfigBody.getEnable()) {
+//					logger.info("getId:" + config.getId() + "|" + maxConfigBody.getId());
+//					logger.info("getDatasourceId:" + config.getDatasourceId() + "|" + maxConfigBody.getDatasourceId());
+//					logger.info("getConfigName:" + config.getConfigName() + "|" + maxConfigBody.getConfigName());
+//					logger.info("getConfigType:" + config.getConfigType() + "|" + maxConfigBody.getConfigType());
+//					logger.info("getEnable:" + config.getEnable() + "|" + maxConfigBody.getEnable());
+//					logger.error("save config [" + config.getId() + "] fail.");
+//					return;
+//				}
 			}
 			// 修改config
 			else {
@@ -431,6 +436,7 @@ public class ViewService {
 
 			logger.debug("save config [" + config.getId() + "] success.");
 		} catch (Exception e) {
+			logger.debug(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
