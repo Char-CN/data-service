@@ -8,6 +8,7 @@ $(function() {
 				}
 				return urls[1];
 			},
+			find_schedulers_all : "view/findSchedulersAll.do",
 			find_schedulers : "view/findSchedulers.do",
 			save_schedulers : "view/saveSchedulers.do",
 			save_scheduler : "view/saveScheduler.do",

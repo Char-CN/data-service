@@ -54,7 +54,20 @@
 			}, {
 				field : 'status',
 				width : "15%",
-				title : '状态'
+				title : '状态',
+				formatter : function(value){
+					if (value == "WAIT")
+						return "等待执行"
+					if (value == "RUN")
+						return "正在执行"
+					if (value == "SUCCESS")
+						return "执行成功"
+					if (value == "FAIL")
+						return "执行失败"
+					if (value == "CANCEL")
+						return "执行取消"
+					return "未知状态"
+				}
 			}, {
 				field : 'executeTime',
 				width : "15%",

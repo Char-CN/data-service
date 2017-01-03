@@ -11,6 +11,15 @@ public class MappingConfigJob {
 	private Integer resultMode;
 	private String email;
 	private Job job;
+	private String configName;
+
+	public String getConfigName() {
+		return configName;
+	}
+
+	public void setConfigName(String configName) {
+		this.configName = configName;
+	}
 
 	public Integer getId() {
 		return id;

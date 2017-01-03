@@ -141,6 +141,17 @@ public class ViewService {
 		return !(list == null || list.size() == 0);
 	}
 
+	public List<MappingConfigJob> findSchedulersAll() throws Exception {
+		String sql = "select mcj.* from mapping_config_job mcj inner join scheduler_job sj on sj.id=mcj.job_id where mcj.enable=1 and sj.enable=1";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		List<MappingConfigJob> rst = HMap.toList(list, MappingConfigJob.class);
+		for (MappingConfigJob mcj : rst) {
+			mcj.setJob(schedulerServer.getJobById(mcj.getJobId()));
+			mcj.setConfigName(configCache.get(mcj.getConfigId()).getConfigName());
+		}
+		return rst;
+	}
+
 	public List<MappingConfigJob> findSchedulersByConfigId(Integer id) throws Exception {
 		String sql = "select * from mapping_config_job where config_id=? and enable=1";
 		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, id);

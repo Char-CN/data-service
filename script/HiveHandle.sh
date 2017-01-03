@@ -114,7 +114,7 @@ echo "config   : ${config_name}"
 echo "################## 判断是mysql类型还是hive类型"
 if [ ${db_type} == "mysql" ];
 then
-  exec_cmd="${mysql_path} -h${host} -u${username} -p${password} -P${port} -D${dbname} -N -e"
+  exec_cmd="${mysql_path} -h${host} -u${username} -p${password} -P${port} -D${dbname} -n -e"
 else
   exec_cmd="${hive_path} -e"
 fi

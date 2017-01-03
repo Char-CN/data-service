@@ -1,0 +1,75 @@
+<!-- <input id="dd"> -->
+<table ds_index="scheduler_table" style="width: 100%;"></table>
+<script>
+	$(function() {
+		var windowId = '$windowId';
+		var this_window = $("#" + windowId);
+		var systemId = 0;
+
+		var formatterDate = function(date) {
+			var day = date.getDate() > 9 ? date.getDate() : "0" + date.getDate();
+			var month = (date.getMonth() + 1) > 9 ? (date.getMonth() + 1) : "0" + (date.getMonth() + 1);
+			return date.getFullYear() + '-' + month + '-' + day;
+		};
+		var table = this_window.DSFind("scheduler_table");
+
+		// 		// 初始化日期
+		// 		this_window.find('#dd').datebox({
+		// 			required : true,
+		// 			editable : false,
+		// 			onSelect : function(data) {
+		// 				table.datagrid('reload', {time : this_window.find('#dd').datebox('getValue')});
+		// 			}
+		// 		}).datebox('setValue', formatterDate(new Date()));
+		// 		this_window.find('#dd').datebox('calendar').calendar({
+		//             validator: function(date){
+		//                 var now = new Date();
+		//                 var tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1);
+		//                 return date < tomorrow;
+		//             }
+		//         });
+		var a_reload = $('<a href="javascript:void(0)" class="icon-reload"></a>');
+		this_window.parent().find(" .panel-tool").prepend(a_reload);
+		a_reload.click(function() {
+			table.datagrid('reload');
+		});
+		table.datagrid({
+			url : $.ds.url.find_schedulers_all,
+			// 			queryParams : { time : this_window.find('#dd').datebox('getValue') },
+			method : 'post',
+			singleSelect : true,
+			columns : [ [ {
+				field : 'id',
+				title : 'id',
+				hidden : true
+			}, {
+				field : 'configName',
+				width : "30%",
+				title : '名称'
+			}, {
+				field : 'email',
+				width : "30%",
+				title : '邮箱'
+			}, {
+				field : 'cron',
+				width : "30%",
+				title : 'cron表达式',
+				formatter : function(value, mcj) {
+					return mcj.job.cron;
+				}
+			} ] ],
+			rownumbers : true,
+			singleSelect : true,
+			autoRowHeight : false,
+			pagination : true,
+			striped : true,
+			pageSize : 10,
+			pagePosition : 'bottom'
+		}).datagrid('getPager').pagination({
+			pageList : [ 10, 20, 50, 100 ],
+			links : 5,
+			displayMsg : '当前显示　{from} - {to}　条记录,共　{total}　条记录',
+			layout : [ 'list', 'sep', 'first', 'prev', 'sep', 'links', 'sep', 'next', 'last', 'sep', 'refresh' ]
+		});
+	});
+</script>

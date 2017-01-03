@@ -95,6 +95,19 @@ public class ViewAction extends BaseAction {
 		}
 		return success().setMessage("保存成功！");
 	}
+	
+	@ResponseBody
+	@RequestMapping("/findSchedulersAll")
+	public List<MappingConfigJob> findSchedulersAll(HttpServletRequest request, HttpServletResponse response) {
+//		HashMap<String, String> params = getParamMap(request);
+		List<MappingConfigJob> list = null;
+		try {
+			list = viewService.findSchedulersAll();
+		} catch (Exception e) {
+			list = new ArrayList<MappingConfigJob>();
+		}
+		return list;
+	}
 
 	@ResponseBody
 	@RequestMapping("/findSchedulers")
