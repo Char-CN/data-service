@@ -11,6 +11,7 @@ import org.blazer.dataservice.dao.TransactionDao;
 import org.blazer.dataservice.exception.UnknowDataSourceException;
 import org.blazer.dataservice.model.DataSourceModel;
 import org.blazer.dataservice.util.IntegerUtil;
+import org.blazer.dataservice.util.SqlUtil;
 import org.blazer.dataservice.util.StringUtil;
 import org.blazer.dataservice.util.TimeUtil;
 import org.slf4j.Logger;
@@ -63,6 +64,8 @@ public class DataSourceCache implements InitializingBean {
 		jdbcTemplate.update(sql, 1, "mysql", "default", url, host, port, dbName, username, password, "当前数据源，也就是当前库的数据源，由系统启动时初始化配置。该数据不可删除！", 1, "mysql", "default", url, host, port,
 				dbName, username, password, "当前数据源，也就是当前库的数据源，由系统启动时初始化配置。该数据不可删除！", 1);
 		initDataSource();
+		logger.debug("执行sql: " + SqlUtil.Show(sql, 1, "mysql", "default", url, host, port, dbName, username, password, "当前数据源，也就是当前库的数据源，由系统启动时初始化配置。该数据不可删除！", 1, "mysql", "default", url, host, port,
+				dbName, username, password, "当前数据源，也就是当前库的数据源，由系统启动时初始化配置。该数据不可删除！", 1));
 		timeUtil.printMs("加载数据源");
 	}
 

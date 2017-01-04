@@ -70,6 +70,11 @@
 			<param-name>ignoreUrls</param-name>
 			<param-value>/dataservice/*,/scheduler/*</param-value>
 		</init-param>
+		<!-- js模板生成 -->
+		<init-param>
+			<param-name>templateJs</param-name>
+			<param-value>/js/include_template.js:/js/include.js</param-value>
+		</init-param>
 	</filter>
 	<filter-mapping>
 		<filter-name>PermissionsFilter</filter-name>

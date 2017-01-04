@@ -18,7 +18,10 @@
 				});
 			});
 			this_window.find('.my_task_list').bind('click', function() {
-				$.ds.commons.openWindow("mytasklist", $.ds.icon.list , "我的任务列表", "mytasklist.html");
+				$.ds.commons.openWindow("mytasklist", $.ds.icon.list , "我的任务列表", "mytasklist.html").dialog('resize', {
+					height : 380,
+					top : 100
+				});
 			});
 			this_window.find('.scheduler_list').bind('click', function() {
 				$.ds.commons.openWindow("schedulerlist", $.ds.icon.clock , "调度任务列表", "schedulerlist.html");
@@ -28,7 +31,10 @@
 			this_window.find(".scheduler_list").css("display", "none");
 			this_window.find(".all_task_list").css("display", "none");
 			this_window.find('.my_task_list').bind('click', function() {
-				$.ds.commons.openWindow("mytasklist", $.ds.icon.list , "我的任务列表", "mytasklist.html");
+				$.ds.commons.openWindow("mytasklist", $.ds.icon.list , "我的任务列表", "mytasklist.html").dialog('resize', {
+					height : 380,
+					top : 100
+				});
 			});
 		} else {
 			this_window.find(".dsmanager").css("display", "none");

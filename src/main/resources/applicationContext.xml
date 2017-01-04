@@ -11,23 +11,53 @@
 		http://www.springframework.org/schema/aop  http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
         ">
 
-	<util:properties id="dataSourceProperties" location="classpath:datasource.properties"></util:properties>
+<!-- 	<util:properties id="dataSourceProperties" location="classpath:datasource.properties"></util:properties> -->
 
-	<util:properties id="schedulerProperties" location="classpath:scheduler.properties"></util:properties>
+	<bean id="dataSourceProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="ignoreResourceNotFound" value="true"/>
+		<property name="locations">
+			<list>
+				<value>classpath:datasource.properties</value>
+				<value>file:/home/www/jetty-9.3.10/resources/datasource.properties</value>
+			</list>
+		</property>
+	</bean>
 
-	<util:properties id="scriptProperties" location="classpath:script.properties"></util:properties>
+<!-- 	<util:properties id="schedulerProperties" location="classpath:scheduler.properties"></util:properties> -->
 
-	<bean id="SpringContextUtil" class="org.blazer.scheduler.util.SpringContextUtil"></bean>  
+	<bean id="schedulerProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="ignoreResourceNotFound" value="true"/>
+		<property name="locations">
+			<list>
+				<value>classpath:scheduler.properties</value>
+				<value>file:/home/www/jetty-9.3.10/resources/scheduler.properties</value>
+			</list>
+		</property>
+	</bean>
+
+<!-- 	<util:properties id="scriptProperties" location="classpath:script.properties"></util:properties> -->
+
+	<bean id="scriptProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="ignoreResourceNotFound" value="true"/>
+		<property name="locations">
+			<list>
+				<value>classpath:script.properties</value>
+				<value>file:/home/www/jetty-9.3.10/resources/script.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="SpringContextUtil" class="org.blazer.scheduler.util.SpringContextUtil"></bean>
 
 	<context:component-scan base-package="org.blazer.**"></context:component-scan>
 
 	<bean id="propertyConfigurer4Server" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="ignoreResourceNotFound" value="true" />
-		<property name="ignoreUnresolvablePlaceholders" value="false" />
+<!-- 		<property name="ignoreUnresolvablePlaceholders" value="false" /> -->
 		<property name="locations">
 			<list>
 				<value>classpath:datasource.properties</value>
-				<value>classpath:scheduler.properties</value>
+				<value>file:/home/www/jetty-9.3.10/resources/datasource.properties</value>
 			</list>
 		</property>
 	</bean>
@@ -88,15 +118,15 @@
 		<property name="cacheManager" ref="ehCacheManagerFactory" />
 	</bean>
 
-<!-- 	<bean id="ehConfigCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"> -->
-<!-- 		<property name="cacheName" value="config_cache" /> -->
-<!-- 		<property name="cacheManager" ref="ehCacheManager" /> -->
-<!-- 	</bean> -->
+	<!-- <bean id="ehConfigCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"> -->
+	<!-- <property name="cacheName" value="config_cache" /> -->
+	<!-- <property name="cacheManager" ref="ehCacheManager" /> -->
+	<!-- </bean> -->
 
-<!-- 	<bean id="ehUserCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"> -->
-<!-- 		<property name="cacheName" value="user_cache" /> -->
-<!-- 		<property name="cacheManager" ref="ehCacheManager" /> -->
-<!-- 	</bean> -->
-<!--       <bean id="dataSourceInit" class="org.blazer.dataservice.init.DataSourceInit"></bean> -->
-<!--       <bean id="configInit" class="org.blazer.dataservice.init.ConfigInit" depends-on="dataSourceInit"></bean> -->
+	<!-- <bean id="ehUserCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean"> -->
+	<!-- <property name="cacheName" value="user_cache" /> -->
+	<!-- <property name="cacheManager" ref="ehCacheManager" /> -->
+	<!-- </bean> -->
+	<!-- <bean id="dataSourceInit" class="org.blazer.dataservice.init.DataSourceInit"></bean> -->
+	<!-- <bean id="configInit" class="org.blazer.dataservice.init.ConfigInit" depends-on="dataSourceInit"></bean> -->
 </beans>

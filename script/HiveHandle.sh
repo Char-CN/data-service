@@ -166,7 +166,7 @@ do
   val_arr=(${val//=/ })
   key="${val_arr[0]}"
   value="${val_arr[1]}"
-  query_sql=${query_sql//\$\{${key}\}/\'${value}\'}
+  query_sql=${query_sql//\$\{${key}\}/${value}}
 done
 
 echo "################## 处理后的实际查询的sql"
