@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -17,6 +16,7 @@ import org.blazer.scheduler.entity.Task;
 import org.blazer.scheduler.entity.TaskType;
 import org.blazer.scheduler.expression.CmdException;
 import org.blazer.scheduler.expression.CronException;
+import org.blazer.scheduler.expression.TaskNotFoundException;
 import org.blazer.scheduler.model.ProcessModel;
 import org.blazer.scheduler.service.JobService;
 import org.blazer.scheduler.service.TaskService;
@@ -58,7 +58,10 @@ public class SchedulerServer extends Thread implements InitializingBean {
 	private static final Logger logger = LoggerFactory.getLogger("scheduler");
 
 	// Task集合，线程安全
-	private static final CopyOnWriteArrayList<ProcessModel> processTaskList = new CopyOnWriteArrayList<ProcessModel>();
+//	private static final CopyOnWriteArrayList<ProcessModel> processTaskList = new CopyOnWriteArrayList<ProcessModel>();
+
+	// Task索引，线程安全
+	private static final ConcurrentHashMap<String, ProcessModel> indexTaskNameToTask = new ConcurrentHashMap<String, ProcessModel>();
 
 	// 等待需要生成下一个Task的Job队列，线程安全
 	// 等待需要解析下一个Cron表达式符合的时间的JobId队列，线程安全
@@ -85,15 +88,15 @@ public class SchedulerServer extends Thread implements InitializingBean {
 
 	public void reloadJob(Job job) throws Exception {
 		// 先清除time中已经生成的process task
-//		for (String time : timeToProcessModelMap.keySet()) {
-//			for (ProcessModel pm : timeToProcessModelMap.get(time)) {
-//				if (pm.getJob().getId() == job.getId()) {
-//					pm.getTask().setStatusId(Status.CANCEL.getId());
-//					taskService.updateEndTimeNowAndStatus(pm.getTask());
-//					timeToProcessModelMap.get(time).remove(pm);
-//				}
-//			}
-//		}
+		// for (String time : timeToProcessModelMap.keySet()) {
+		// for (ProcessModel pm : timeToProcessModelMap.get(time)) {
+		// if (pm.getJob().getId() == job.getId()) {
+		// pm.getTask().setStatusId(Status.CANCEL.getId());
+		// taskService.updateEndTimeNowAndStatus(pm.getTask());
+		// timeToProcessModelMap.get(time).remove(pm);
+		// }
+		// }
+		// }
 		removeJob(job.getId());
 		// 再init
 		initJob(job);
@@ -103,12 +106,14 @@ public class SchedulerServer extends Thread implements InitializingBean {
 		if (job == null || job.getId() == null) {
 			throw new NullPointerException("job or job id is null.");
 		}
-//		if (CronParserHelper.isNotValid(job.getCron())) {
-//			throw new CronException("cron [" + job.getCron() + "] expression is not valid.");
-//		}
-//		if (StringUtils.isBlank(job.getCommand())) {
-//			throw new CmdException("cmd [" + job.getCommand() + "] is not valid.");
-//		}
+		// if (CronParserHelper.isNotValid(job.getCron())) {
+		// throw new CronException("cron [" + job.getCron() + "] expression is
+		// not valid.");
+		// }
+		// if (StringUtils.isBlank(job.getCommand())) {
+		// throw new CmdException("cmd [" + job.getCommand() + "] is not
+		// valid.");
+		// }
 		logger.info("init job in scheduler : " + job);
 		jobIdToJobMap.put(job.getId(), job);
 		waitSpawnTaskJobIdQueue.add(job.getId());
@@ -120,30 +125,54 @@ public class SchedulerServer extends Thread implements InitializingBean {
 
 	public void removeJob(Integer jonId) {
 		// 先清除time中已经生成的process task
-		for (String time : timeToProcessModelMap.keySet()) {
-			for (ProcessModel pm : timeToProcessModelMap.get(time)) {
+//		for (String time : timeToProcessModelMap.keySet()) {
+//			for (ProcessModel pm : timeToProcessModelMap.get(time)) {
+//				if (pm.getJob().getId() == jonId) {
+//					pm.getTask().setStatusId(Status.CANCEL.getId());
+//					taskService.updateEndTimeNowAndStatus(pm.getTask());
+//					timeToProcessModelMap.get(time).remove(pm);
+//				}
+//			}
+//		}
+		for (ConcurrentLinkedQueue<ProcessModel> queue : timeToProcessModelMap.values()) {
+			for (ProcessModel pm : queue) {
 				if (pm.getJob().getId() == jonId) {
 					pm.getTask().setStatusId(Status.CANCEL.getId());
 					taskService.updateEndTimeNowAndStatus(pm.getTask());
-					timeToProcessModelMap.get(time).remove(pm);
+					queue.remove(pm);
 				}
 			}
 		}
 		jobIdToJobMap.remove(jonId);
 	}
 
-	public void cancelTaskByName(String taskName) {
-		for (ProcessModel pm : processTaskList) {
-			if (pm.getTask().getTaskName().equals(taskName) && pm.getProcess() != null && pm.getProcess().isAlive()) {
-				processTaskList.remove(pm);
-				try {
-					pm.getProcess().destroy();
-				} catch (Exception e) {
-				}
-				pm.getTask().setStatusId(Status.CANCEL.getId());
-				taskService.updateEndTimeNowAndStatus(pm.getTask());
-			}
+	public void cancelTaskByName(String taskName) throws TaskNotFoundException {
+//		for (ProcessModel pm : processTaskList) {
+//			if (pm.getTask().getTaskName().equals(taskName) && pm.getProcess() != null && pm.getProcess().isAlive()) {
+//				processTaskList.remove(pm);
+//				try {
+//					pm.getProcess().destroy();
+//				} catch (Exception e) {
+//				}
+//				pm.getTask().setStatusId(Status.CANCEL.getId());
+//				taskService.updateEndTimeNowAndStatus(pm.getTask());
+//			}
+//		}
+		// 用索引删除
+		if (!indexTaskNameToTask.containsKey(taskName)) {
+			throw new TaskNotFoundException("该任务[" + taskName + "]不是正在执行的状态。");
 		}
+		ProcessModel pm = indexTaskNameToTask.get(taskName);
+//		processTaskList.remove(pm);
+		indexTaskNameToTask.remove(taskName);
+		try {
+			if (pm.getProcess() != null && pm.getProcess().isAlive()) {
+				pm.getProcess().destroy();
+			}
+		} catch (Exception e) {
+		}
+		pm.getTask().setStatusId(Status.CANCEL.getId());
+		taskService.updateEndTimeNowAndStatus(pm.getTask());
 	}
 
 	/**
@@ -160,6 +189,7 @@ public class SchedulerServer extends Thread implements InitializingBean {
 
 	/**
 	 * 根据命令以及JobParam生成一个立即执行的任务
+	 * 
 	 * @param cmd
 	 * @param params
 	 * @return
@@ -200,7 +230,8 @@ public class SchedulerServer extends Thread implements InitializingBean {
 		// task entity
 		Task task = new Task();
 		String typeName = taskType.toString();
-		// taskName = nextTime + "_" + job.getId() + "_" + typeName + "_" + SequenceUtil.getStrMin();
+		// taskName = nextTime + "_" + job.getId() + "_" + typeName + "_" +
+		// SequenceUtil.getStrMin();
 		String taskName = String.format(TASK_NAME, nextTime, job.getId(), typeName, TaskType.cron_auto == taskType ? SequenceUtil.getStrMin() : SequenceUtil.getStr0());
 		task.setJobId(job.getId());
 		task.setTypeName(typeName);
@@ -227,6 +258,7 @@ public class SchedulerServer extends Thread implements InitializingBean {
 
 	/**
 	 * 系统参数增加
+	 * 
 	 * @param params
 	 * @param task
 	 * @return
@@ -307,7 +339,8 @@ public class SchedulerServer extends Thread implements InitializingBean {
 							}
 							pm.getTask().setStatusId(Status.RUN.getId());
 							taskService.updateExecuteTimeNowAndStatus(pm.getTask());
-							processTaskList.add(pm);
+//							processTaskList.add(pm);
+							indexTaskNameToTask.put(pm.getTask().getTaskName(), pm);
 							pmQueue.remove();
 						}
 					} catch (Exception e) {
@@ -330,15 +363,21 @@ public class SchedulerServer extends Thread implements InitializingBean {
 			public void run() {
 				while (true) {
 					try {
-						if (processTaskList.isEmpty()) {
+//						if (processTaskList.isEmpty()) {
+//							Thread.sleep(1000);
+//							continue;
+//						}
+						if (indexTaskNameToTask.isEmpty()) {
 							Thread.sleep(1000);
 							continue;
 						}
-						// 线程安全List可以在循环内直接删除元素。因为在源码中remove方法的时候会调用ReentrantLock。
-						for (ProcessModel pm : processTaskList) {
+						// 线程安全CopyOnWriteArrayList可以在循环内直接删除元素。因为在源码中remove方法的时候会调用ReentrantLock。
+						// 20160105改成了map形式，注释上说支持删除元素
+						for (ProcessModel pm : indexTaskNameToTask.values()) {
 							// process对象对null，此情况判定为任务执行失败
 							if (pm.getProcess() == null) {
-								processTaskList.remove(pm);
+//								processTaskList.remove(pm);
+								indexTaskNameToTask.remove(pm.getTask().getTaskName());
 								pm.getTask().setStatusId(Status.FAIL.getId());
 								taskService.updateEndTimeNowAndStatus(pm.getTask());
 								continue;
@@ -347,7 +386,8 @@ public class SchedulerServer extends Thread implements InitializingBean {
 							if (!pm.getProcess().isAlive()) {
 								// process返回值不等于0，此情况判定为任务执行失败
 								if (pm.getProcess().exitValue() != 0) {
-									processTaskList.remove(pm);
+//									processTaskList.remove(pm);
+									indexTaskNameToTask.remove(pm.getTask().getTaskName());
 									pm.getTask().setStatusId(Status.FAIL.getId());
 									taskService.updateEndTimeNowAndStatus(pm.getTask());
 									continue;
@@ -359,7 +399,8 @@ public class SchedulerServer extends Thread implements InitializingBean {
 								}
 								// 任务组跑完了
 								if (pm.getCmdArray().length - 1 == pm.getCmdIndex()) {
-									processTaskList.remove(pm);
+//									processTaskList.remove(pm);
+									indexTaskNameToTask.remove(pm.getTask().getTaskName());
 									pm.getTask().setStatusId(Status.SUCCESS.getId());
 									taskService.updateEndTimeNowAndStatus(pm.getTask());
 								}
@@ -399,8 +440,8 @@ public class SchedulerServer extends Thread implements InitializingBean {
 				while (true) {
 					try {
 						logger.debug("======================================================================");
-						logger.debug("processTaskList            size : " + processTaskList.size());
-						for (ProcessModel pm : processTaskList) {
+						logger.debug("indexTaskNameToTask        size : " + indexTaskNameToTask.size());
+						for (ProcessModel pm : indexTaskNameToTask.values()) {
 							logger.debug("                | process model : " + pm);
 						}
 						logger.debug("waitSpawnTaskJobIdQueue    size : " + waitSpawnTaskJobIdQueue.size());
