@@ -13,10 +13,19 @@ public class Task {
 	private Date executeTime;
 	private Date endTime;
 	private String command;
+	private String params;
 	private String logPath;
 	private String errorLogPath;
 	private String exception;
 	private String remark;
+
+	public String getParams() {
+		return params;
+	}
+
+	public void setParams(String params) {
+		this.params = params;
+	}
 
 	public Status getStatus() {
 		return status;
@@ -124,8 +133,10 @@ public class Task {
 
 	@Override
 	public String toString() {
-		return "Task [id=" + id + ", jobId=" + jobId + ", statusId=" + statusId + ", typeName=" + typeName + ", taskName=" + taskName + ", executeTime=" + executeTime
-				+ ", endTime=" + endTime + ", command=" + command + ", logPath=" + logPath + ", errorLogPath=" + errorLogPath + "]";
+		return "Task [id=" + id + ", jobId=" + jobId + ", status=" + status + ", statusId=" + statusId + ", typeName=" + typeName + ", taskName=" + taskName
+				+ ", executeTime=" + executeTime + ", endTime=" + endTime + ", command=" + command + ", params=" + params + ", logPath=" + logPath + ", errorLogPath="
+				+ errorLogPath + "]";
 	}
+
 
 }

@@ -37,27 +37,18 @@
 			run();
 		});
 
-		var run_lock = false;
+		var run_task_name = "";
 		var run = function() {
-			if (run_lock) {
-				$.ds.alert('正在执行查询中，请等待接收邮件，请勿重复提交！');
+			if (run_task_name != "") {
+				$.ds.alert('您已经提交任务，若需要再提交一次，请关闭执行任务窗口重新打开！');
 				return;
 			}
-			run_lock = true;
 			$.ds.show('执行成功,如果数据量大请您耐心等待');
 			// 执行前的检查
 			if (!this_window.find(" form").form('validate')) {
 				$.ds.show('您填写的内容不正确，请检查。');
 				return false;
 			}
-			// 添加刷新的图标
-// 			this_window.DSFind("panel").each(function() {
-// 				$(this).find(".panel").remove();
-// 				$(this).DSFind("grid_message").remove();
-// 				var p = $('<p></p>').DSAdd('grid_message');
-// 				p.append($.ds.icon.loading3 + 'loading...');
-// 				$(this).append(p);
-// 			});
 			// 获取参数
 			var params = "?config_id=" + id;
 			this_window.DSFind('params').find('tr').each(function() {
@@ -68,11 +59,16 @@
 				} catch (e) {
 				}
 			});
-
+			// 执行任务
 			var url = $.ds.url.add_task + params;
 			$.post(url, function(data) {
-// 				alert(data.message);
-				run_lock = false;
+				if (data.status == 200) {
+					// 此时的message是taskName
+					$.ds.commons.openTaskLog(data.message);
+					run_task_name = data.message;
+				} else {
+					$.ds.alert(data.message);
+				}
 			});
 		};
 
@@ -106,6 +102,15 @@
 				this_window.DSFind("params").empty();
 				var tbody = this_window.DSFind("params");
 				var params_str = "?id=" + id;
+				
+				var len = rst.params.length == 0 ? 1 : rst.params.length;
+				var height = 120 + len * 33;
+				if (height > $(window).height()) {
+					height = $(window).height();
+				}
+				this_window.dialog('resize', {
+					height : height
+				});
 				for ( var i in rst.params) {
 					var te = $('<input>').DSAdd('key_value');
 					var tr = $("<tr></tr>");

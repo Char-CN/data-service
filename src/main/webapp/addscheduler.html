@@ -92,7 +92,7 @@
 				contentType : "application/json",
 				async : false,
 				success : function(data) {
-					alert(data.message);
+					$.ds.show(data.message);
 					if (data.status == 200) {
 						init();
 					}

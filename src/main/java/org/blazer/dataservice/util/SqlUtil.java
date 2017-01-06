@@ -7,6 +7,11 @@ import java.util.regex.Pattern;
 
 public class SqlUtil {
 
+	/**
+	 * 将替换括号之内的内容:.*([';]+|(--)+).*
+	 * @param sql
+	 * @return
+	 */
 	public static String TransactSQLInjection(String sql) {
 		return sql.replaceAll(".*([';]+|(--)+).*", " ");
 	}

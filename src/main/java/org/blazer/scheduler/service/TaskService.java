@@ -5,8 +5,12 @@ import java.util.Map;
 import java.util.UnknownFormatConversionException;
 
 import org.blazer.dataservice.util.HMap;
+import org.blazer.scheduler.core.ProcessHelper;
+import org.blazer.scheduler.entity.Status;
 import org.blazer.scheduler.entity.Task;
 import org.blazer.scheduler.entity.TaskType;
+import org.blazer.scheduler.model.LogModel;
+import org.blazer.scheduler.model.TaskLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,9 +86,9 @@ public class TaskService {
 	 * 
 	 * @param task
 	 */
-	public void updateExecuteTimeNowAndStatus(Task task) {
-		String sql = "update scheduler_task set execute_time=now(), status_id=? where task_name=?";
-		jdbcTemplate.update(sql, task.getStatusId(), task.getTaskName());
+	public void updateExecuteTimeNowAndParamsAndStatus(Task task) {
+		String sql = "update scheduler_task set execute_time=now(), status_id=?, params=? where task_name=?";
+		jdbcTemplate.update(sql, task.getStatusId(), task.getParams(), task.getTaskName());
 	}
 
 	/**
@@ -124,7 +128,20 @@ public class TaskService {
 		if (list == null || list.size() == 0) {
 			return new Task();
 		}
-		return HMap.to(list.get(0), Task.class);
+		Task task = HMap.to(list.get(0), Task.class);
+		task.setStatus(Status.get(task.getStatusId()));
+		return task;
+	}
+
+	public TaskLog findTaskLogByName(String taskName, Integer skipRowNumber) throws Exception {
+		Task task = findTaskByName(taskName);
+		// 为了减小服务器压力，每次均只允许读取100行
+		LogModel lm = ProcessHelper.readLog(task.getLogPath(), task.getErrorLogPath(), skipRowNumber, 100);
+		lm.setContent(lm.getContent().replaceAll("\n", "<br/>"));
+		TaskLog taskLog = new TaskLog();
+		taskLog.setTask(task);
+		taskLog.setLogModel(lm);
+		return taskLog;
 	}
 
 }

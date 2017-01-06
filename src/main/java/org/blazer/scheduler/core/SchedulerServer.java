@@ -224,7 +224,7 @@ public class SchedulerServer extends Thread implements InitializingBean {
 		if (taskType == TaskType.cron_auto) {
 			nextTime = DateUtil.showDate(CronParserHelper.getNextDate(job.getCron()));
 		} else {
-			nextTime = DateUtil.getSeconds() > 50 ? DateUtil.newDateStrNextMinute() : DateUtil.newDateStr();
+			nextTime = DateUtil.getSeconds() >= 58 ? DateUtil.newDateStrNextMinute() : DateUtil.newDateStr();
 		}
 		ProcessModel pm = new ProcessModel();
 		// task entity
@@ -334,13 +334,15 @@ public class SchedulerServer extends Thread implements InitializingBean {
 							pm.setCmdParams(params);
 							Process process = ProcessHelper.run(cmd, params, logPath, errorLogPath, false);
 							pm.setProcess(process);
+							// 存入task的参数信息
+							pm.getTask().setParams(pm.getJob().toStrParams());
+							pm.getTask().setStatusId(Status.RUN.getId());
+							taskService.updateExecuteTimeNowAndParamsAndStatus(pm.getTask());
+//							processTaskList.add(pm);
+							indexTaskNameToTask.put(pm.getTask().getTaskName(), pm);
 							if (TaskType.cron_auto.toString().equals(pm.getTask().getTypeName())) {
 								waitSpawnTaskJobIdQueue.add(pm.getJob().getId());
 							}
-							pm.getTask().setStatusId(Status.RUN.getId());
-							taskService.updateExecuteTimeNowAndStatus(pm.getTask());
-//							processTaskList.add(pm);
-							indexTaskNameToTask.put(pm.getTask().getTaskName(), pm);
 							pmQueue.remove();
 						}
 					} catch (Exception e) {
@@ -363,61 +365,56 @@ public class SchedulerServer extends Thread implements InitializingBean {
 			public void run() {
 				while (true) {
 					try {
-//						if (processTaskList.isEmpty()) {
-//							Thread.sleep(1000);
-//							continue;
-//						}
-						if (indexTaskNameToTask.isEmpty()) {
-							Thread.sleep(1000);
-							continue;
-						}
-						// 线程安全CopyOnWriteArrayList可以在循环内直接删除元素。因为在源码中remove方法的时候会调用ReentrantLock。
-						// 20160105改成了map形式，注释上说支持删除元素
-						for (ProcessModel pm : indexTaskNameToTask.values()) {
-							// process对象对null，此情况判定为任务执行失败
-							if (pm.getProcess() == null) {
-//								processTaskList.remove(pm);
-								indexTaskNameToTask.remove(pm.getTask().getTaskName());
-								pm.getTask().setStatusId(Status.FAIL.getId());
-								taskService.updateEndTimeNowAndStatus(pm.getTask());
-								continue;
-							}
-							// 当前任务跑完了
-							if (!pm.getProcess().isAlive()) {
-								// process返回值不等于0，此情况判定为任务执行失败
-								if (pm.getProcess().exitValue() != 0) {
-//									processTaskList.remove(pm);
+						// 当前正在执行的任务不为空则扫描一次
+						if (!indexTaskNameToTask.isEmpty()) {
+							// 线程安全CopyOnWriteArrayList可以在循环内直接删除元素。因为在源码中remove方法的时候会调用ReentrantLock。
+							// 20160105改成了map形式，注释上说支持删除元素
+							for (ProcessModel pm : indexTaskNameToTask.values()) {
+								// process对象对null，此情况判定为任务执行失败
+								if (pm.getProcess() == null) {
 									indexTaskNameToTask.remove(pm.getTask().getTaskName());
 									pm.getTask().setStatusId(Status.FAIL.getId());
 									taskService.updateEndTimeNowAndStatus(pm.getTask());
 									continue;
 								}
-								// 手动杀死任务
-								try {
-									pm.getProcess().destroy();
-								} catch (Exception e) {
-								}
-								// 任务组跑完了
-								if (pm.getCmdArray().length - 1 == pm.getCmdIndex()) {
-//									processTaskList.remove(pm);
-									indexTaskNameToTask.remove(pm.getTask().getTaskName());
-									pm.getTask().setStatusId(Status.SUCCESS.getId());
-									taskService.updateEndTimeNowAndStatus(pm.getTask());
-								}
-								// 任务组没有跑完，执行下一个任务
+								// 当前任务跑完了
+								if (!pm.getProcess().isAlive()) {
+									// process返回值不等于0，此情况判定为任务执行失败
+									if (pm.getProcess().exitValue() != 0) {
+										indexTaskNameToTask.remove(pm.getTask().getTaskName());
+										pm.getTask().setStatusId(Status.FAIL.getId());
+										taskService.updateEndTimeNowAndStatus(pm.getTask());
+										continue;
+									}
+									// 手动杀死任务
+									try {
+										pm.getProcess().destroy();
+									} catch (Exception e) {
+									}
+									// 任务组跑完了
+									if (pm.getCmdArray().length - 1 == pm.getCmdIndex()) {
+										indexTaskNameToTask.remove(pm.getTask().getTaskName());
+										pm.getTask().setStatusId(Status.SUCCESS.getId());
+										taskService.updateEndTimeNowAndStatus(pm.getTask());
+									}
+									// 任务组没有跑完，执行下一个任务
+									else {
+										pm.setCmdIndex(pm.getCmdIndex() + 1);
+										String cmd = pm.getCmdArray()[pm.getCmdIndex()];
+										String logPath = pm.getTask().getLogPath();
+										String errorLogPath = pm.getTask().getErrorLogPath();
+										String[] params = pm.getCmdParams();
+										Process process = ProcessHelper.run(cmd, params, logPath, errorLogPath, false);
+										pm.setProcess(process);
+									}
+								} 
+								// 当前任务未跑完
 								else {
-									pm.setCmdIndex(pm.getCmdIndex() + 1);
-									String cmd = pm.getCmdArray()[pm.getCmdIndex()];
-									String logPath = pm.getTask().getLogPath();
-									String errorLogPath = pm.getTask().getErrorLogPath();
-									String[] params = pm.getCmdParams();
-									Process process = ProcessHelper.run(cmd, params, logPath, errorLogPath, false);
-									pm.setProcess(process);
+									// waitFor... do nothing...
 								}
-							} else {
-								// waitFor...
 							}
 						}
+						// 检查完休眠
 						Thread.sleep(1000);
 					} catch (Exception e) {
 						logger.error(e.getMessage(), e);

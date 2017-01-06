@@ -39,32 +39,42 @@
 			}
 		});
 
-		if (isadmin) {
-			center_menu.menu('appendItem', {
-				text : '执行',
-				iconCls : $.ds.icon.run_cls,
-				onclick : function() {
-					if (center_choose_li_id == "") {
-						return $.ds.show('请选择一项配置执行!');
-					}
-					var id = center_choose_li_id;
-					var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
-					$.ds.commons.openWindow("center_run_config_" + id, $.ds.icon.run, title, "runconfig.html", "id=" + id);
-				}
-			});
-		}
-
 		if (isadmin || isuser) {
 			center_menu.menu('appendItem', {
 				text : '任务执行',
 				iconCls : $.ds.icon.run_cls,
 				onclick : function() {
 					if (center_choose_li_id == "") {
-						return $.ds.show('请选择一项配置执行!');
+						return $.ds.show('请选择一项进行任务执行!');
+					}
+					runTask();
+				}
+			});
+		}
+
+		var runTask = function() {
+			var id = center_choose_li_id;
+			var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
+			var left = ($(window).width() - 500) / 2;
+			$.ds.commons.openWindow("center_run_task_" + id, $.ds.icon.run, title, "runtask.html", "id=" + id).dialog('resize', {
+				height : 200,
+				width : 500,
+				left : left,
+				top : 100
+			});
+		};
+
+		if (isadmin) {
+			center_menu.menu('appendItem', {
+				text : 'mysql调试',
+				iconCls : $.ds.icon.run_cls,
+				onclick : function() {
+					if (center_choose_li_id == "") {
+						return $.ds.show('请选择一项进行mysql调试!');
 					}
 					var id = center_choose_li_id;
 					var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
-					$.ds.commons.openWindow("center_run_config_" + id, $.ds.icon.run, title, "runconfig2.html", "id=" + id);
+					$.ds.commons.openWindow("center_mysql_debug_" + id, $.ds.icon.run, title, "mysqldebug.html", "id=" + id);
 				}
 			});
 		}
@@ -116,8 +126,6 @@
 							$.ds.show('您已取消删除' + title + '。');
 						}
 					});
-	// 				openConfig(id, title);
-	// 				return $.ds.show('修改!');
 				}
 			});
 		}
@@ -233,7 +241,9 @@
 							title : rst[i].configName
 						}, function(d) {
 							clearTimeout(_time);
-							openConfig(d.data.id, d.data.title);
+							if (isadmin) {
+								openConfig(d.data.id, d.data.title);
+							}
 						});
 						li.bind('click', {
 							id : rst[i].id,
@@ -241,21 +251,18 @@
 						}, function(d) {
 							clearTimeout(_time);
 							_time = setTimeout(function() {
-								if (isadmin) {
-									$.ds.commons.openWindow("center_run_config_" + d.data.id, $.ds.icon.run, d.data.title, "runconfig.html", "id=" + d.data.id);
-								}
-								if (!isadmin && isuser) {
-									$.ds.commons.openWindow("center_run_config_" + d.data.id, $.ds.icon.run, d.data.title, "runconfig2.html", "id=" + d.data.id);
-								}
+// 								if (isadmin) {
+// 									$.ds.commons.openWindow("center_run_config_" + d.data.id, $.ds.icon.run, d.data.title, "runconfig.html", "id=" + d.data.id);
+// 								}
+// 								if (!isadmin && isuser) {
+// 									$.ds.commons.openWindow("center_run_config_" + d.data.id, $.ds.icon.run, d.data.title, "runconfig2.html", "id=" + d.data.id);
+// 								}
+								runTask();
 							}, 300);
 						});
 						li.hover(function() {
-							// 							$(this).css("background", "#e6e6e6");
-							// 							$(this).css("color", "00438a");
 							center_choose_li_id = $(this).attr('ds_index');
 						}, function() {
-							// 							$(this).css("background", "");
-							// 							$(this).css("color", "");
 							if (lock_menu == false) {
 								center_choose_li_id = "";
 							}

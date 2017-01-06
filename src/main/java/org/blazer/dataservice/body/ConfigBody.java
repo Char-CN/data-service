@@ -2,7 +2,7 @@ package org.blazer.dataservice.body;
 
 import java.util.HashMap;
 
-public class ConfigBody {
+public class ConfigBody extends Body {
 
 	private Integer id;
 	private String configName;

@@ -183,7 +183,6 @@ echo "开始执行查询任务......"
 
 `${exec_cmd} "${query_sql}" > ${result_path}/${SYS_TASK_NAME}.csv`
 
-echo "################## 判断是否执行成功。"
 if [ "$?" = "0" ];
 then
   echo "查询成功,开始发送邮件."

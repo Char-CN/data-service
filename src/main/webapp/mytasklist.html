@@ -46,6 +46,7 @@
 			}, {
 				field : 'taskName',
 				title : '任务名称',
+				width : "30%",
 				hidden : true
 			}, {
 				field : 'remark',
@@ -56,23 +57,16 @@
 				width : "15%",
 				title : '状态',
 				formatter : function(value){
-					if (value == "WAIT")
-						return "等待执行"
-					if (value == "RUN")
-						return "正在执行"
-					if (value == "SUCCESS")
-						return "执行成功"
-					if (value == "FAIL")
-						return "执行失败"
-					if (value == "CANCEL")
-						return "执行取消"
-					return "未知状态"
+					return $.ds.commons.getStatus(value);
 				}
 			}, {
 				field : 'executeTime',
 				width : "15%",
 				title : '开始时间',
 				formatter : function(value){
+					if (value == null || value == "") {
+                        return "";
+                    }
 					return new XDate(value).toString("yyyy-MM-dd HH:mm:ss");
 				}
 			}, {
@@ -80,14 +74,24 @@
 				width : "15%",
 				title : '结束时间',
 				formatter : function(value){
+					if (value == null || value == "") {
+                        return "";
+                    }
 					return new XDate(value).toString("yyyy-MM-dd HH:mm:ss");
 				}
 			}, {
 				field : '操作',
 				width : "15%",
 				title : '操作',
-				formatter : function(value){
-					return $.ds.icon.refresh;
+				formatter : function(value, row){
+					var ret = '';
+					ret += '<a href="javascript:$.ds.commons.openTaskLog(\'' + row.taskName + '\')">日志</a>&nbsp;';
+					ret += '<a href="javascript:alert(\'开发中\')">下载</a>&nbsp;';
+					ret += '<a href="javascript:alert(\'开发中\')">报表</a>&nbsp;';
+					if (row.status == "正在执行" || row.status == "等待执行") {
+						ret += '<a href="javascript:alert(\'开发中\')">停止</a>&nbsp;';
+					}
+					return ret;
 				}
 			} ] ],
 			rownumbers : true,

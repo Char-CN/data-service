@@ -8,6 +8,8 @@ $(function() {
 				}
 				return urls[1];
 			},
+			find_task_log_by_name : "view/findTaskLogByName.do",
+			find_task_by_name : "view/findTaskByName.do",
 			find_schedulers_all : "view/findSchedulersAll.do",
 			find_schedulers : "view/findSchedulers.do",
 			save_schedulers : "view/saveSchedulers.do",
@@ -66,6 +68,27 @@ $(function() {
 					}
 				});
 			},
+			getStatus : function(value) {
+				if (value == "WAIT")
+					return "等待执行";
+				if (value == "RUN")
+					return "正在执行";
+				if (value == "SUCCESS")
+					return "执行成功";
+				if (value == "FAIL")
+					return "执行失败";
+				if (value == "CANCEL")
+					return "执行取消";
+				return "未知状态";
+			},
+			openTaskLog : function(taskName) {
+				var width = 800;
+				$.ds.commons.openWindow(taskName, $.ds.icon.file, taskName, "taskinfo.html", "taskName=" + taskName).dialog('resize', {
+					width : width,
+					left : width / 2,
+					top : 100
+				});
+			},
 			addFootTask : function(window_id, icon, text) {
 				var a = $('<a style="margin:2px;"></a>');
 				// a.attr("id", id);
@@ -94,7 +117,8 @@ $(function() {
 			openWindow : function(id, icon, title, url, queryString) {
 				if ($("#" + id).length != 0) {
 					$("#" + id).window('open');
-					return $.ds.show("[" + icon + title + "]已经存在。");
+					$.ds.show("[" + icon + title + "]已经存在。");
+					return null;
 				}
 				var _window = $('<div></div>');
 				_window.attr("id", id);
@@ -157,6 +181,8 @@ $(function() {
 			}
 		},
 		icon : {
+			file_cls : 'fa fa-file fa-1x',
+			file : '<i class="fa fa-file fa-1x"></i>',
 			clock_cls : 'fa fa-clock-o fa-1x',
 			clock : '<i class="fa fa-clock-o fa-1x"></i>',
 			cube3_cls : 'fa fa-cube fa-3x',
@@ -173,6 +199,8 @@ $(function() {
 			refresh : '<i class="fa fa-refresh fa-1x"></i>',
 			loading3_cls : 'fa fa-spinner fa-pulse fa-3x fa-fw',
 			loading3 : '<i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>',
+			loading_cls : 'fa fa-spinner fa-pulse fa-1x fa-fw',
+			loading : '<i class="fa fa-spinner fa-pulse fa-1x fa-fw"></i>',
 			save_cls : 'fa fa-save fa-1x',
 			save : '<i class="fa fa-save fa-1x"></i>',
 			remove_cls : 'fa fa-times-circle fa-1x',

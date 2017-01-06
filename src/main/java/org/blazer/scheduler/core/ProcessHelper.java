@@ -8,9 +8,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.List;
 
+import org.blazer.scheduler.model.LogModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,6 +100,10 @@ public class ProcessHelper {
 		t.start();
 	}
 
+	public static LogModel readLog(String path1, String path2) throws Exception {
+		return readLog(path1, path2, 0, 1000);
+	}
+
 	/**
 	 * 合并读取文件
 	 * 
@@ -108,12 +111,14 @@ public class ProcessHelper {
 	 * @param path2
 	 * @throws Exception
 	 */
-	public static List<String> readLog(String path1, String path2) throws Exception {
-		List<String> list = new ArrayList<String>();
+	public static LogModel readLog(String path1, String path2, Integer skipRowNumber, Integer maxRowNumber) throws Exception {
+		StringBuilder sb = new StringBuilder();
 		BufferedReader br1 = new BufferedReader(new InputStreamReader(new FileInputStream(path1), "UTF-8"));
 		BufferedReader br2 = new BufferedReader(new InputStreamReader(new FileInputStream(path2), "UTF-8"));
 		String line1 = null;
 		String line2 = null;
+		Integer count = 0;
+		Integer skipCount = 0;
 		while (true) {
 			////////////////////////////////////////////////
 			if (line1 == null && br1 != null) {
@@ -121,6 +126,18 @@ public class ProcessHelper {
 			}
 			if (line2 == null && br2 != null) {
 				line2 = br2.readLine();
+			}
+			// 过滤的行数
+			if (count < skipRowNumber) {
+				count ++;
+				skipCount ++;
+				line1 = null;
+				line2 = null;
+				continue;
+			}
+			// 截止的行数
+			if (count - skipCount >= maxRowNumber) {
+				break;
 			}
 			////////////////////////////////////////////////
 			if (line1 != null && line2 != null) {
@@ -134,28 +151,38 @@ public class ProcessHelper {
 					l2 = Long.parseLong(line2.substring(0, 13));
 				}
 				if (l1 >= l2) {
-					list.add(line2);
+//					list.add(line2);
+					sb.append(line2.substring(14)).append("\n");
 					line2 = null;
 				} else {
-					list.add(line1);
+//					list.add(line1);
+					sb.append(line1.substring(14)).append("\n");
 					line1 = null;
 				}
 			} else if (line1 != null) {
-				list.add(line1);
+//				list.add(line1);
+				sb.append(line1.substring(14)).append("\n");
 				line1 = null;
 			} else if (line2 != null) {
-				list.add(line2);
+//				list.add(line2);
+				sb.append(line2.substring(14)).append("\n");
 				line2 = null;
 			} else if (line1 == null && line2 == null) {
 				break;
 			}
+			count ++;
 		}
 		br1.close();
 		br2.close();
-		return list;
+		LogModel lm = new LogModel();
+		lm.setTotal(count);
+		lm.setContent(sb.toString());
+		return lm;
 	}
 
 	public static void main(String[] args) throws Exception {
+		System.out.println(readLog("/Users/hyy/test/2017_01_06_12_00_0_right_now_00002.log", "/Users/hyy/test/2017_01_06_12_00_0_right_now_00002.error", 0, 10).getContent());
+		System.out.println(readLog("/Users/hyy/test/2017_01_06_12_00_0_right_now_00002.log", "/Users/hyy/test/2017_01_06_12_00_0_right_now_00002.error", 5, 5).getContent());
 //		Map m = System.getenv();
 //		for (Iterator it = m.keySet().iterator(); it.hasNext();) {
 //			String key = (String) it.next();

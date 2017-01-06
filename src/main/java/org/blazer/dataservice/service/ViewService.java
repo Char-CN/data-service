@@ -32,6 +32,7 @@ import org.blazer.scheduler.core.SchedulerServer;
 import org.blazer.scheduler.entity.JobParam;
 import org.blazer.scheduler.entity.Status;
 import org.blazer.scheduler.entity.Task;
+import org.blazer.scheduler.model.TaskLog;
 import org.blazer.scheduler.service.JobService;
 import org.blazer.scheduler.service.TaskService;
 import org.blazer.userservice.core.filter.PermissionsFilter;
@@ -74,10 +75,20 @@ public class ViewService {
 	@Value("#{scriptProperties.result_path}")
 	private String resultPath;
 
+	public TaskLog findTaskLogByName(HashMap<String, String> params) throws Exception {
+		String taskName = StringUtil.getStrEmpty(params.get("taskName"));
+		Integer skipRowNumber = IntegerUtil.getInt0(params.get("skipRowNumber"));
+		return taskService.findTaskLogByName(taskName,  skipRowNumber);
+	}
+	
+	public Task findTaskByName(HashMap<String, String> params) throws Exception {
+		return taskService.findTaskByName(params.get("taskName"));
+	}
+
 	public PageBody<Task> findTaskByUser(HashMap<String, String> params, SessionModel sm) throws Exception {
 		PageBody<Task> pb = new PageBody<Task>();
 		String yyyy_MM_dd = StringUtil.getStrEmpty(params.get("time"));
-		String sql = "select st.* from mapping_user_task mut inner join scheduler_task st on st.task_name=mut.task_name where mut.user_id=? and st.execute_time>=? and st.end_time<=? order by execute_time desc limit ?,?";
+		String sql = "select st.* from mapping_user_task mut inner join scheduler_task st on st.task_name=mut.task_name where mut.user_id=? and st.execute_time>=? and st.execute_time<=? order by execute_time desc limit ?,?";
 		int start = (IntegerUtil.getInt1(params.get("page")) - 1) * IntegerUtil.getInt0(params.get("rows"));
 		int end = IntegerUtil.getInt0(params.get("rows"));
 		logger.debug("start : " + start);
@@ -117,13 +128,21 @@ public class ViewService {
 			}
 			// 增加参数
 			StringBuilder cmdParams = new StringBuilder();
+			List<JobParam> paramList = new ArrayList<JobParam>();
 			cmdParams.append(" emails=").append(sm.getEmail());
 			cmdParams.append(" result_path=").append(resultPath);
+//			paramList.add(new JobParam("emails", sm.getEmail()));
+//			paramList.add(new JobParam("result_path", resultPath));
 			for (String key : params.keySet()) {
 				cmdParams.append(" ").append(key).append("=").append(params.get(key));
+				if ("config_id".equals(key)) {
+					continue;
+				}
+				paramList.add(new JobParam(key, params.get(key)));
 			}
 			String cmd = "sh " + scriptPath + File.separator + scriptName + cmdParams.toString();
-			task = schedulerServer.spawnRightNowTaskProcess(cmd, new ArrayList<JobParam>()).getTask();
+			// paramList 是需要记录的参数信息
+			task = schedulerServer.spawnRightNowTaskProcess(cmd, paramList).getTask();
 			task.setRemark(configCache.get(configId).getConfigName() + " 即时查询任务");
 			taskService.updateTaskRemark(task);
 			// 增加user和task映射关系

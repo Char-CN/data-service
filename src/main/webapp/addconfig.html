@@ -115,14 +115,15 @@
 						contentType : "application/json",
 						dataType : "json",
 						success : function(data) {
-							$.ds.show(data.message);
 							this_window.DSFind('details').find('li').each(function(i, o){
 								$(this).DSFind("panel").panel('expand');
 							});
 							if (isAdd) {
 								this_window.window('close');
 							}
-							setTimeout("$.ds.commons.referCenterByMenuId("+group_id+")", 3000);
+							$.ds.alert(data.message);
+							$.ds.commons.referCenterByMenuId(group_id);
+// 							setTimeout("$.ds.commons.referCenterByMenuId("+group_id+")", 3000);
 						},
 						error : function(XMLHttpRequest, textStatus, errorThrown) {
 							this_window.DSFind('details').find('li').each(function(i, o){

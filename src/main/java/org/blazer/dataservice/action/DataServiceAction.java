@@ -45,59 +45,70 @@ public class DataServiceAction extends BaseAction {
 	@ResponseBody
 	@RequestMapping("/getconfig")
 	public ConfigBody getConfig(HttpServletRequest request, HttpServletResponse response) {
-		HashMap<String, String> paramMap = getParamMap(request);
 		ConfigBody cb = new ConfigBody();
-		Integer id = IntegerUtil.getInt0(paramMap.get("id"));
-		String detailsId = StringUtil.getStr(paramMap.get("detailsid"));
-		if (detailsId != null) {
-			detailsId = "," + detailsId + ",";
-		}
-		String detailsKey = StringUtil.getStr(paramMap.get("detailskey"));
-		if (detailsKey != null) {
-			detailsKey = "," + detailsKey + ",";
-		}
-		ConfigModel config = configCache.get(id);
-
-		cb.setId(config.getId());
-		cb.setConfigName(config.getConfigName());
-		cb.setConfigType(config.getConfigType());
-		cb.setDetails(new HashMap<String, ConfigDetailBody>());
-
-		List<ConfigDetailModel> detailList = config.getDetailList();
-		for (ConfigDetailModel detail : detailList) {
-			// 匹配details id
-			if (detailsId != null && !detailsId.contains("," + detail.getId() + ",")) {
-				continue;
+		try {
+			HashMap<String, String> paramMap = getParamMap(request);
+			Integer id = IntegerUtil.getInt0(paramMap.get("id"));
+			String detailsId = StringUtil.getStr(paramMap.get("detailsid"));
+			if (detailsId != null) {
+				detailsId = "," + detailsId + ",";
 			}
-			// 匹配details key
-			if (detailsKey != null && !detailsKey.contains("," + detail.getKey() + ",")) {
-				continue;
+			String detailsKey = StringUtil.getStr(paramMap.get("detailskey"));
+			if (detailsKey != null) {
+				detailsKey = "," + detailsKey + ",";
 			}
-			ConfigDetailBody cdb = new ConfigDetailBody();
-			String sql = detail.getValues();
+			ConfigModel config = configCache.get(id);
 
-			// 替换参数
-			for (String key : paramMap.keySet()) {
-				// 防止SQL注入
-				sql = sql.replace("${" + key + "}", SqlUtil.TransactSQLInjection(paramMap.get(key)));
+			if (!"mysql".equals(config.getDataSourceModel().getDatabase_name())) {
+				throw new Exception("只支持查询mysql数据库,不允许查询[" + config.getDataSourceModel().getDatabase_name() + "]");
 			}
 
-			Dao dao = detail.getDataSource();
-			List<Map<String, Object>> values = null;
+			cb.setId(config.getId());
+			cb.setConfigName(config.getConfigName());
+			cb.setConfigType(config.getConfigType());
+			cb.setDetails(new HashMap<String, ConfigDetailBody>());
 
-			String errorMessage = StringUtils.EMPTY;
-			try {
-				values = dao.find(sql);
-			} catch (Exception e) {
-				values = new ArrayList<Map<String, Object>>();
-				logger.error(e.getMessage(), e);
-				errorMessage = e.getMessage();
+			List<ConfigDetailModel> detailList = config.getDetailList();
+			for (ConfigDetailModel detail : detailList) {
+				// 匹配details id
+				if (detailsId != null && !detailsId.contains("," + detail.getId() + ",")) {
+					continue;
+				}
+				// 匹配details key
+				if (detailsKey != null && !detailsKey.contains("," + detail.getKey() + ",")) {
+					continue;
+				}
+				ConfigDetailBody cdb = new ConfigDetailBody();
+				String sql = detail.getValues();
+
+				// 替换参数
+				for (String key : paramMap.keySet()) {
+					// 防止SQL注入
+					sql = sql.replace("${" + key + "}", SqlUtil.TransactSQLInjection(paramMap.get(key)));
+				}
+
+				Dao dao = detail.getDataSource();
+				List<Map<String, Object>> values = null;
+
+				String errorMessage = StringUtils.EMPTY;
+				try {
+					values = dao.find(sql);
+				} catch (Exception e) {
+					values = new ArrayList<Map<String, Object>>();
+					logger.error(e.getMessage(), e);
+					errorMessage = e.getMessage();
+				}
+
+				cdb.setErrorMessage(errorMessage);
+				cdb.setId(detail.getId());
+				cdb.setValues(values);
+				cb.getDetails().put(detail.getKey(), cdb);
 			}
-
-			cdb.setErrorMessage(errorMessage);
-			cdb.setId(detail.getId());
-			cdb.setValues(values);
-			cb.getDetails().put(detail.getKey(), cdb);
+			cb.success();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			cb.error();
+			cb.setMessage(e.getMessage());
 		}
 		return cb;
 	}

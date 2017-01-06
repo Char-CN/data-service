@@ -21,6 +21,7 @@ import org.blazer.dataservice.exception.UnknowDataSourceException;
 import org.blazer.dataservice.service.ViewService;
 import org.blazer.dataservice.util.IntegerUtil;
 import org.blazer.scheduler.entity.Task;
+import org.blazer.scheduler.model.TaskLog;
 import org.blazer.userservice.core.filter.PermissionsFilter;
 import org.blazer.userservice.core.model.CheckUrlStatus;
 import org.blazer.userservice.core.model.SessionModel;
@@ -49,6 +50,28 @@ public class ViewAction extends BaseAction {
 	ConfigCache configCache;
 
 	@ResponseBody
+	@RequestMapping("/findTaskLogByName")
+	public TaskLog findTaskLogByName(HttpServletRequest request, HttpServletResponse response) {
+		try {
+			return viewService.findTaskLogByName(getParamMap(request));
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		return new TaskLog();
+	}
+
+	@ResponseBody
+	@RequestMapping("/findTaskByName")
+	public Task findTaskByName(HttpServletRequest request, HttpServletResponse response) {
+		try {
+			return viewService.findTaskByName(getParamMap(request));
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		return new Task();
+	}
+
+	@ResponseBody
 	@RequestMapping("/findTaskByUser")
 	public PageBody<Task> findTaskByUser(HttpServletRequest request, HttpServletResponse response) {
 		HashMap<String, String> params = getParamMap(request);
@@ -73,7 +96,7 @@ public class ViewAction extends BaseAction {
 			logger.error(e.getMessage(), e);
 			return fail().setMessage(e.getMessage());
 		}
-		return success().setMessage("添加任务成功！" + t.getTaskName());
+		return success().setMessage(t.getTaskName());
 	}
 
 	@ResponseBody

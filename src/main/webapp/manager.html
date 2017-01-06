@@ -13,7 +13,8 @@
 		if (isadmin) {
 			this_window.find('.permissions').bind('click', function() {
 				$.ds.commons.openWindow("center_add_user_tree", $.ds.icon.add , "分配用户目录权限", "addusertree.html").dialog('resize', {
-					height : 320,
+					height : 230,
+					width : 600,
 					top: 100
 				});
 			});
@@ -24,7 +25,10 @@
 				});
 			});
 			this_window.find('.scheduler_list').bind('click', function() {
-				$.ds.commons.openWindow("schedulerlist", $.ds.icon.clock , "调度任务列表", "schedulerlist.html");
+				$.ds.commons.openWindow("schedulerlist", $.ds.icon.clock , "调度任务列表", "schedulerlist.html").dialog('resize', {
+					height : 380,
+					top : 100
+				});
 			});
 		} else if (isuser) {
 			this_window.find(".dsmanager").css("display", "none");

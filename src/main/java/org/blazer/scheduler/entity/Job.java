@@ -22,6 +22,20 @@ public class Job {
 		return arr;
 	}
 
+	public String toStrParams() {
+		if (params == null) {
+			return "";
+		}
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < params.size(); i++) {
+			if (sb.length() != 0) {
+				sb.append(",");
+			}
+			sb.append(params.get(i).getParamName() + "=" + params.get(i).getDefaultValue());
+		}
+		return sb.toString();
+	}
+
 	public List<JobParam> getParams() {
 		return params;
 	}

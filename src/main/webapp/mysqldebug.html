@@ -102,6 +102,11 @@
 
 			var url = $.ds.url.get_config + params;
 			$.post(url, function(data) {
+				if (data.status != 200) {
+					$.ds.alert(data.message);
+					run_lock = false;
+					return;
+				}
 				var rst = eval(data);
 				this_window.DSFind("panel").each(function() {
 					$(this).find(".panel").remove();
@@ -154,6 +159,7 @@
 			});
 		};
 
+		var currentDataBaseName = "";
 		// 初始化
 		var init = function() {
 			this_window.DSFind("td_datasource").empty();
