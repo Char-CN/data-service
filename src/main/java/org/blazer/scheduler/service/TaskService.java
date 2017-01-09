@@ -136,7 +136,7 @@ public class TaskService {
 	public TaskLog findTaskLogByName(String taskName, Integer skipRowNumber) throws Exception {
 		Task task = findTaskByName(taskName);
 		// 为了减小服务器压力，每次均只允许读取100行
-		LogModel lm = ProcessHelper.readLog(task.getLogPath(), task.getErrorLogPath(), skipRowNumber, 100);
+		LogModel lm = ProcessHelper.readLog(task.getLogPath(), task.getErrorLogPath(), skipRowNumber, 200);
 		lm.setContent(lm.getContent().replaceAll("\n", "<br/>"));
 		TaskLog taskLog = new TaskLog();
 		taskLog.setTask(task);

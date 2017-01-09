@@ -28,10 +28,12 @@ import org.blazer.dataservice.util.IntegerUtil;
 import org.blazer.dataservice.util.ParamsUtil;
 import org.blazer.dataservice.util.SqlUtil;
 import org.blazer.dataservice.util.StringUtil;
+import org.blazer.scheduler.core.ProcessHelper;
 import org.blazer.scheduler.core.SchedulerServer;
 import org.blazer.scheduler.entity.JobParam;
 import org.blazer.scheduler.entity.Status;
 import org.blazer.scheduler.entity.Task;
+import org.blazer.scheduler.model.ResultModel;
 import org.blazer.scheduler.model.TaskLog;
 import org.blazer.scheduler.service.JobService;
 import org.blazer.scheduler.service.TaskService;
@@ -75,12 +77,20 @@ public class ViewService {
 	@Value("#{scriptProperties.result_path}")
 	private String resultPath;
 
+	public ResultModel findReportByTaskName(HashMap<String, String> params) throws Exception {
+		// 为了减小服务器压力，每次均只允许读取100行
+		String taskName = StringUtil.getStrEmpty(params.get("taskName"));
+		Integer skipRowNumber = IntegerUtil.getInt0(params.get("skipRowNumber"));
+		ResultModel rm = ProcessHelper.readSingleLog(resultPath + File.separator + taskName + ".csv", skipRowNumber, 5000);
+		return rm;
+	}
+
 	public TaskLog findTaskLogByName(HashMap<String, String> params) throws Exception {
 		String taskName = StringUtil.getStrEmpty(params.get("taskName"));
 		Integer skipRowNumber = IntegerUtil.getInt0(params.get("skipRowNumber"));
-		return taskService.findTaskLogByName(taskName,  skipRowNumber);
+		return taskService.findTaskLogByName(taskName, skipRowNumber);
 	}
-	
+
 	public Task findTaskByName(HashMap<String, String> params) throws Exception {
 		return taskService.findTaskByName(params.get("taskName"));
 	}
@@ -131,8 +141,8 @@ public class ViewService {
 			List<JobParam> paramList = new ArrayList<JobParam>();
 			cmdParams.append(" emails=").append(sm.getEmail());
 			cmdParams.append(" result_path=").append(resultPath);
-//			paramList.add(new JobParam("emails", sm.getEmail()));
-//			paramList.add(new JobParam("result_path", resultPath));
+			// paramList.add(new JobParam("emails", sm.getEmail()));
+			// paramList.add(new JobParam("result_path", resultPath));
 			for (String key : params.keySet()) {
 				cmdParams.append(" ").append(key).append("=").append(params.get(key));
 				if ("config_id".equals(key)) {
@@ -197,7 +207,8 @@ public class ViewService {
 			}
 		}
 		for (MappingConfigJob mcj : vBody.getList()) {
-//			mcj.getJob().getParams().add(new JobParam("result_path", resultPath));
+			// mcj.getJob().getParams().add(new JobParam("result_path",
+			// resultPath));
 			jobService.saveJob(mcj.getJob());
 			if (mcj.getId() == null) {
 				String sql = "insert into mapping_config_job(config_id, job_id, user_id, result_mode, email) values(?, ?, ?, ?, ?)";
@@ -209,7 +220,8 @@ public class ViewService {
 				jdbcTemplate.update(sql, mcj.getConfigId(), mcj.getJob().getId(), sm.getUserId(), mcj.getResultMode(), mcj.getEmail(), mcj.getId());
 				existsMap.remove(mcj.getId());
 			}
-//			mcj.getJob().getParams().add(new JobParam("mapping_config_job_id", "" + mcj.getId()));
+			// mcj.getJob().getParams().add(new
+			// JobParam("mapping_config_job_id", "" + mcj.getId()));
 			StringBuilder cmdParams = new StringBuilder();
 			cmdParams.append(" result_path=").append(resultPath);
 			cmdParams.append(" mapping_config_job_id=").append(mcj.getId());
@@ -220,10 +232,11 @@ public class ViewService {
 			mcj.getJob().setCommand(cmd);
 			jobService.updateJobCommand(mcj.getJob().getId(), mcj.getJob().getCommand());
 			// 单独增加参数
-//			JobParam param2 = new JobParam("mapping_config_job_id", "" + mcj.getId());
-//			param2.setJobId(mcj.getJob().getId());
-//			jobService.saveJobParam(param2);
-//			mcj.getJob().getParams().add(param2);
+			// JobParam param2 = new JobParam("mapping_config_job_id", "" +
+			// mcj.getId());
+			// param2.setJobId(mcj.getJob().getId());
+			// jobService.saveJobParam(param2);
+			// mcj.getJob().getParams().add(param2);
 			schedulerServer.reloadJob(mcj.getJob());
 		}
 		// remove job and mapping
@@ -410,7 +423,8 @@ public class ViewService {
 				config.setConfigType("1");
 				config.setEnable(1);
 				String insertConfig = "insert into ds_config(group_id,datasource_id,config_name,config_type,order_asc,enable) values(?,?,?,?,99999,?)";
-				int code = jdbcTemplate.update(insertConfig, config.getGroupId(), config.getDatasourceId(), config.getConfigName(), config.getConfigType(), config.getEnable());
+				int code = jdbcTemplate.update(insertConfig, config.getGroupId(), config.getDatasourceId(), config.getConfigName(), config.getConfigType(),
+						config.getEnable());
 				logger.debug("inset code : " + code);
 				String selectMaxId = "select max(id) as max_id from ds_config";
 				Integer maxId = IntegerUtil.getInt0(jdbcTemplate.queryForList(selectMaxId).get(0).get("max_id"));
@@ -419,21 +433,32 @@ public class ViewService {
 					return;
 				}
 				config.setId(maxId);
-//				HashMap<String, String> params = new HashMap<String, String>();
-//				params.put("id", "" + maxId);
-//				ViewConfigBody maxConfigBody = getConfigById(params);
-//				// 比较
-//				if (config.getId() != maxConfigBody.getId() || config.getGroupId() != maxConfigBody.getGroupId()
-//						|| config.getDatasourceId() != maxConfigBody.getDatasourceId() || !config.getConfigName().equals(maxConfigBody.getConfigName())
-//						|| !config.getConfigType().equals(maxConfigBody.getConfigType()) || config.getEnable() != maxConfigBody.getEnable()) {
-//					logger.info("getId:" + config.getId() + "|" + maxConfigBody.getId());
-//					logger.info("getDatasourceId:" + config.getDatasourceId() + "|" + maxConfigBody.getDatasourceId());
-//					logger.info("getConfigName:" + config.getConfigName() + "|" + maxConfigBody.getConfigName());
-//					logger.info("getConfigType:" + config.getConfigType() + "|" + maxConfigBody.getConfigType());
-//					logger.info("getEnable:" + config.getEnable() + "|" + maxConfigBody.getEnable());
-//					logger.error("save config [" + config.getId() + "] fail.");
-//					return;
-//				}
+				// HashMap<String, String> params = new HashMap<String,
+				// String>();
+				// params.put("id", "" + maxId);
+				// ViewConfigBody maxConfigBody = getConfigById(params);
+				// // 比较
+				// if (config.getId() != maxConfigBody.getId() ||
+				// config.getGroupId() != maxConfigBody.getGroupId()
+				// || config.getDatasourceId() !=
+				// maxConfigBody.getDatasourceId() ||
+				// !config.getConfigName().equals(maxConfigBody.getConfigName())
+				// ||
+				// !config.getConfigType().equals(maxConfigBody.getConfigType())
+				// || config.getEnable() != maxConfigBody.getEnable()) {
+				// logger.info("getId:" + config.getId() + "|" +
+				// maxConfigBody.getId());
+				// logger.info("getDatasourceId:" + config.getDatasourceId() +
+				// "|" + maxConfigBody.getDatasourceId());
+				// logger.info("getConfigName:" + config.getConfigName() + "|" +
+				// maxConfigBody.getConfigName());
+				// logger.info("getConfigType:" + config.getConfigType() + "|" +
+				// maxConfigBody.getConfigType());
+				// logger.info("getEnable:" + config.getEnable() + "|" +
+				// maxConfigBody.getEnable());
+				// logger.error("save config [" + config.getId() + "] fail.");
+				// return;
+				// }
 			}
 			// 修改config
 			else {

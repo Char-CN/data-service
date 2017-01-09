@@ -21,6 +21,7 @@ import org.blazer.dataservice.exception.UnknowDataSourceException;
 import org.blazer.dataservice.service.ViewService;
 import org.blazer.dataservice.util.IntegerUtil;
 import org.blazer.scheduler.entity.Task;
+import org.blazer.scheduler.model.ResultModel;
 import org.blazer.scheduler.model.TaskLog;
 import org.blazer.userservice.core.filter.PermissionsFilter;
 import org.blazer.userservice.core.model.CheckUrlStatus;
@@ -48,6 +49,17 @@ public class ViewAction extends BaseAction {
 
 	@Autowired
 	ConfigCache configCache;
+	
+	@ResponseBody
+	@RequestMapping("/findReportByTaskName")
+	public ResultModel findReportByTaskName(HttpServletRequest request, HttpServletResponse response) {
+		try {
+			return viewService.findReportByTaskName(getParamMap(request));
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		return new ResultModel();
+	}
 
 	@ResponseBody
 	@RequestMapping("/findTaskLogByName")

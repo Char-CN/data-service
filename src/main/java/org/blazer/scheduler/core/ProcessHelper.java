@@ -8,8 +8,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.blazer.scheduler.model.LogModel;
+import org.blazer.scheduler.model.ResultModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,6 +109,39 @@ public class ProcessHelper {
 	}
 
 	/**
+	 * 读取单个文件
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	public static ResultModel readSingleLog(String path1, Integer skipRowNumber, Integer maxRowNumber) throws Exception {
+		List<String[]> result = new ArrayList<String[]>();
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path1), "UTF-8"));
+		String line = null;
+		Integer count = 0;
+		Integer skipCount = 0;
+		while ((line = br.readLine()) != null) {
+			// 过滤的行数
+			if (count < skipRowNumber) {
+				count++;
+				skipCount++;
+				continue;
+			}
+			// 截止的行数
+			if (count - skipCount >= maxRowNumber) {
+				break;
+			}
+			result.add(StringUtils.splitByWholeSeparatorPreserveAllTokens(line, "\t"));
+			count++;
+		}
+		br.close();
+		ResultModel rm = new ResultModel();
+		rm.setTotal(count);
+		rm.setResult(result);
+		return rm;
+	}
+
+	/**
 	 * 合并读取文件
 	 * 
 	 * @param path1
@@ -129,8 +166,8 @@ public class ProcessHelper {
 			}
 			// 过滤的行数
 			if (count < skipRowNumber) {
-				count ++;
-				skipCount ++;
+				count++;
+				skipCount++;
 				line1 = null;
 				line2 = null;
 				continue;
@@ -151,26 +188,26 @@ public class ProcessHelper {
 					l2 = Long.parseLong(line2.substring(0, 13));
 				}
 				if (l1 >= l2) {
-//					list.add(line2);
+					// list.add(line2);
 					sb.append(line2.substring(14)).append("\n");
 					line2 = null;
 				} else {
-//					list.add(line1);
+					// list.add(line1);
 					sb.append(line1.substring(14)).append("\n");
 					line1 = null;
 				}
 			} else if (line1 != null) {
-//				list.add(line1);
+				// list.add(line1);
 				sb.append(line1.substring(14)).append("\n");
 				line1 = null;
 			} else if (line2 != null) {
-//				list.add(line2);
+				// list.add(line2);
 				sb.append(line2.substring(14)).append("\n");
 				line2 = null;
 			} else if (line1 == null && line2 == null) {
 				break;
 			}
-			count ++;
+			count++;
 		}
 		br1.close();
 		br2.close();
@@ -181,25 +218,29 @@ public class ProcessHelper {
 	}
 
 	public static void main(String[] args) throws Exception {
-		System.out.println(readLog("/Users/hyy/test/2017_01_06_12_00_0_right_now_00002.log", "/Users/hyy/test/2017_01_06_12_00_0_right_now_00002.error", 0, 10).getContent());
-		System.out.println(readLog("/Users/hyy/test/2017_01_06_12_00_0_right_now_00002.log", "/Users/hyy/test/2017_01_06_12_00_0_right_now_00002.error", 5, 5).getContent());
-//		Map m = System.getenv();
-//		for (Iterator it = m.keySet().iterator(); it.hasNext();) {
-//			String key = (String) it.next();
-//			String value = (String) m.get(key);
-//			System.out.println(key + ":" + value);
-//		}
-//		Process process = null;
-//		try {
-//			process = Runtime.getRuntime().exec("sh /Users/hyy/test/sql.sh ${name}", new String[]{"SHELL=asd", "name=hyy"});
-//			BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
-//			String line = null;
-//			while (br != null && (line = br.readLine()) != null) {
-//				System.out.println(line);
-//			}
-//		} catch (Exception e) {
-//			logger.error(e.getMessage(), e);
-//		}
+		System.out.println(
+				readLog("/Users/hyy/test/2017_01_06_12_00_0_right_now_00002.log", "/Users/hyy/test/2017_01_06_12_00_0_right_now_00002.error", 0, 10).getContent());
+		System.out.println(
+				readLog("/Users/hyy/test/2017_01_06_12_00_0_right_now_00002.log", "/Users/hyy/test/2017_01_06_12_00_0_right_now_00002.error", 5, 5).getContent());
+		// Map m = System.getenv();
+		// for (Iterator it = m.keySet().iterator(); it.hasNext();) {
+		// String key = (String) it.next();
+		// String value = (String) m.get(key);
+		// System.out.println(key + ":" + value);
+		// }
+		// Process process = null;
+		// try {
+		// process = Runtime.getRuntime().exec("sh /Users/hyy/test/sql.sh
+		// ${name}", new String[]{"SHELL=asd", "name=hyy"});
+		// BufferedReader br = new BufferedReader(new
+		// InputStreamReader(process.getInputStream()));
+		// String line = null;
+		// while (br != null && (line = br.readLine()) != null) {
+		// System.out.println(line);
+		// }
+		// } catch (Exception e) {
+		// logger.error(e.getMessage(), e);
+		// }
 		// String basePath = "/Users/hyy/";
 		// String shellFile = basePath + "zz.sh";
 		//

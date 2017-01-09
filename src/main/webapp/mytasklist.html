@@ -87,7 +87,7 @@
 					var ret = '';
 					ret += '<a href="javascript:$.ds.commons.openTaskLog(\'' + row.taskName + '\')">日志</a>&nbsp;';
 					ret += '<a href="javascript:alert(\'开发中\')">下载</a>&nbsp;';
-					ret += '<a href="javascript:alert(\'开发中\')">报表</a>&nbsp;';
+					ret += '<a href="javascript:window.open(\'reports.html?taskName=' + row.taskName + '\')">报表</a>&nbsp;';
 					if (row.status == "正在执行" || row.status == "等待执行") {
 						ret += '<a href="javascript:alert(\'开发中\')">停止</a>&nbsp;';
 					}

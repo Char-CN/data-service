@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>data-service</title>
+<link rel="shortcut icon" type="image/ico" href="images/favicon.png">
+<link href="css/jquery.dataTables.min.css" rel="stylesheet">
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/jquery.easyui.commons.js"></script>
+<script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
+<script>
+	$(function() {
+		// 初始化参数、定义参数
+		var queryString = window.location.search.substr(1);
+		var taskName = $.ds.getQueryString(queryString, "taskName");
+
+		var initData = false;
+		var skipRowNumber = 0;
+		var dataCount = 0;
+
+		var init = function() {
+			initData = false;
+			skipRowNumber = 0;
+			dataCount = 0;
+			getResult();
+		};
+		var getResult = function() {
+			$.post($.ds.url.find_report_by_task_name, {
+				taskName : taskName,
+				skipRowNumber : skipRowNumber
+			}, function(data) {
+				if (!data.total || !data.result) {
+					$("body").html("任务名称有误。");
+					return;
+				}
+				if (skipRowNumber == 0) {
+					$("#report>thead>tr").empty();
+					$("#report>tbody").empty();
+					var heads = data.result[0];
+					for ( var i in heads) {
+						$("#report>thead>tr").append("<th>" + heads[i] + "</th>");
+					}
+					table = $('#report').DataTable({
+						bAutoWidth : false,
+						scrollY : $(window).height() - 65,
+						scrollX : true,
+						scrollCollapse : true,
+						scroller : true,
+						ordering : false,
+						paging : false,
+						searching : false,
+						info : false
+					});
+				}
+				if (!initData) {
+					initData = !initData;
+					$("#report .odd").remove();
+				}
+				var rows = data.result;
+				for ( var j in rows) {
+					if (skipRowNumber == 0 && j ==0) {
+						continue;
+					}
+					var cls = "even";
+					if (dataCount % 2 == 0) {
+						cls = "odd";
+					}
+					var tr = $("<tr class='" + cls + "'></tr>");
+					var columns = rows[j];
+					for ( var i in columns) {
+						tr.append("<td>" + columns[i] + "</td>");
+					}
+					$("#report>tbody").append(tr);
+					dataCount++;
+				}
+				if (skipRowNumber != data.total) {
+					skipRowNumber = data.total;
+					interval_code = setTimeout(getResult, 200);
+					$("#total").html(skipRowNumber);
+					$("#info").html("数据加载中。。。");
+				} else {
+					$("#info").html("数据加载完毕。。。");
+				}
+			});
+		};
+
+		init();
+	});
+</script>
+</head>
+<body style="padding: 0px; margin: 0px;">
+	<table id="report" class="stripe row-border order-column cell-border">
+		<thead>
+			<tr style="color: blue">
+				<th>小时</th>
+				<th>交易额(万元)</th>
+				<th>交易人数</th>
+				<th>注册人数</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>asd</td>
+				<td>qwe</td>
+				<td>zxc</td>
+				<td>123</td>
+			</tr>
+			<tr>
+				<td>asd</td>
+				<td>qwe</td>
+				<td>zxc</td>
+				<td>123</td>
+			</tr>
+			<tr>
+				<td>asd</td>
+				<td>qwe</td>
+				<td>zxc</td>
+				<td>123</td>
+			</tr>
+		</tbody>
+	</table>
+	<div>共加载<span id="total"></span>条记录。<span id="info">数据加载中。。。</span></div>
+</body>
+</html>
