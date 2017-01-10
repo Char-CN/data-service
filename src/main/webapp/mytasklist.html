@@ -84,12 +84,15 @@
 				width : "15%",
 				title : '操作',
 				formatter : function(value, row){
-					var ret = '';
-					ret += '<a href="javascript:$.ds.commons.openTaskLog(\'' + row.taskName + '\')">日志</a>&nbsp;';
-					ret += '<a href="javascript:alert(\'开发中\')">下载</a>&nbsp;';
-					ret += '<a href="javascript:window.open(\'reports.html?taskName=' + row.taskName + '\')">报表</a>&nbsp;';
-					if (row.status == "正在执行" || row.status == "等待执行") {
-						ret += '<a href="javascript:alert(\'开发中\')">停止</a>&nbsp;';
+					var ret = '&nbsp;';
+					ret += '<span title="日志" style="cursor:pointer" onclick="$.ds.commons.openTaskLog(\'' + row.taskName + '\')">' + $.ds.icon.file + '</span>　';
+					var status = $.ds.commons.getStatus(row.status);
+					if (status == "执行成功") {
+						ret += '<span title="下载" style="cursor:pointer" onclick="alert(\'开发中\')">' + $.ds.icon.download + '</span>　';
+						ret += '<span title="报表" style="cursor:pointer" onclick="window.open(\'reports.html?taskName=' + row.taskName + '\')">' + $.ds.icon.table + '</span>　';
+					}
+					if (status == "正在执行" || status == "等待执行") {
+						ret += '<span title="停止" style="cursor:pointer" onclick="alert(\'开发中\')">' + $.ds.icon.remove + '</span>';
 					}
 					return ret;
 				}

@@ -182,8 +182,12 @@ $(function() {
 			}
 		},
 		icon : {
-			file_cls : 'fa fa-file fa-1x',
-			file : '<i class="fa fa-file fa-1x"></i>',
+			table_cls : 'fa fa-table fa-1x',
+			table : '<i class="fa fa-table fa-1x"></i>',
+			download_cls : 'fa fa-download fa-1x',
+			download : '<i class="fa fa-download fa-1x"></i>',
+			file_cls : 'fa fa-file-text fa-1x',
+			file : '<i class="fa fa-file-text fa-1x"></i>',
 			clock_cls : 'fa fa-clock-o fa-1x',
 			clock : '<i class="fa fa-clock-o fa-1x"></i>',
 			cube3_cls : 'fa fa-cube fa-3x',
