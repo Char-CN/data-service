@@ -63,11 +63,11 @@
 						continue;
 					}
 					dataCount++;
-					var cls = "even";
+					var cls = "background-color:#FFFFF0";
 					if (dataCount % 2 == 0) {
-						cls = "odd";
+						cls = "background-color:#FFFFFF";
 					}
-					var tr = $("<tr class='" + cls + "'></tr>");
+					var tr = $("<tr style='" + cls + "'></tr>");
 					tr.append("<td>" + dataCount + "</td>");
 					var columns = rows[j];
 					for ( var i in columns) {
@@ -77,14 +77,14 @@
 				}
 				
 				if (data.complete) {
-					$("#total").html(data.total - 1);
-					$("#info").html("数据加载完毕。。。");
+					$("#total").html("<b>["+(data.total - 1)+"]</b>");
+					$("#info").html("数据加载完毕。");
 				} else {
 					skipRowNumber = data.total;
-					$("#total").html(data.total - 1);
+					$("#total").html("<b>["+(data.total - 1)+"]</b>");
 					$("#info").html("<a href='javascript:void(0)'>加载更多数据</a>");
 					$("#info>a").click(function() {
-						$("#info").html("正在加载数据。。。");
+						$("#info").html("正在加载数据。");
 						getResult();
 // 						interval_code = setTimeout(getResult, 5000);
 					});
@@ -99,34 +99,12 @@
 <body style="padding: 0px; margin: 0px;">
 	<table id="report" class="stripe row-border order-column cell-border">
 		<thead>
-			<tr style="color: blue">
-				<th>小时</th>
-				<th>交易额(万元)</th>
-				<th>交易人数</th>
-				<th>注册人数</th>
+			<tr style="color: #EE9A00">
 			</tr>
 		</thead>
 		<tbody>
-			<tr>
-				<td>asd</td>
-				<td>qwe</td>
-				<td>zxc</td>
-				<td>123</td>
-			</tr>
-			<tr>
-				<td>asd</td>
-				<td>qwe</td>
-				<td>zxc</td>
-				<td>123</td>
-			</tr>
-			<tr>
-				<td>asd</td>
-				<td>qwe</td>
-				<td>zxc</td>
-				<td>123</td>
-			</tr>
 		</tbody>
 	</table>
-	<div>共加载<span id="total"></span>条记录。<span id="info">数据加载中。。。</span></div>
+	<div style="color: #EE9A00; float:right;">共加载<span id="total"></span>条记录。<span id="info">数据加载中。。。</span></div>
 </body>
 </html>
