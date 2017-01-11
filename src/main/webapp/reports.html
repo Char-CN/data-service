@@ -37,6 +37,7 @@
 					$("#report>thead>tr").empty();
 					$("#report>tbody").empty();
 					var heads = data.result[0];
+					$("#report>thead>tr").append("<th></th>");
 					for ( var i in heads) {
 						$("#report>thead>tr").append("<th>" + heads[i] + "</th>");
 					}
@@ -61,25 +62,32 @@
 					if (skipRowNumber == 0 && j ==0) {
 						continue;
 					}
+					dataCount++;
 					var cls = "even";
 					if (dataCount % 2 == 0) {
 						cls = "odd";
 					}
 					var tr = $("<tr class='" + cls + "'></tr>");
+					tr.append("<td>" + dataCount + "</td>");
 					var columns = rows[j];
 					for ( var i in columns) {
 						tr.append("<td>" + columns[i] + "</td>");
 					}
 					$("#report>tbody").append(tr);
-					dataCount++;
 				}
-				if (skipRowNumber != data.total) {
-					skipRowNumber = data.total;
-					interval_code = setTimeout(getResult, 200);
-					$("#total").html(skipRowNumber);
-					$("#info").html("数据加载中。。。");
-				} else {
+				
+				if (data.complete) {
+					$("#total").html(data.total - 1);
 					$("#info").html("数据加载完毕。。。");
+				} else {
+					skipRowNumber = data.total;
+					$("#total").html(data.total - 1);
+					$("#info").html("<a href='javascript:void(0)'>加载更多数据</a>");
+					$("#info>a").click(function() {
+						$("#info").html("正在加载数据。。。");
+						getResult();
+// 						interval_code = setTimeout(getResult, 5000);
+					});
 				}
 			});
 		};

@@ -8,6 +8,8 @@ public class ResultModel {
 
 	private List<String[]> result;
 
+	private boolean complete;
+
 	public Integer getTotal() {
 		return total;
 	}
@@ -22,6 +24,14 @@ public class ResultModel {
 
 	public void setResult(List<String[]> result) {
 		this.result = result;
+	}
+
+	public boolean isComplete() {
+		return complete;
+	}
+
+	public void setComplete(boolean complete) {
+		this.complete = complete;
 	}
 
 }

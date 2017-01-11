@@ -76,12 +76,19 @@ public class ViewService {
 
 	@Value("#{scriptProperties.result_path}")
 	private String resultPath;
+	
+	@Value("#{reportProperties.read_row_number}")
+	private Integer readRowNumber;
 
 	public ResultModel findReportByTaskName(HashMap<String, String> params) throws Exception {
 		// 为了减小服务器压力，每次均只允许读取100行
 		String taskName = StringUtil.getStrEmpty(params.get("taskName"));
 		Integer skipRowNumber = IntegerUtil.getInt0(params.get("skipRowNumber"));
-		ResultModel rm = ProcessHelper.readSingleLog(resultPath + File.separator + taskName + ".csv", skipRowNumber, 5000);
+		Integer maxRowNumber = readRowNumber;
+		if (skipRowNumber == 0) {
+			maxRowNumber ++;
+		}
+		ResultModel rm = ProcessHelper.readSingleLog(resultPath + File.separator + taskName + ".csv", skipRowNumber, maxRowNumber);
 		return rm;
 	}
 

@@ -1,6 +1,6 @@
 <table style="-moz-user-select: text; -webkit-user-select: text; user-select: text;">
 	<tr>
-		<td width="10%">任务名称：</td><td ds_index="taskName" width="90%"></td>
+		<td width="10%" style="white-space: nowrap;">任务名称：</td><td ds_index="taskName" width="90%"></td>
 	</tr>
 	<tr>
 		<td>参数信息：</td><td></td>
@@ -119,6 +119,7 @@
 					var status = $.ds.commons.getStatus(data.task.status);
 					if (status == "正在执行" || status == "等待执行" || skipRowNumber != data.logModel.total) {
 						skipRowNumber = data.logModel.total;
+						interval_code = setTimeout(getLog, 2000);
 					}
 				} catch (e) {
 					interval_code = setTimeout(getLog, 1000);

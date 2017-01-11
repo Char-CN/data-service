@@ -1,9 +1,10 @@
 #!/bin/sh
 source ~/.bash_profile
 
+############################################################################# 配置信息
 mysql_path="/usr/local/mysql/bin/mysql";
 hive_path="/Users/hyy/Work/hive-1.2.1-bin/bin/hive";
-python_path=/usr/bin/python
+python_path="/usr/bin/python"
 conn="${mysql_path} -hms -udev -pdev123456 -Ddw_dataservice -N -e";
 email_util=email_util.py
 
@@ -112,7 +113,7 @@ then
   # 根据mappingid查询实际执行sql
   sql="
   SET NAMES utf8;
-  select REPLACE(dcd.values, '\n', ' ') from mapping_config_job mcj
+  select REPLACE(dcd.values, '\n', '\r') from mapping_config_job mcj
     inner join ds_config dc on mcj.config_id=dc.id
     inner join ds_config_detail dcd on dcd.config_id=dc.id
     where dc.enable=1
@@ -124,13 +125,15 @@ else
   # 根据config查询实际执行sql
   sql="
   SET NAMES utf8;
-  select REPLACE(dcd.values, '\n', ' ') from ds_config dc
+  select REPLACE(dcd.values, '\n', '\r') from ds_config dc
     inner join ds_config_detail dcd on dcd.config_id=dc.id
     where dc.enable=1
     and dcd.enable=1
     and dc.id=${config_id}
   "
 fi
+#select REPLACE(dcd.values, '\n', ' ') from ds_config dc
+#select REPLACE(dcd.values, '\n', '\r') from ds_config dc
 
 echo "${sql}"
 echo "################## 实际查询的sql"
@@ -149,12 +152,16 @@ do
   query_sql=${query_sql//\$\{${key}\}/${value}}
 done
 
+#query_sql=${query_sql//\`/\\\`}
+
 echo "################## 处理后的实际查询的sql"
 echo "$query_sql"
 
 if [ ${db_type} == "hive" ];
 then
   query_sql="set hive.cli.print.header=true; ${query_sql}"
+else
+  query_sql="SET NAMES utf8; ${query_sql}"
 fi
 
 echo "################## 判断是mysql类型还是hive类型"
@@ -170,7 +177,7 @@ echo "${exec_cmd} \"${query_sql}\" > ${result_path}/${SYS_TASK_NAME}.csv"
 
 echo "开始执行查询任务......"
 
-`${exec_cmd} "${query_sql}" > ${result_path}/${SYS_TASK_NAME}.csv`
+${exec_cmd} "${query_sql}" > ${result_path}/${SYS_TASK_NAME}.csv
 
 if [ "$?" = "0" ];
 then
@@ -185,5 +192,6 @@ else
   echo "查询失败."
   exit 1
 fi
+
 
 

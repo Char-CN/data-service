@@ -120,6 +120,7 @@ public class ProcessHelper {
 		String line = null;
 		Integer count = 0;
 		Integer skipCount = 0;
+		boolean complete = true;
 		while ((line = br.readLine()) != null) {
 			// 过滤的行数
 			if (count < skipRowNumber) {
@@ -129,6 +130,7 @@ public class ProcessHelper {
 			}
 			// 截止的行数
 			if (count - skipCount >= maxRowNumber) {
+				complete = false;
 				break;
 			}
 			result.add(StringUtils.splitByWholeSeparatorPreserveAllTokens(line, "\t"));
@@ -138,6 +140,7 @@ public class ProcessHelper {
 		ResultModel rm = new ResultModel();
 		rm.setTotal(count);
 		rm.setResult(result);
+		rm.setComplete(complete);
 		return rm;
 	}
 
@@ -155,7 +158,7 @@ public class ProcessHelper {
 		String line1 = null;
 		String line2 = null;
 		Integer count = 0;
-		Integer skipCount = 0;
+//		Integer skipCount = 0;
 		while (true) {
 			////////////////////////////////////////////////
 			if (line1 == null && br1 != null) {
@@ -167,13 +170,13 @@ public class ProcessHelper {
 			// 过滤的行数
 			if (count < skipRowNumber) {
 				count++;
-				skipCount++;
+//				skipCount++;
 				line1 = null;
 				line2 = null;
 				continue;
 			}
 			// 截止的行数
-			if (count - skipCount >= maxRowNumber) {
+			if (count - skipRowNumber >= maxRowNumber) {
 				break;
 			}
 			////////////////////////////////////////////////

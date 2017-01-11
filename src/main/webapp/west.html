@@ -82,7 +82,7 @@
 					top : e.pageY
 				});
 			},
-			onClick : function(node) {
+			onSelect : function(node) {
 				if (node.state == "closed") {
 					$(this).tree('expand', node.target);
 				} else {
@@ -90,6 +90,7 @@
 				}
 			},
 			onBeforeCollapse : function(node) {
+				node.state = "closed";
 				$('#tree').tree('options').url = $.ds.url.tree + '?id=' + node.id;
 				$("#main").layout('panel', 'center').panel('setTitle', node.text);
 				$.ds.commons.referCenterByMenuId(node.id);

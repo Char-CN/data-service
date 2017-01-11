@@ -44,15 +44,15 @@
 				text : '任务执行',
 				iconCls : $.ds.icon.run_cls,
 				onclick : function() {
-					if (center_choose_li_id == "") {
-						return $.ds.show('请选择一项进行任务执行!');
-					}
 					runTask();
 				}
 			});
 		}
 
 		var runTask = function() {
+			if (center_choose_li_id == "") {
+				return $.ds.show('请选择一项进行任务执行!');
+			}
 			var id = center_choose_li_id;
 			var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
 			var left = ($(window).width() - 500) / 2;

@@ -47,6 +47,16 @@
 		</property>
 	</bean>
 
+	<bean id="reportProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="ignoreResourceNotFound" value="true"/>
+		<property name="locations">
+			<list>
+				<value>classpath:report.properties</value>
+				<value>file:/home/www/jetty-9.3.10/resources/report.properties</value>
+			</list>
+		</property>
+	</bean>
+
 	<bean id="SpringContextUtil" class="org.blazer.scheduler.util.SpringContextUtil"></bean>
 
 	<context:component-scan base-package="org.blazer.**"></context:component-scan>
