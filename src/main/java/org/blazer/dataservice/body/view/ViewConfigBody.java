@@ -9,6 +9,7 @@ public class ViewConfigBody {
 	private Integer datasourceId;
 	private String configName;
 	private String configType;
+	private String remark;
 	private Integer enable;
 	private List<ViewConfigDetailBody> list;
 
@@ -19,7 +20,6 @@ public class ViewConfigBody {
 	public void setEnable(Integer enable) {
 		this.enable = enable;
 	}
-
 
 	public Integer getGroupId() {
 		return groupId;
@@ -61,6 +61,14 @@ public class ViewConfigBody {
 		this.configType = configType;
 	}
 
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
 	public List<ViewConfigDetailBody> getList() {
 		return list;
 	}
@@ -71,8 +79,8 @@ public class ViewConfigBody {
 
 	@Override
 	public String toString() {
-		return "ViewConfigBody [id=" + id + ", groupId=" + groupId + ", datasourceId=" + datasourceId + ", configName=" + configName + ", configType="
-				+ configType + ", enable=" + enable + ", list=" + list + "]";
+		return "ViewConfigBody [id=" + id + ", groupId=" + groupId + ", datasourceId=" + datasourceId + ", configName=" + configName + ", configType=" + configType
+				+ ", enable=" + enable + ", list=" + list + "]";
 	}
 
 }

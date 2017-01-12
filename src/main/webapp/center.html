@@ -66,15 +66,15 @@
 
 		if (isadmin) {
 			center_menu.menu('appendItem', {
-				text : 'mysql调试',
-				iconCls : $.ds.icon.run_cls,
+				text : '接口调试',
+				iconCls : $.ds.icon.bug_cls,
 				onclick : function() {
 					if (center_choose_li_id == "") {
-						return $.ds.show('请选择一项进行mysql调试!');
+						return $.ds.show('请选择一项进行接口调试!');
 					}
 					var id = center_choose_li_id;
 					var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
-					$.ds.commons.openWindow("center_mysql_debug_" + id, $.ds.icon.run, title, "mysqldebug.html", "id=" + id);
+					$.ds.commons.openWindow("center_mysql_debug_" + id, $.ds.icon.bug, title, "mysqldebug.html", "id=" + id);
 				}
 			});
 		}
@@ -104,7 +104,6 @@
 				}
 			});
 		}
-
 
 		if (isadmin) {
 			center_menu.menu('appendItem', {
@@ -232,7 +231,7 @@
 				var rst = eval(data);
 				if (rst.length != 0) {
 					for ( var i in rst) {
-						var li = $('<li class="dsli" ds_index="'+rst[i].id+'" ds_title="'+rst[i].configName+'">');
+						var li = $('<li class="dsli" ds_index="' + rst[i].id + '" ds_title="' + rst[i].configName + '">');
 						li.append($.ds.icon.cube3);
 						li.append('<span>' + rst[i].configName + '</span>');
 						var _time = null;
@@ -251,12 +250,6 @@
 						}, function(d) {
 							clearTimeout(_time);
 							_time = setTimeout(function() {
-// 								if (isadmin) {
-// 									$.ds.commons.openWindow("center_run_config_" + d.data.id, $.ds.icon.run, d.data.title, "runconfig.html", "id=" + d.data.id);
-// 								}
-// 								if (!isadmin && isuser) {
-// 									$.ds.commons.openWindow("center_run_config_" + d.data.id, $.ds.icon.run, d.data.title, "runconfig2.html", "id=" + d.data.id);
-// 								}
 								runTask();
 							}, 300);
 						});

@@ -30,6 +30,7 @@ $(function() {
 			delete_config : "view/deleteConfig.do",
 			save_config_order : "view/saveConfigOrderAsc.do",
 			save_config : "view/saveConfig.do",
+			save_config_remark : "view/saveConfigRemark.do",
 			find_user_by_page : "user/findUserByPage.do",
 			find_user_by_id : "user/findUserById.do",
 			get_user_all : "view/getAllUser.do",
@@ -182,6 +183,10 @@ $(function() {
 			}
 		},
 		icon : {
+			cog_cls : 'fa fa-cog fa-1x',
+			cog : '<i class="fa fa-cog fa-1x"></i>',
+			bug_cls : 'fa fa-bug fa-1x',
+			bug : '<i class="fa fa-bug fa-1x"></i>',
 			table_cls : 'fa fa-table fa-1x',
 			table : '<i class="fa fa-table fa-1x"></i>',
 			download_cls : 'fa fa-download fa-1x',

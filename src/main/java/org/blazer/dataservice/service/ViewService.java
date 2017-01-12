@@ -379,6 +379,7 @@ public class ViewService {
 			vcb.setId(IntegerUtil.getInt0(map.get("id")));
 			vcb.setConfigType(StringUtil.getStrEmpty(map.get("config_type")));
 			vcb.setConfigName(StringUtil.getStrEmpty(map.get("config_name")));
+			vcb.setRemark(StringUtil.getStrEmpty(map.get("remark")));
 			vcb.setList(new ArrayList<ViewConfigDetailBody>());
 			rst.add(vcb);
 			logger.debug(vcb.toString());
@@ -401,6 +402,7 @@ public class ViewService {
 		vcb.setDatasourceId(IntegerUtil.getInt0(list.get(0).get("datasource_id")));
 		vcb.setConfigType(StringUtil.getStrEmpty(list.get(0).get("config_type")));
 		vcb.setConfigName(StringUtil.getStrEmpty(list.get(0).get("config_name")));
+		vcb.setRemark(StringUtil.getStrEmpty(list.get(0).get("remark")));
 		vcb.setEnable(IntegerUtil.getInt0(list.get(0).get("enable")));
 		vcb.setList(new ArrayList<ViewConfigDetailBody>());
 		sql = "select * from ds_config_detail where config_id=? and enable=1";
@@ -421,6 +423,12 @@ public class ViewService {
 		return vcb;
 	}
 
+	public void saveConfigRemark(ViewConfigBody viewConfigBody) {
+		String updateConfig = "update ds_config set remark=? where id=?";
+		int code = jdbcTemplate.update(updateConfig, viewConfigBody.getRemark(), viewConfigBody.getId());
+		logger.debug("update code : " + code);
+	}
+
 	@Transactional
 	public void saveConfig(ViewConfigBody config) throws SystemRetentionParameters {
 		// 新增config
@@ -429,9 +437,9 @@ public class ViewService {
 				// 强制设置configType和enable和orderAsc
 				config.setConfigType("1");
 				config.setEnable(1);
-				String insertConfig = "insert into ds_config(group_id,datasource_id,config_name,config_type,order_asc,enable) values(?,?,?,?,99999,?)";
+				String insertConfig = "insert into ds_config(group_id,datasource_id,config_name,config_type,remark,order_asc,enable) values(?,?,?,?,?,99999,?)";
 				int code = jdbcTemplate.update(insertConfig, config.getGroupId(), config.getDatasourceId(), config.getConfigName(), config.getConfigType(),
-						config.getEnable());
+						config.getRemark(), config.getEnable());
 				logger.debug("inset code : " + code);
 				String selectMaxId = "select max(id) as max_id from ds_config";
 				Integer maxId = IntegerUtil.getInt0(jdbcTemplate.queryForList(selectMaxId).get(0).get("max_id"));
@@ -440,37 +448,11 @@ public class ViewService {
 					return;
 				}
 				config.setId(maxId);
-				// HashMap<String, String> params = new HashMap<String,
-				// String>();
-				// params.put("id", "" + maxId);
-				// ViewConfigBody maxConfigBody = getConfigById(params);
-				// // 比较
-				// if (config.getId() != maxConfigBody.getId() ||
-				// config.getGroupId() != maxConfigBody.getGroupId()
-				// || config.getDatasourceId() !=
-				// maxConfigBody.getDatasourceId() ||
-				// !config.getConfigName().equals(maxConfigBody.getConfigName())
-				// ||
-				// !config.getConfigType().equals(maxConfigBody.getConfigType())
-				// || config.getEnable() != maxConfigBody.getEnable()) {
-				// logger.info("getId:" + config.getId() + "|" +
-				// maxConfigBody.getId());
-				// logger.info("getDatasourceId:" + config.getDatasourceId() +
-				// "|" + maxConfigBody.getDatasourceId());
-				// logger.info("getConfigName:" + config.getConfigName() + "|" +
-				// maxConfigBody.getConfigName());
-				// logger.info("getConfigType:" + config.getConfigType() + "|" +
-				// maxConfigBody.getConfigType());
-				// logger.info("getEnable:" + config.getEnable() + "|" +
-				// maxConfigBody.getEnable());
-				// logger.error("save config [" + config.getId() + "] fail.");
-				// return;
-				// }
 			}
 			// 修改config
 			else {
-				String updateConfig = "update ds_config set group_id=?,datasource_id=?,config_name=?,config_type=? where id=?";
-				int code = jdbcTemplate.update(updateConfig, config.getGroupId(), config.getDatasourceId(), config.getConfigName(), "1", config.getId());
+				String updateConfig = "update ds_config set group_id=?,datasource_id=?,config_name=?,config_type=?,remark=? where id=?";
+				int code = jdbcTemplate.update(updateConfig, config.getGroupId(), config.getDatasourceId(), config.getConfigName(), "1", config.getRemark(), config.getId());
 				logger.debug("update code : " + code);
 			}
 

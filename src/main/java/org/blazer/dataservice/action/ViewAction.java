@@ -239,6 +239,18 @@ public class ViewAction extends BaseAction {
 		logger.debug("map : " + getParamMap(request));
 		return viewService.getConfigById(getParamMap(request));
 	}
+	
+	@ResponseBody
+	@RequestMapping("/saveConfigRemark")
+	public Body saveConfigRemark(HttpServletRequest request, HttpServletResponse response, @RequestBody ViewConfigBody viewConfigBody) {
+		try {
+			viewService.saveConfigRemark(viewConfigBody);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return fail().setMessage(e.getMessage());
+		}
+		return success().setMessage("保存成功！");
+	}
 
 	@ResponseBody
 	@RequestMapping("/saveConfig")

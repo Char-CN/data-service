@@ -7,6 +7,10 @@
 					<td width="80%" ds_index="td_name"></td>
 				</tr>
 				<tr>
+					<td width="20%"><span>备注:</span></td>
+					<td width="80%" ds_index="td_remark"></td>
+				</tr>
+				<tr>
 					<td colspan="2">以下是所有参数信息：</td>
 				</tr>
 			</tbody>
@@ -23,11 +27,39 @@
 		var this_window = $("#" + windowId);
 
 		// 刷新
-		var a_reload = $('<a href="javascript:void(0)" class="icon-reload"></a>');
+		var a_reload = $('<a href="javascript:void(0)" class="icon-reload" title="刷新"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_reload);
 		a_reload.click(function() {
 			$.ds.show('您正在刷新[' + this_window.window('options').title + ']');
 			init();
+		});
+
+		var a_edit = $('<a href="javascript:void(0)" class="icon-edit" title="修改备注"></a>');
+		this_window.parent().find(" .panel-tool").prepend(a_edit);
+		a_edit.click(function() {
+			this_window.DSFind("remark").textbox('readonly', false);
+		});
+
+		var a_save = $('<a href="javascript:void(0)" class="icon-save" title="保存"></a>');
+		this_window.parent().find(" .panel-tool").prepend(a_save);
+		a_save.click(function() {
+			var configBody = { };
+			configBody.id = id;
+			configBody.remark = this_window.DSFind("remark").textbox("getValue");
+			$.ajax({
+				type : "post",
+				url : $.ds.url.save_config_remark,
+				data : JSON.stringify(configBody),
+				contentType : "application/json",
+				dataType : "json",
+				success : function(data) {
+					$.ds.show(data.message);
+					this_window.DSFind("remark").textbox('readonly');
+				},
+				error : function(XMLHttpRequest, textStatus, errorThrown) {
+					$.ds.show('保存失败！<br>status：' + XMLHttpRequest.status + '<br>state：' + XMLHttpRequest.readyState + '<br>text：' + (textStatus || errorThrown));
+				}
+			});
 		});
 
 		// 执行
@@ -79,6 +111,8 @@
 			this_window.DSFind("td_name").append(input_id);
 			var te = $('<input>').DSAdd('name');
 			this_window.DSFind("td_name").append(te);
+			var te_remark = $('<input>').DSAdd('remark');
+			this_window.DSFind("td_remark").append(te_remark);
 			te.textbox({
 				required : true,
 				readonly : true,
@@ -88,12 +122,22 @@
 				width : "100%",
 				multiline : false
 			});
+			te_remark.textbox({
+				readonly : true,
+				validateOnCreate : false,
+				validateOnBlur : true,
+				validType : [],
+				width : "100%",
+				height : 55,
+				multiline : true
+			});
 			// 获取该配置的信息以及详细信息
 			var url = $.ds.url.config_by_id + "?id=" + id;
 			$.post(url, function(data) {
 				this_window.DSFind("details").empty();
 				this_window.DSFind("id").val(data.id);
 				this_window.DSFind("name").textbox('initValue', data.configName);
+				this_window.DSFind("remark").textbox('initValue', data.remark);
 			});
 			// 获取所有参数
 			var url = $.ds.url.get_params + "?id=" + id;
@@ -102,9 +146,9 @@
 				this_window.DSFind("params").empty();
 				var tbody = this_window.DSFind("params");
 				var params_str = "?id=" + id;
-				
+
 				var len = rst.params.length == 0 ? 1 : rst.params.length;
-				var height = 120 + len * 33;
+				var height = 120 + 60 + len * 33;
 				if (height > $(window).height()) {
 					height = $(window).height();
 				}

@@ -10,6 +10,10 @@
 				<td width="80%" ds_index="td_name"></td>
 			</tr>
 			<tr>
+				<td width="20%"><span>备注:</span></td>
+				<td width="80%" ds_index="td_remark"></td>
+			</tr>
+			<tr>
 				<td colspan="2">以下是所有参数信息：</td>
 			</tr>
 			<tbody ds_index="params"></tbody>
@@ -97,6 +101,7 @@
 					configBody.groupId = group_id;
 					configBody.datasourceId = this_window.DSFind("datasource").combobox('getValue');
 					configBody.configName = this_window.DSFind("name").textbox("getValue");
+					configBody.remark = this_window.DSFind("remark").textbox("getValue");
 					configBody.configType = "1";
 					configBody.list = [ ];
 					
@@ -148,6 +153,8 @@
 			this_window.DSFind("td_name").append(input_id);
 			var te = $('<input>').DSAdd('name');
 			this_window.DSFind("td_name").append(te);
+			var te_remark = $('<input>').DSAdd('remark');
+			this_window.DSFind("td_remark").append(te_remark);
 			te.textbox({
 				required : true,
 				validateOnCreate : false,
@@ -155,6 +162,14 @@
 				validType : [ 'nospace' ],
 				width : "100%",
 				multiline : false
+			});
+			te_remark.textbox({
+				validateOnCreate : false,
+				validateOnBlur : true,
+				validType : [],
+				width : "100%",
+				height : 55,
+				multiline : true
 			});
 			$.ajax({
 				url : $.ds.url.datasource_all,
@@ -189,6 +204,7 @@
 					this_window.DSFind("datasource").combobox('select', data.datasourceId);
 					this_window.DSFind("id").val(data.id);
 					this_window.DSFind("name").textbox('initValue', data.configName);
+					this_window.DSFind("remark").textbox('initValue', data.remark);
 					if (data.list.length == 0) {
 						addDetailPanel();
 					} else {

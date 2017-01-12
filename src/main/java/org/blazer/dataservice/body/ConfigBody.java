@@ -7,6 +7,7 @@ public class ConfigBody extends Body {
 	private Integer id;
 	private String configName;
 	private String configType;
+	private String remark;
 	private HashMap<String, ConfigDetailBody> details;
 
 	public Integer getId() {
@@ -31,6 +32,14 @@ public class ConfigBody extends Body {
 
 	public void setConfigType(String configType) {
 		this.configType = configType;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
 
 	public HashMap<String, ConfigDetailBody> getDetails() {
