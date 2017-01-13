@@ -107,6 +107,7 @@
 		// 初始化
 		var init = function() {
 			this_window.DSFind("td_name").empty();
+			this_window.DSFind("td_remark").empty();
 			var input_id = $('<input type="hidden">').DSAdd('id');
 			this_window.DSFind("td_name").append(input_id);
 			var te = $('<input>').DSAdd('name');

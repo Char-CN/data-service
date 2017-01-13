@@ -22,4 +22,9 @@ public class LogModel {
 		this.content = content;
 	}
 
+	@Override
+	public String toString() {
+		return "LogModel [total=" + total + ", content=" + content + "]";
+	}
+
 }

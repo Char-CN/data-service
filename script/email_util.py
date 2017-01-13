@@ -63,6 +63,10 @@ class EmailUtil():
         return False
 
 if __name__ == '__main__':
+    print '邮件参数一:', sys.argv[1]
+    print '邮件参数二:', sys.argv[2]
+    print '邮件参数三:', sys.argv[3]
+    print '邮件参数四:', sys.argv[4]
     mails = sys.argv[1].split(',')
     title = sys.argv[2]
     content = sys.argv[3]

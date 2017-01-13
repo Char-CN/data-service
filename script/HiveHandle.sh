@@ -2,12 +2,20 @@
 source ~/.bash_profile
 
 ############################################################################# 配置信息
+debug=false;
 mysql_path="/usr/local/mysql/bin/mysql";
 hive_path="/Users/hyy/Work/hive-1.2.1-bin/bin/hive";
-python_path="/usr/bin/python"
+python_path="/usr/bin/python";
 conn="${mysql_path} -hms -udev -pdev123456 -Ddw_dataservice -N -e";
-email_util=email_util.py
-
+email_util="email_util.py";
+function log() {
+  if [ $debug == true ];
+  then
+    echo "$1"
+  else
+    echo ""
+  fi
+}
 ############################################################################# 获取路径begin
 SOURCE="$0"
 while [ -h "$SOURCE"  ]; do
@@ -58,12 +66,12 @@ config_id=$(get config_id)
 emails=$(get emails)
 
 echo "SYS_TASK_NAME         : ${SYS_TASK_NAME}";
-echo "result_path           : ${result_path}"
+echo "result_path           : ${result_path}";
 echo "mapping_config_job_id : ${mapping_config_job_id}";
 echo "config_id             : ${config_id}";
-echo "emails                : ${emails}"
+echo "emails                : ${emails}";
 
-echo "################## config_id存在表示即时查询的任务"
+echo "################## config_id存在表示即时查询的任务";
 if [ "${config_id}" == "" ];
 then
   # 根据mappingid查询实际数据源
@@ -87,9 +95,9 @@ else
   "
 fi
 
-echo "################## 获取datasource信息。用户生成实际执行命令"
+echo "################## 获取datasource信息。用户生成实际执行命令";
 rst=`${conn} "${sql}"`
-echo $rst
+echo $(log "$rst");
 db_type=`echo $rst | awk -F ' ' '{print $1}'`;
 url=`echo $rst | awk -F ' ' '{print $2}'`;
 host=`echo $rst | awk -F ' ' '{print $3}'`;
@@ -98,15 +106,6 @@ dbname=`echo $rst | awk -F ' ' '{print $5}'`;
 username=`echo $rst | awk -F ' ' '{print $6}'`;
 password=`echo $rst | awk -F ' ' '{print $7}'`;
 config_name=`echo $rst | awk -F ' ' '{print $8}'`;
-
-echo "db_type  : ${db_type}"
-echo "url      : ${url}"
-echo "host     : ${host}"
-echo "port     : ${port}"
-echo "dbname   : ${dbname}"
-echo "username : ${username}"
-echo "password : ${password}"
-echo "config   : ${config_name}"
 
 if [ "${config_id}" == "" ];
 then
@@ -135,13 +134,13 @@ fi
 #select REPLACE(dcd.values, '\n', ' ') from ds_config dc
 #select REPLACE(dcd.values, '\n', '\r') from ds_config dc
 
-echo "${sql}"
-echo "################## 实际查询的sql"
+echo $(log "${sql}");
+echo $(log "################## 实际查询的sql");
 query_sql=`${conn} "${sql}"`;
 
-echo "$query_sql"
+echo $(log "$query_sql");
 
-echo "################## 实际查询的sql参数替换处理"
+echo $(log "################## 实际查询的sql参数替换处理");
 arr=(${params_sh_sys_maps//${params_sh_sys_split}/ })
 for((i=0;i<${#arr[@]};i++))
 do
@@ -152,11 +151,6 @@ do
   query_sql=${query_sql//\$\{${key}\}/${value}}
 done
 
-#query_sql=${query_sql//\`/\\\`}
-
-echo "################## 处理后的实际查询的sql"
-echo "$query_sql"
-
 if [ ${db_type} == "hive" ];
 then
   query_sql="set hive.cli.print.header=true; ${query_sql}"
@@ -164,7 +158,10 @@ else
   query_sql="SET NAMES utf8; ${query_sql}"
 fi
 
-echo "################## 判断是mysql类型还是hive类型"
+echo "################## 处理后的实际查询的sql";
+echo "$query_sql";
+
+echo $(log "################## 判断是mysql类型还是hive类型");
 exec_cmd=""
 if [ ${db_type} == "mysql" ];
 then
@@ -173,25 +170,52 @@ else
   exec_cmd="${hive_path} -e"
 fi
 
-echo "${exec_cmd} \"${query_sql}\" > ${result_path}/${SYS_TASK_NAME}.csv"
+echo $(log "${exec_cmd} \"${query_sql}\" > ${result_path}/${SYS_TASK_NAME}.csv");
 
-echo "开始执行查询任务......"
+echo "开始执行查询任务......";
 
 ${exec_cmd} "${query_sql}" > ${result_path}/${SYS_TASK_NAME}.csv
 
 if [ "$?" = "0" ];
 then
-  echo "查询成功,开始发送邮件."
+  echo "查询成功,开始发送邮件.";
   if [ "${emails}" == "" ];
   then
     emails=`${conn} "select email from mapping_config_job where id=${mapping_config_job_id}"`
   fi
-  echo "${python_path} ${email_util} ${emails} ${config_name}报表${SYS_TASK_NAME} ${SYS_TASK_NAME}请查收附件 ${result_path}/${SYS_TASK_NAME}.csv"
-  ${python_path} ${email_util} ${emails} "${config_name}报表${SYS_TASK_NAME}" "${SYS_TASK_NAME}请查收附件" "${result_path}/${SYS_TASK_NAME}.csv"
+  if [ "${config_id}" == "" ];
+  then
+    # 根据mappingid查询实际执行sql
+    sql="
+    SET NAMES utf8;
+    select REPLACE(dc.remark, '\n', '</br>') from mapping_config_job mcj
+      inner join ds_config dc on mcj.config_id=dc.id
+      inner join ds_config_detail dcd on dcd.config_id=dc.id
+      where dc.enable=1
+      and mcj.enable=1
+      and dcd.enable=1
+      and mcj.id=${mapping_config_job_id}
+    ";
+  else
+    # 根据config查询实际执行sql
+    sql="
+    SET NAMES utf8;
+    select REPLACE(dc.remark, '\n', '</br>') from ds_config dc
+      inner join ds_config_detail dcd on dcd.config_id=dc.id
+      where dc.enable=1
+      and dcd.enable=1
+      and dc.id=${config_id}
+    "
+  fi
+  echo $(log "查询备注信息 begin");
+  email_content=`${conn} "${sql}"`;
+  echo $(log "查询备注信息 end");
+  email_title="${config_name}_报表_${SYS_TASK_NAME}"
+  email_content="您好，请查收本次任务的附件。</br>备注信息：${email_content}"
+  echo $(log "${python_path} ${email_util} ${emails} ${email_title} ${email_content} ${result_path}/${SYS_TASK_NAME}.csv");
+  ${python_path} ${email_util} "${emails}" "${email_title}" "${email_content}" "${result_path}/${SYS_TASK_NAME}.csv"
 else
-  echo "查询失败."
+  echo "查询失败.";
   exit 1
 fi
-
-
 

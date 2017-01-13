@@ -144,6 +144,11 @@ public class ProcessHelper {
 		return rm;
 	}
 
+	static class Row {
+		String line1;
+		String line2;
+	}
+
 	/**
 	 * 合并读取文件
 	 * 
@@ -155,24 +160,25 @@ public class ProcessHelper {
 		StringBuilder sb = new StringBuilder();
 		BufferedReader br1 = new BufferedReader(new InputStreamReader(new FileInputStream(path1), "UTF-8"));
 		BufferedReader br2 = new BufferedReader(new InputStreamReader(new FileInputStream(path2), "UTF-8"));
-		String line1 = null;
-		String line2 = null;
+
+		Row row = new ProcessHelper.Row();
+		row.line1 = null;
+		row.line2 = null;
 		Integer count = 0;
-//		Integer skipCount = 0;
+		// Integer skipCount = 0;
 		while (true) {
 			////////////////////////////////////////////////
-			if (line1 == null && br1 != null) {
-				line1 = br1.readLine();
+			if (row.line1 == null && br1 != null) {
+				row.line1 = br1.readLine();
 			}
-			if (line2 == null && br2 != null) {
-				line2 = br2.readLine();
+			if (row.line2 == null && br2 != null) {
+				row.line2 = br2.readLine();
 			}
 			// 过滤的行数
 			if (count < skipRowNumber) {
 				count++;
-//				skipCount++;
-				line1 = null;
-				line2 = null;
+				// 比较是输出哪一个，但不实际输出，只做过滤。
+				compareOutput(row);
 				continue;
 			}
 			// 截止的行数
@@ -180,35 +186,14 @@ public class ProcessHelper {
 				break;
 			}
 			////////////////////////////////////////////////
-			if (line1 != null && line2 != null) {
-				// 对比
-				Long l1 = 0L;
-				if (line1.length() > 13) {
-					l1 = Long.parseLong(line1.substring(0, 13));
-				}
-				Long l2 = 0L;
-				if (line2.length() > 13) {
-					l2 = Long.parseLong(line2.substring(0, 13));
-				}
-				if (l1 >= l2) {
-					// list.add(line2);
-					sb.append(line2.substring(14)).append("\n");
-					line2 = null;
-				} else {
-					// list.add(line1);
-					sb.append(line1.substring(14)).append("\n");
-					line1 = null;
-				}
-			} else if (line1 != null) {
-				// list.add(line1);
-				sb.append(line1.substring(14)).append("\n");
-				line1 = null;
-			} else if (line2 != null) {
-				// list.add(line2);
-				sb.append(line2.substring(14)).append("\n");
-				line2 = null;
-			} else if (line1 == null && line2 == null) {
+			String out = compareOutput(row);
+			// 如果为null则表示都没有需要输出的内容，则结束循环。
+			if (out == null) {
 				break;
+			}
+			// 否则输出
+			else {
+				sb.append(out);
 			}
 			count++;
 		}
@@ -220,11 +205,56 @@ public class ProcessHelper {
 		return lm;
 	}
 
+	/**
+	 * 比较log和error中的各一行，然后输出。
+	 * @param row
+	 * @return
+	 */
+	private static String compareOutput(Row row) {
+		String rt = null;
+		if (row.line1 != null && row.line2 != null) {
+			// 对比
+			Long l1 = 0L;
+			if (row.line1.length() > 13) {
+				l1 = Long.parseLong(row.line1.substring(0, 13));
+			}
+			Long l2 = 0L;
+			if (row.line2.length() > 13) {
+				l2 = Long.parseLong(row.line2.substring(0, 13));
+			}
+			if (l1 >= l2) {
+				// list.add(line2);
+				rt = row.line2.substring(14) + "\n";
+				row.line2 = null;
+//				sb.append(line2.substring(14)).append("\n");
+			} else {
+				// list.add(line1);
+				rt = row.line1.substring(14) + "\n";
+				row.line1 = null;
+//				sb.append(line1.substring(14)).append("\n");
+			}
+		} else if (row.line1 != null) {
+			// list.add(line1);
+			rt = row.line1.substring(14) + "\n";
+			row.line1 = null;
+//			sb.append(line1.substring(14)).append("\n");
+		} else if (row.line2 != null) {
+			// list.add(line2);
+			rt = row.line2.substring(14) + "\n";
+			row.line2 = null;
+//			sb.append(line2.substring(14)).append("\n");
+		} else if (row.line1 == null && row.line2 == null) {
+			rt = null;
+		}
+		return rt;
+	}
+
 	public static void main(String[] args) throws Exception {
+//		System.out.println(
+//				readLog("/Users/hyy/test/2017_01_06_12_00_0_right_now_00002.log", "/Users/hyy/test/2017_01_06_12_00_0_right_now_00002.error", 0, 200).getTotal());
+//		System.out.println("================================================");
 		System.out.println(
-				readLog("/Users/hyy/test/2017_01_06_12_00_0_right_now_00002.log", "/Users/hyy/test/2017_01_06_12_00_0_right_now_00002.error", 0, 10).getContent());
-		System.out.println(
-				readLog("/Users/hyy/test/2017_01_06_12_00_0_right_now_00002.log", "/Users/hyy/test/2017_01_06_12_00_0_right_now_00002.error", 5, 5).getContent());
+				readLog("/Users/hyy/test/2017_01_06_12_00_0_right_now_00002.log", "/Users/hyy/test/2017_01_06_12_00_0_right_now_00002.error", 40, 5).toString());
 		// Map m = System.getenv();
 		// for (Iterator it = m.keySet().iterator(); it.hasNext();) {
 		// String key = (String) it.next();

@@ -81,7 +81,7 @@
 		this_window.parent().find(" .panel-tool").prepend(a_save);
 		a_save.click(function() {
 			if (userId == -1) {
-				alert("请选择普通用户进行保存。");
+				$.ds.show("请选择普通用户进行保存。");
 				return;
 			}
 			var group_ids = "";
@@ -100,7 +100,7 @@
 				type : 'post',
 				async : false,
 				success : function(data) {
-					alert(data.message);
+					$.ds.show(data.message);
 				},
 				fail : function() {
 					$.ds.show("出现莫名失败。");

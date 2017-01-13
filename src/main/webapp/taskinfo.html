@@ -63,26 +63,6 @@
 			this_window.DSFind("log").html('');
 			skipRowNumber = 0;
 			getLog();
-// 			$.post($.ds.url.find_task_by_name, {
-// 				taskName : taskName
-// 			}, function(data) {
-// 				try {
-// 					this_window.DSFind("taskName").html(data.taskName);
-// 					this_window.DSFind("remark").html(data.remark);
-// 					var content = "";
-// 					var params = data.params.split(",");
-// 					for (var i in params) {
-// 						if (content != "") {
-// 							content += "<br/>";
-// 						}
-// 						content += params[i];
-// 					}
-// 					this_window.DSFind("params").html(content);
-// 					var status = $.ds.commons.getStatus(data.status);
-// 					this_window.DSFind("status").html(status);
-// 				} catch (e) {
-// 				}
-// 			});
 		};
 
 		var getLog = function() {

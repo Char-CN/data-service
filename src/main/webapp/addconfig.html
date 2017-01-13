@@ -222,7 +222,8 @@
 			var index = addDetailCount;
 			var title = "";
 			if (key == undefined) {
-				title = "【新增配置】" + addDetailCount;
+				key = "key" + addDetailCount;
+				title = "【新增配置】" + key;
 			} else {
 				title = '【配置详情】' + key;
 			}
@@ -257,7 +258,7 @@
 					}
 				} ]
 			});
-			var tb = $('<table style="width:100%;"><tr style="width:100%;"><td style="width:20%;">key</td><td style="width:80%;"></td></tr><tr style="width:100%;"><td style="width:20%;">values</td><td style="width:80%;"></td></tr><table>');
+			var tb = $('<table style="width:100%;"><tr style="width:100%;"><td style="width:20%;">key</td><td style="width:80%;"></td></tr><tr style="width:100%;"><td style="width:20%;">values (sql语句)</td><td style="width:80%;"></td></tr><table>');
 			pan.append(tb);
 			tb.find("tr").eq(0).find("td").eq(1).append(te);
 			tb.find("tr").eq(1).find("td").eq(1).append(te2);
