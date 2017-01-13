@@ -218,13 +218,13 @@ public class ViewService {
 			// resultPath));
 			jobService.saveJob(mcj.getJob());
 			if (mcj.getId() == null) {
-				String sql = "insert into mapping_config_job(config_id, job_id, user_id, result_mode, email) values(?, ?, ?, ?, ?)";
-				jdbcTemplate.update(sql, mcj.getConfigId(), mcj.getJob().getId(), sm.getUserId(), mcj.getResultMode(), mcj.getEmail());
+				String sql = "insert into mapping_config_job(config_id, job_id, user_id, result_mode, email, email_userids) values(?, ?, ?, ?, ?, ?)";
+				jdbcTemplate.update(sql, mcj.getConfigId(), mcj.getJob().getId(), sm.getUserId(), mcj.getResultMode(), mcj.getEmailUserids(), mcj.getEmail());
 				sql = "select max(id) as id from mapping_config_job";
 				mcj.setId(IntegerUtil.getInt0(jdbcTemplate.queryForList(sql).get(0).get("id")));
 			} else {
-				String sql = "update mapping_config_job set config_id=?, job_id=?, user_id=?, result_mode=?, email=? where id=?";
-				jdbcTemplate.update(sql, mcj.getConfigId(), mcj.getJob().getId(), sm.getUserId(), mcj.getResultMode(), mcj.getEmail(), mcj.getId());
+				String sql = "update mapping_config_job set config_id=?, job_id=?, user_id=?, result_mode=?, email=?, email_userids=? where id=?";
+				jdbcTemplate.update(sql, mcj.getConfigId(), mcj.getJob().getId(), sm.getUserId(), mcj.getResultMode(), mcj.getEmail(), mcj.getEmailUserids(), mcj.getId());
 				existsMap.remove(mcj.getId());
 			}
 			// mcj.getJob().getParams().add(new

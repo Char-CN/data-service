@@ -42,9 +42,6 @@
 
 			this_window.DSFind("user_list").combobox({
 				onChange : function(newValue, oldValue) {
-// 					if (newValue == -1) {
-// 						return;
-// 					}
 					userId = newValue;
 					refer();
 				}
@@ -52,6 +49,10 @@
 		};
 
 		var refer = function() {
+			if (userId == -1 || userId == undefined || userId == null) {
+				this_window.DSFind("users_tree").combotree("setValues", []);
+				return;
+			}
 			$.ajax({
 				url : $.ds.url.get_user_group_ids + "?id=" + userId,
 				type : 'post',

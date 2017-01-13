@@ -62,13 +62,30 @@
 				var jobId = sche.DSFind('job_id').val();
 				var cron = sche.DSFind('cron').textbox('getValue');
 				var resultMode = sche.DSFind('mode').combobox('getValue');
-				var email = sche.DSFind('email').textbox('getValue');
+// 				var email = sche.DSFind('email').textbox('getValue');
+				var email_users = sche.DSFind('email_users').combobox('getValues');
+				var emailUserids = "";
+				var email = "";
+				for (var i in email_users) {
+					if (isNaN(email_users[i])) {
+						if (emailUserids != "") {
+							emailUserids += ",";
+						}
+						emailUserids += email_users[i];
+					} else {
+						if (email != "") {
+							email += ",";
+						}
+						email += email_users[i];
+					}
+				}
 				var jobName = this_window.DSFind("name").textbox('getValue');
 				mcj.id = mcjId;
 				mcj.configId = id;
 				mcj.jobId = jobId;
 				mcj.resultMode = resultMode;
 				mcj.email = email;
+				mcj.emailUserids = emailUserids;
 				mcj.job = { };
 				mcj.job.id = jobId;
 				mcj.job.jobName = jobName + '的调度任务' + (i + 1);
@@ -180,6 +197,7 @@
 			var cron = "";
 			var resultMode = 1;
 			var email = "";
+			var emailUserids = "";
 			var params = [ ];
 // 			alert(JSON.stringify(mapping_config_job));
 			if (mapping_config_job == undefined) {
@@ -189,6 +207,7 @@
 				cron = mapping_config_job.job.cron;
 				resultMode = mapping_config_job.resultMode;
 				email = mapping_config_job.email;
+				emailUserids = mapping_config_job.emailUserids;
 				params = mapping_config_job.job.params;
 				jobId = mapping_config_job.job.id;
 				mcjId = mapping_config_job.id;
@@ -246,14 +265,53 @@
 				panelMaxHeight : 88
 			});
 			select.combobox('setValue', resultMode);
-			tb.append('<tr style="width:100%;"><td style="width:20%;">邮件地址：</td><td style="width:80%;"><input ds_index="email"></td></tr>');
-			tb.DSFind('email').textbox({
-				required : true,
-				validateOnCreate : false,
-				validType : ['multiEmail'],
+// 			tb.append('<tr style="width:100%;"><td style="width:20%;">邮件地址：</td><td style="width:80%;"><input ds_index="email"></td></tr>');
+// 			tb.DSFind('email').textbox({
+// // 				required : true,
+// 				validateOnCreate : false,
+// 				validType : ['multiEmail'],
+// 				width : "100%",
+// 				value : email,
+// 				multiline : false
+// 			});
+			tb.append('<tr style="width:100%;"><td style="width:20%;">邮件地址：</td><td style="width:80%;"><select ds_index="email_users"></td></tr>');
+			var select = tb.DSFind("email_users");
+// 			var op = $('<option value="-1" selected>--请选择用户--</option>');
+// 			select.append(op);
+			$.ajax({
+				url : $.ds.url.get_user_all,
+				type : 'post',
+				async : false,
+				success : function(data) {
+					for ( var i in data) {
+						var email = data[i].email;
+						if (email == undefined || email == null || email == "") {
+							continue;
+						}
+						var op = $('<option value="' + data[i].id + '">' + email + '</option>');
+						select.append(op);
+					}
+				},
+				fail : function() {
+					$.ds.show("出现莫名失败。");
+				}
+			});
+
+			var email_value = "";
+			if ((email == "" || email == null) && (emailUserids == "" || emailUserids == null)) {
+				email_value = "";
+			} else if ((email == "" || email == null) && (emailUserids != "" || emailUserids != null)) {
+				email_value = emailUserids;
+			} else if ((email != "" || email != null) && (emailUserids == "" || emailUserids == null)) {
+				email_value = email;
+			} else {
+				email_value = email + "," + emailUserids;
+			}
+			tb.DSFind("email_users").combobox({
 				width : "100%",
-				value : email,
-				multiline : false
+				validType : ['multiEmail'],
+				multiple : true,
+				value : email_value,
 			});
 			// 参数信息
 			tb.append('<tr style="width:100%;"><td colspan="2">以下是所有参数信息：</td></tr>');

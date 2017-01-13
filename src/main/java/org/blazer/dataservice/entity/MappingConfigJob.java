@@ -10,6 +10,7 @@ public class MappingConfigJob {
 	private Integer userId;
 	private Integer resultMode;
 	private String email;
+	private String emailUserids;
 	private Job job;
 	private String configName;
 
@@ -69,6 +70,14 @@ public class MappingConfigJob {
 		this.email = email;
 	}
 
+	public String getEmailUserids() {
+		return emailUserids;
+	}
+
+	public void setEmailUserids(String emailUserids) {
+		this.emailUserids = emailUserids;
+	}
+
 	public Job getJob() {
 		return job;
 	}
@@ -80,7 +89,7 @@ public class MappingConfigJob {
 	@Override
 	public String toString() {
 		return "MappingConfigJob [id=" + id + ", configId=" + configId + ", jobId=" + jobId + ", userId=" + userId + ", resultMode=" + resultMode + ", email=" + email
-				+ "]";
+				+ ", emailUserids=" + emailUserids + ", configName=" + configName + "]";
 	}
 
 }
