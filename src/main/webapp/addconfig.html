@@ -145,10 +145,11 @@
 		var init = function() {
 			sortable.option("disabled", true);
 			this_window.DSFind("params").empty();
-			// 新增文本框
 			this_window.DSFind("td_datasource").empty();
-			this_window.DSFind("td_datasource").append($('<select style="width: 100%"></select>').DSAdd('datasource'));
 			this_window.DSFind("td_name").empty();
+			this_window.DSFind("td_remark").empty();
+			// 清空后添加
+			this_window.DSFind("td_datasource").append($('<select style="width: 100%"></select>').DSAdd('datasource'));
 			var input_id = $('<input type="hidden">').DSAdd('id');
 			this_window.DSFind("td_name").append(input_id);
 			var te = $('<input>').DSAdd('name');
