@@ -31,6 +31,7 @@
 		this_window.parent().find(" .panel-tool").prepend(a_reload);
 		a_reload.click(function() {
 			$.ds.show('您正在刷新[' + this_window.window('options').title + ']');
+			run_task_name = "";
 			init();
 		});
 
@@ -72,7 +73,7 @@
 		var run_task_name = "";
 		var run = function() {
 			if (run_task_name != "") {
-				$.ds.alert('您已经提交任务，若需要再提交一次，请关闭执行任务窗口重新打开！');
+				$.ds.alert('您已经提交任务，若需要再提交一次，请刷新该窗口，重写填写参数再执行。');
 				return;
 			}
 			$.ds.show('执行成功,如果数据量大请您耐心等待');

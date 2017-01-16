@@ -76,7 +76,7 @@ public class ViewService {
 
 	@Value("#{scriptProperties.result_path}")
 	private String resultPath;
-	
+
 	@Value("#{reportProperties.read_row_number}")
 	private Integer readRowNumber;
 
@@ -217,9 +217,10 @@ public class ViewService {
 			// mcj.getJob().getParams().add(new JobParam("result_path",
 			// resultPath));
 			jobService.saveJob(mcj.getJob());
+			System.out.println(mcj);
 			if (mcj.getId() == null) {
 				String sql = "insert into mapping_config_job(config_id, job_id, user_id, result_mode, email, email_userids) values(?, ?, ?, ?, ?, ?)";
-				jdbcTemplate.update(sql, mcj.getConfigId(), mcj.getJob().getId(), sm.getUserId(), mcj.getResultMode(), mcj.getEmailUserids(), mcj.getEmail());
+				jdbcTemplate.update(sql, mcj.getConfigId(), mcj.getJob().getId(), sm.getUserId(), mcj.getResultMode(), mcj.getEmail(), mcj.getEmailUserids());
 				sql = "select max(id) as id from mapping_config_job";
 				mcj.setId(IntegerUtil.getInt0(jdbcTemplate.queryForList(sql).get(0).get("id")));
 			} else {

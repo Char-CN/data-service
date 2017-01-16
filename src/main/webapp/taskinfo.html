@@ -66,12 +66,12 @@
 		};
 
 		var getLog = function() {
-			this_window.DSFind("taskName").html($.ds.icon.loading + 'loading...');
-			this_window.DSFind("remark").html($.ds.icon.loading + 'loading...');
-			this_window.DSFind("params").html($.ds.icon.loading + 'loading...');
+// 			this_window.DSFind("taskName").html($.ds.icon.loading + 'loading...');
+// 			this_window.DSFind("remark").html($.ds.icon.loading + 'loading...');
+// 			this_window.DSFind("params").html($.ds.icon.loading + 'loading...');
 			this_window.DSFind("status").html($.ds.icon.loading + 'loading...');
-			this_window.DSFind("logPath").html($.ds.icon.loading + 'loading...');
-			this_window.DSFind("errorLogPath").html($.ds.icon.loading + 'loading...');
+// 			this_window.DSFind("logPath").html($.ds.icon.loading + 'loading...');
+// 			this_window.DSFind("errorLogPath").html($.ds.icon.loading + 'loading...');
 			$.post($.ds.url.find_task_log_by_name, {
 				taskName : taskName,
 				skipRowNumber : skipRowNumber
@@ -99,7 +99,7 @@
 					var status = $.ds.commons.getStatus(data.task.status);
 					if (status == "正在执行" || status == "等待执行" || skipRowNumber != data.logModel.total) {
 						skipRowNumber = data.logModel.total;
-						interval_code = setTimeout(getLog, 2000);
+						interval_code = setTimeout(getLog, 3000);
 					}
 				} catch (e) {
 					interval_code = setTimeout(getLog, 1000);

@@ -215,10 +215,10 @@ public class SchedulerServer extends Thread implements InitializingBean {
 	 */
 	private ProcessModel spawnTaskProcess(Job job, TaskType taskType) throws Exception {
 		if (taskType == TaskType.cron_auto && CronParserHelper.isNotValid(job.getCron())) {
-			throw new CronException("cron [" + job.getCron() + "] expression is not valid.");
+			throw new CronException("cron [" + job.getCron() + "] expression is not valid." + job);
 		}
 		if (StringUtils.isBlank(job.getCommand())) {
-			throw new CmdException("cmd [" + job.getCommand() + "] is not valid.");
+			throw new CmdException("cmd [" + job.getCommand() + "] is not valid." + job);
 		}
 		String nextTime = null;
 		if (taskType == TaskType.cron_auto) {

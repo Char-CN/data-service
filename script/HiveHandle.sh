@@ -2,11 +2,12 @@
 source ~/.bash_profile
 
 ############################################################################# 配置信息
-debug=false;
+debug=true;
 mysql_path="/usr/local/mysql/bin/mysql";
 hive_path="/Users/hyy/Work/hive-1.2.1-bin/bin/hive";
 python_path="/usr/bin/python";
-conn="${mysql_path} -hms -udev -pdev123456 -Ddw_dataservice -N -e";
+conn="${mysql_path} -h172.16.52.104 -uadmin -pseoul -Ddw_dataservice -N -e";
+get_mails_url="http://bigdata.blazer.org:8030/userservice/getmailsbyuserids.do"
 email_util="email_util.py";
 function log() {
   if [ $debug == true ];
@@ -71,6 +72,7 @@ echo "mapping_config_job_id : ${mapping_config_job_id}";
 echo "config_id             : ${config_id}";
 echo "emails                : ${emails}";
 
+############################################################################# 获取数据源信息
 echo "################## config_id存在表示即时查询的任务";
 if [ "${config_id}" == "" ];
 then
@@ -107,6 +109,7 @@ username=`echo $rst | awk -F ' ' '{print $6}'`;
 password=`echo $rst | awk -F ' ' '{print $7}'`;
 config_name=`echo $rst | awk -F ' ' '{print $8}'`;
 
+############################################################################# 获取实际查询的SQL
 if [ "${config_id}" == "" ];
 then
   # 根据mappingid查询实际执行sql
@@ -161,6 +164,7 @@ fi
 echo "################## 处理后的实际查询的sql";
 echo "$query_sql";
 
+############################################################################# 拼接实际执行的命令
 echo $(log "################## 判断是mysql类型还是hive类型");
 exec_cmd=""
 if [ ${db_type} == "mysql" ];
@@ -179,9 +183,25 @@ ${exec_cmd} "${query_sql}" > ${result_path}/${SYS_TASK_NAME}.csv
 if [ "$?" = "0" ];
 then
   echo "查询成功,开始发送邮件.";
+  ########################################################################### email信息来自2个字段，需要拼接
   if [ "${emails}" == "" ];
   then
-    emails=`${conn} "select email from mapping_config_job where id=${mapping_config_job_id}"`
+    emails=`${conn} "select ifnull(email,'') from mapping_config_job where id=${mapping_config_job_id}"`
+    user_ids=`${conn} "select ifnull(email_userids,'') from mapping_config_job where id=${mapping_config_job_id}"`
+    emails2=`curl -d "userids=${user_ids}" ${get_mails_url}`
+    if [[ "${emails}" == "" && "${emails2}" != "" ]];
+    then
+      emails="${emails2}"
+    elif [[ "${emails}" != "" && "${emails2}" == "" ]];
+    then
+      emails="${emails}"
+    elif [[ "${emails}" != "" && "${emails2}" != "" ]];
+    then
+      emails="${emails},${emails2}"
+    else
+      echo "没有填写邮箱.";
+      exit 1
+    fi
   fi
   if [ "${config_id}" == "" ];
   then
