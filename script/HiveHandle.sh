@@ -154,7 +154,7 @@ do
   value="${val_arr[1]}"
   value_arr=(${value//|/ })
   # 格式[df|today+0|yyyy-MM-dd]
-  if [[ ${#value_arr[@]} != 1 && "${value_arr[0]}" == "df" ]];
+  if [[ ${#value_arr[@]} != 1 ]];
   then
     real_value=`${java_path} -jar ${jar_path} ${value}`
     query_sql=${query_sql//\$\{${key}\}/${real_value}};
