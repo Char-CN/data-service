@@ -35,12 +35,14 @@
 			init();
 		});
 
+		// 编辑
 		var a_edit = $('<a href="javascript:void(0)" class="icon-edit" title="修改备注"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_edit);
 		a_edit.click(function() {
 			this_window.DSFind("remark").textbox('readonly', false);
 		});
 
+		// 保存
 		var a_save = $('<a href="javascript:void(0)" class="icon-save" title="保存"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_save);
 		a_save.click(function() {

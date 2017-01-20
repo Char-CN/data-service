@@ -39,19 +39,8 @@
 					var heads = data.result[0];
 					$("#report>thead>tr").append("<th></th>");
 					for ( var i in heads) {
-						$("#report>thead>tr").append("<th>" + heads[i] + "</th>");
+						$("#report>thead>tr").append("<th style='text-align:left'>" + heads[i] + "</th>");
 					}
-					table = $('#report').DataTable({
-						bAutoWidth : false,
-						scrollY : $(window).height() - 65,
-						scrollX : true,
-						scrollCollapse : true,
-						scroller : true,
-						ordering : false,
-						paging : false,
-						searching : false,
-						info : false
-					});
 				}
 				if (!initData) {
 					initData = !initData;
@@ -75,7 +64,20 @@
 					}
 					$("#report>tbody").append(tr);
 				}
-				
+				// 只为表头对齐
+				if (skipRowNumber == 0) {
+					table = $('#report').DataTable({
+						bAutoWidth : false,
+						scrollY : $(window).height() - 65,
+						scrollX : true,
+						scrollCollapse : true,
+						scroller : true,
+						ordering : false,
+						paging : false,
+						searching : false,
+						info : false
+					});
+				}
 				if (data.complete) {
 					$("#total").html("<b>["+(data.total - 1)+"]</b>");
 					$("#info").html("数据加载完毕。");

@@ -102,6 +102,11 @@ public class ViewService {
 		return taskService.findTaskByName(params.get("taskName"));
 	}
 
+	public PageBody<Task> findTaskByAdmin(HashMap<String, String> params, SessionModel sm) throws Exception {
+		
+		return null;
+	}
+
 	public PageBody<Task> findTaskByUser(HashMap<String, String> params, SessionModel sm) throws Exception {
 		PageBody<Task> pb = new PageBody<Task>();
 		String yyyy_MM_dd = StringUtil.getStrEmpty(params.get("time"));

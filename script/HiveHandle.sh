@@ -3,6 +3,9 @@ source ~/.bash_profile
 
 ############################################################################# 配置信息
 debug=true;
+java_path="/usr/bin/java";
+jar_path="/Users/hyy/Work/workspace/date-format/target/date-format-0.0.1-SNAPSHOT.jar"
+jar_path2="/Users/hyy/Work/workspace/BlazerUtil/out/BlazerUtil-1.0.jar"
 mysql_path="/usr/local/mysql/bin/mysql";
 hive_path="/Users/hyy/Work/hive-1.2.1-bin/bin/hive";
 python_path="/usr/bin/python";
@@ -134,8 +137,6 @@ else
     and dc.id=${config_id}
   "
 fi
-#select REPLACE(dcd.values, '\n', ' ') from ds_config dc
-#select REPLACE(dcd.values, '\n', '\r') from ds_config dc
 
 echo $(log "${sql}");
 echo $(log "################## 实际查询的sql");
@@ -151,7 +152,15 @@ do
   val_arr=(${val//=/ })
   key="${val_arr[0]}"
   value="${val_arr[1]}"
-  query_sql=${query_sql//\$\{${key}\}/${value}}
+  value_arr=(${value//|/ })
+  # 格式[df|today+0|yyyy-MM-dd]
+  if [[ ${#value_arr[@]} != 1 && "${value_arr[0]}" == "df" ]];
+  then
+    real_value=`${java_path} -jar ${jar_path} ${value}`
+    query_sql=${query_sql//\$\{${key}\}/${real_value}};
+  else
+    query_sql=${query_sql//\$\{${key}\}/${value}};
+  fi
 done
 
 if [ ${db_type} == "hive" ];
@@ -232,8 +241,15 @@ then
   echo $(log "查询备注信息 end");
   email_title="${config_name}_报表_${SYS_TASK_NAME}"
   email_content="您好，请查收本次任务的附件。</br>备注信息：${email_content}"
-  echo $(log "${python_path} ${email_util} ${emails} ${email_title} ${email_content} ${result_path}/${SYS_TASK_NAME}.csv");
-  ${python_path} ${email_util} "${emails}" "${email_title}" "${email_content}" "${result_path}/${SYS_TASK_NAME}.csv"
+  result_file_path="${result_path}/${SYS_TASK_NAME}.csv"
+  echo ${java_path} -jar ${jar_path2} "com.blazer.convert.Csv2Excel" "${result_path}" "${SYS_TASK_NAME}.csv"
+  ${java_path} -jar ${jar_path2} "com.blazer.convert.Csv2Excel" "${result_path}" "${SYS_TASK_NAME}.csv"
+  if [ "$?" = "0" ];
+  then
+    result_file_path=${result_path}/${SYS_TASK_NAME}.xlsx
+  fi
+  echo $(log "${python_path} ${email_util} ${emails} ${email_title} ${email_content} ${result_file_path}");
+  ${python_path} ${email_util} "${emails}" "${email_title}" "${email_content}" "${result_file_path}"
 else
   echo "查询失败.";
   exit 1
