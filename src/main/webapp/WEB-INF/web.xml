@@ -58,7 +58,7 @@
 		<!-- serviceUrl访问的服务URL，如果逗号分隔，自动切换可ping通的节点 -->
 		<init-param>
 			<param-name>serviceUrl</param-name>
-			<param-value>http://bigdata.blazer.org:8030,http://us.xiwanglife.com</param-value>
+			<param-value>http://dev.xiwanglife.com:8030,http://us.xiwanglife.com</param-value>
 		</init-param>
 		<!-- 用户登录存活周期，单位是秒 -->
 		<init-param>
@@ -68,7 +68,7 @@
 		<!-- 过滤url -->
 		<init-param>
 			<param-name>ignoreUrls</param-name>
-			<param-value>/dataservice/*,/scheduler/*</param-value>
+			<param-value>/dataservice/*,/scheduler/*,/test.html</param-value>
 		</init-param>
 		<!-- js模板生成 -->
 		<init-param>

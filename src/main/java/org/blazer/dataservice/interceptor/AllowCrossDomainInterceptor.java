@@ -14,8 +14,14 @@ public class AllowCrossDomainInterceptor extends HandlerInterceptorAdapter {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 		response.setHeader("Access-Control-Allow-Credentials", "true");
-		response.setHeader("Access-Control-Allow-Origin", "*");
-		logger.debug(request.getRequestURI());
+		String origin = request.getHeader("Origin");
+		if (origin != null && !"".equals(origin)) {
+			logger.debug("AllowCross | " + request.getRequestURI() + " | set origin = " + origin);
+			response.setHeader("Access-Control-Allow-Origin", origin);
+		} else {
+			logger.debug("AllowCross | " + request.getRequestURI() + " | set origin = *");
+			response.setHeader("Access-Control-Allow-Origin", "*");
+		}
 		return super.preHandle(request, response, handler);
 	}
 

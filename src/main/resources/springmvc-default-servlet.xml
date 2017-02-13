@@ -50,6 +50,7 @@
 		</mvc:interceptor>
 		<mvc:interceptor>
 			<mvc:mapping path="/dataservice/**" />
+			<mvc:mapping path="/view/**" />
 			<bean class="org.blazer.dataservice.interceptor.AllowCrossDomainInterceptor" />
 		</mvc:interceptor>
 	</mvc:interceptors>

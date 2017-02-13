@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>测试跨域</title>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+<script>
+	url = "http://dev2.xiwanglife.com:8010/view/findTaskLogByName.do?taskName=asd&US_SESSION_ID=" + $.cookie("US_SESSION_ID");
+	url = "http://ds.idc.xiwanglife.com/view/findTaskLogByName.do?taskName=asd";
+    $.ajax({
+        url:url,
+        type:'GET',
+        xhrFields: {
+            withCredentials: true
+        },
+        crossDomain: true,
+        success: function(d){
+        	alert(JSON.stringify(d));
+        },
+        error: function(e) {
+        	alert(222);
+        }
+    });
+</script>

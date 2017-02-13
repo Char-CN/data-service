@@ -28,8 +28,9 @@ import org.blazer.dataservice.util.IntegerUtil;
 import org.blazer.dataservice.util.ParamsUtil;
 import org.blazer.dataservice.util.SqlUtil;
 import org.blazer.dataservice.util.StringUtil;
+import org.blazer.scheduler.core.JobServer;
 import org.blazer.scheduler.core.ProcessHelper;
-import org.blazer.scheduler.core.SchedulerServer;
+import org.blazer.scheduler.core.TaskServer;
 import org.blazer.scheduler.entity.JobParam;
 import org.blazer.scheduler.entity.Status;
 import org.blazer.scheduler.entity.Task;
@@ -64,9 +65,6 @@ public class ViewService {
 
 	@Autowired
 	ConfigCache configCache;
-
-	@Autowired
-	SchedulerServer schedulerServer;
 
 	@Value("#{scriptProperties.script_path}")
 	private String scriptPath;
@@ -164,7 +162,7 @@ public class ViewService {
 			}
 			String cmd = "sh " + scriptPath + File.separator + scriptName + cmdParams.toString();
 			// paramList 是需要记录的参数信息
-			task = schedulerServer.spawnRightNowTaskProcess(cmd, paramList).getTask();
+			task = TaskServer.spawnRightNowTaskProcess(cmd, paramList).getTask();
 			task.setRemark(configCache.get(configId).getConfigName() + " 即时查询任务");
 			taskService.updateTaskRemark(task);
 			// 增加user和task映射关系
@@ -187,7 +185,8 @@ public class ViewService {
 		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
 		List<MappingConfigJob> rst = HMap.toList(list, MappingConfigJob.class);
 		for (MappingConfigJob mcj : rst) {
-			mcj.setJob(schedulerServer.getJobById(mcj.getJobId()));
+			// TODO
+			mcj.setJob(JobServer.getJobById(mcj.getJobId()));
 			mcj.setConfigName(configCache.get(mcj.getConfigId()).getConfigName());
 		}
 		return rst;
@@ -198,7 +197,8 @@ public class ViewService {
 		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, id);
 		List<MappingConfigJob> rst = HMap.toList(list, MappingConfigJob.class);
 		for (MappingConfigJob mcj : rst) {
-			mcj.setJob(schedulerServer.getJobById(mcj.getJobId()));
+			// TODO
+			mcj.setJob(JobServer.getJobById(mcj.getJobId()));
 		}
 		return rst;
 	}
@@ -250,13 +250,13 @@ public class ViewService {
 			// param2.setJobId(mcj.getJob().getId());
 			// jobService.saveJobParam(param2);
 			// mcj.getJob().getParams().add(param2);
-			schedulerServer.reloadJob(mcj.getJob());
+			JobServer.reloadJob(mcj.getJob());
 		}
 		// remove job and mapping
 		for (Integer id : existsMap.keySet()) {
 			jobService.deleteJob(existsMap.get(id));
 			deleteMappingConfigJob(id);
-			schedulerServer.removeJob(existsMap.get(id));
+			JobServer.removeJob(existsMap.get(id));
 		}
 	}
 
