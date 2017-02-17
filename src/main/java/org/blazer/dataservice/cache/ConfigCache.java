@@ -67,7 +67,7 @@ public class ConfigCache extends BaseCache implements InitializingBean {
 	 * @return
 	 */
 	public ConfigModel get(Integer id) {
-		if (this.contains(id)) {
+		if (!this.contains(id)) {
 			logger.debug("config is not in cache ... id : " + id);
 			try {
 				this.initConfigEntity(id);
