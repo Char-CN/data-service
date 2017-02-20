@@ -99,7 +99,7 @@ public class ConfigCache extends BaseCache implements InitializingBean {
 		for (Map<String, Object> configMap : configList) {
 			ConfigModel config = new ConfigModel();
 			config.setId(IntegerUtil.getInt0(configMap.get("id")));
-			config.setGroupId(IntegerUtil.getInt0(configList.get(0).get("group_id")));
+			config.setGroupId(IntegerUtil.getInt0(configMap.get("group_id")));
 			// 找不到数据源使用默认数据源
 			if (StringUtils.isBlank(StringUtil.getStr(configMap.get("datasource_id")))) {
 				config.setDataSource(dataSourceCache.getDao(1));

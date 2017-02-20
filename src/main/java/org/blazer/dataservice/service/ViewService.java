@@ -108,20 +108,57 @@ public class ViewService {
 	public PageBody<Task> findTaskByUser(HashMap<String, String> params, SessionModel sm) throws Exception {
 		PageBody<Task> pb = new PageBody<Task>();
 		String yyyy_MM_dd = StringUtil.getStrEmpty(params.get("time"));
-		String sql = "select st.* from mapping_user_task mut inner join scheduler_task st on st.task_name=mut.task_name where mut.user_id=? and st.execute_time>=? and st.execute_time<=? order by execute_time desc limit ?,?";
+//		String sql = "select st.* from mapping_user_task mut inner join scheduler_task st on st.task_name=mut.task_name where mut.user_id=? and st.execute_time>=? and st.execute_time<=? order by execute_time desc limit ?,?";
+		String sql = "";
+		sql += "SELECT * FROM (";
+		sql += " SELECT st.* FROM scheduler_task st";
+		sql += " INNER JOIN scheduler_job sj ON st.job_id=sj.id";
+		sql += " INNER JOIN mapping_config_job mcj ON sj.id=mcj.job_id";
+		sql += "  WHERE LOCATE(CONCAT(?), CONCAT(',',mcj.email_userids,',')) ";
+		sql += "   and st.execute_time>=?";
+		sql += "   and st.execute_time<=?";
+		sql += " UNION ALL";
+		sql += "  SELECT st.* FROM mapping_user_task mut";
+		sql += "   INNER JOIN scheduler_task st ON st.task_name=mut.task_name";
+		sql += "   WHERE mut.user_id=?";
+		sql += "    and st.execute_time>=?";
+		sql += "    and st.execute_time<=?";
+		sql += " ) t";
+		sql += " ORDER BY t.execute_time DESC";
+		sql += " limit ?,?;";
 		int start = (IntegerUtil.getInt1(params.get("page")) - 1) * IntegerUtil.getInt0(params.get("rows"));
 		int end = IntegerUtil.getInt0(params.get("rows"));
+		String startTime = yyyy_MM_dd + " 00:00:00";
+		String endTime = yyyy_MM_dd + " 23:59:59";
+		logger.debug("id : " + sm.getUserId());
+		logger.debug("startTime : " + startTime);
+		logger.debug("endTime : " + endTime);
 		logger.debug("start : " + start);
 		logger.debug("end : " + end);
-		logger.debug(SqlUtil.Show(sql, sm.getUserId(), yyyy_MM_dd + " 00:00:00", yyyy_MM_dd + " 23:59:59", start, end));
-		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, sm.getUserId(), yyyy_MM_dd + " 00:00:00", yyyy_MM_dd + " 23:59:59", start, end);
+		logger.debug(SqlUtil.Show(sql, sm.getUserId(), startTime, endTime, sm.getUserId(), startTime, endTime, sm.getUserId(), startTime, endTime, start, end));
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, sm.getUserId(), startTime, endTime, sm.getUserId(), startTime, endTime, start, end);
 		logger.debug("list size : " + list.size());
 		List<Task> taskList = HMap.toList(list, Task.class);
 		for (Task task : taskList) {
 			task.setStatus(Status.get(task.getStatusId()));
 		}
-		sql = "select count(0) as ct from mapping_user_task mut inner join scheduler_task st on st.task_name=mut.task_name where mut.user_id=? and st.execute_time>=? and st.end_time<=? ";
-		pb.setTotal(IntegerUtil.getInt0(jdbcTemplate.queryForList(sql, sm.getUserId(), yyyy_MM_dd + " 00:00:00", yyyy_MM_dd + " 23:59:59").get(0).get("ct")));
+//		sql = "select count(0) as ct from mapping_user_task mut inner join scheduler_task st on st.task_name=mut.task_name where mut.user_id=? and st.execute_time>=? and st.end_time<=? ";
+		sql = "";
+		sql += "SELECT count(0) as ct FROM (";
+		sql += " SELECT st.* FROM scheduler_task st";
+		sql += " INNER JOIN scheduler_job sj ON st.job_id=sj.id";
+		sql += " INNER JOIN mapping_config_job mcj ON sj.id=mcj.job_id";
+		sql += "  WHERE LOCATE(CONCAT(?), CONCAT(',',mcj.email_userids,',')) ";
+		sql += "   and st.execute_time>=?";
+		sql += "   and st.execute_time<=?";
+		sql += " UNION ALL";
+		sql += "  SELECT st.* FROM mapping_user_task mut";
+		sql += "   INNER JOIN scheduler_task st ON st.task_name=mut.task_name";
+		sql += "   WHERE mut.user_id=?";
+		sql += "    and st.execute_time>=?";
+		sql += "    and st.execute_time<=?";
+		sql += " ) t";
+		pb.setTotal(IntegerUtil.getInt0(jdbcTemplate.queryForList(sql, sm.getUserId(), startTime, endTime, sm.getUserId(), startTime, endTime).get(0).get("ct")));
 		pb.setRows(taskList);
 		logger.debug(pb.toString());
 		return pb;
@@ -143,6 +180,8 @@ public class ViewService {
 			if (cus != CheckUrlStatus.Success) {
 				// 则需要检查数据库
 				if (!checkUserOnGroup(sm.getUserId(), configCache.get(configId).getGroupId())) {
+					logger.error("UserId=" + sm.getUserId());
+					logger.error("GroupId=" + configCache.get(configId).getGroupId());
 					throw new NoPermissionsException("该用户无权执行该配置。");
 				}
 			}

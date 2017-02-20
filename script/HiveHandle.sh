@@ -9,7 +9,7 @@ jar_path2="/Users/hyy/Work/workspace/BlazerUtil/out/BlazerUtil-1.0.jar"
 mysql_path="/usr/local/mysql/bin/mysql";
 hive_path="/Users/hyy/Work/hive-1.2.1-bin/bin/hive";
 python_path="/usr/bin/python";
-conn="${mysql_path} -h172.16.52.104 -uadmin -pseoul -Ddw_dataservice -N -e";
+conn="${mysql_path} -h172.16.52.137 -uroot -p123456 -Ddw_dataservice -N -e";
 get_mails_url="http://bigdata.blazer.org:8030/userservice/getmailsbyuserids.do"
 email_util="email_util.py";
 function log() {

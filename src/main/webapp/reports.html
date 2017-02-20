@@ -30,7 +30,7 @@
 				skipRowNumber : skipRowNumber
 			}, function(data) {
 				if (!data.total || !data.result) {
-					$("body").html("任务名称有误。");
+					$("body").html("没有任何数据。");
 					return;
 				}
 				if (skipRowNumber == 0) {
