@@ -34,6 +34,7 @@ import org.blazer.scheduler.core.TaskServer;
 import org.blazer.scheduler.entity.JobParam;
 import org.blazer.scheduler.entity.Status;
 import org.blazer.scheduler.entity.Task;
+import org.blazer.scheduler.entity.TaskType;
 import org.blazer.scheduler.model.ResultModel;
 import org.blazer.scheduler.model.TaskLog;
 import org.blazer.scheduler.service.JobService;
@@ -141,6 +142,12 @@ public class ViewService {
 		List<Task> taskList = HMap.toList(list, Task.class);
 		for (Task task : taskList) {
 			task.setStatus(Status.get(task.getStatusId()));
+			if (TaskType.cron_auto.toString().equals(task.getTypeName())) {
+				task.setRemark(JobServer.getJobById(task.getJobId()).getJobName());
+				task.setTypeName(TaskType.cron_auto.getCNName());
+			} else {
+				task.setTypeName(TaskType.right_now.getCNName());
+			}
 		}
 //		sql = "select count(0) as ct from mapping_user_task mut inner join scheduler_task st on st.task_name=mut.task_name where mut.user_id=? and st.execute_time>=? and st.end_time<=? ";
 		sql = "";

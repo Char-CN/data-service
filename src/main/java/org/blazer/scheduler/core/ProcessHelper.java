@@ -215,14 +215,26 @@ public class ProcessHelper {
 		if (row.line1 != null && row.line2 != null) {
 			// 对比
 			Long l1 = 0L;
-			if (row.line1.length() > 13) {
+			try {
 				l1 = Long.parseLong(row.line1.substring(0, 13));
+			} catch (Exception e) {
+				logger.error("log原始行：" + row.line1);
+				logger.error("错误信息：" + e.getMessage());
 			}
 			Long l2 = 0L;
-			if (row.line2.length() > 13) {
+			try {
 				l2 = Long.parseLong(row.line2.substring(0, 13));
+			} catch (Exception e) {
+				logger.error("error原始行：" + row.line2);
+				logger.error("错误信息：" + e.getMessage());
 			}
-			if (l1 >= l2) {
+			if (l1 == 0L) {
+//				rt = row.line1.substring(14) + "\n";
+				row.line1 = null;
+			} else if (l2 == 0L) {
+//				rt = row.line2.substring(14) + "\n";
+				row.line2 = null;
+			} else if (l1 >= l2) {
 				// list.add(line2);
 				rt = row.line2.substring(14) + "\n";
 				row.line2 = null;

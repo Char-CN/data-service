@@ -1,5 +1,9 @@
 时间：
 <input id="dd">
+<span style="float:right">
+<input id="autoRefresh" type="checkbox" checked>
+自动刷新&nbsp;
+</span>
 <table ds_index="task_table" style="width: 100%;"></table>
 <script>
 	$(function() {
@@ -34,6 +38,17 @@
 		a_reload.click(function() {
 			table.datagrid('reload');
 		});
+		var reload = function() {
+			var pageNumber = table.datagrid('getPager').pagination('options').pageNumber;
+// 			if ($("#autoRefresh").prop("checked")) {
+// 				table.datagrid('reload');
+// 			}
+			if ($("#autoRefresh").prop("checked") || pageNumber == 1) {
+				table.datagrid('reload');
+			}
+			setTimeout(reload, 15000);
+		};
+		setTimeout(reload, 15000);
 		table.datagrid({
 			url : $.ds.url.find_task_by_user,
 			queryParams : { time : this_window.find('#dd').datebox('getValue') },
@@ -53,8 +68,12 @@
 				width : "30%",
 				title : '任务说明'
 			}, {
+				field : 'typeName',
+				width : "10%",
+				title : '执行类型'
+			}, {
 				field : 'status',
-				width : "15%",
+				width : "10%",
 				title : '状态',
 				formatter : function(value){
 					return $.ds.commons.getStatus(value);
@@ -88,7 +107,7 @@
 					ret += '<span title="日志" style="cursor:pointer" onclick="$.ds.commons.openTaskLog(\'' + row.taskName + '\')">' + $.ds.icon.file + '</span>　';
 					var status = $.ds.commons.getStatus(row.status);
 					if (status == "执行成功") {
-						ret += '<span title="下载" style="cursor:pointer" onclick="alert(\'开发中\')">' + $.ds.icon.download + '</span>　';
+						ret += '<span title="下载" style="cursor:pointer" onclick="window.open(\'download/get.do?taskName=' + row.taskName + '\')">' + $.ds.icon.download + '</span>　';
 						ret += '<span title="报表" style="cursor:pointer" onclick="window.open(\'reports.html?taskName=' + row.taskName + '\')">' + $.ds.icon.table + '</span>　';
 					}
 					if (status == "正在执行" || status == "等待执行") {
