@@ -42,6 +42,7 @@ import org.blazer.scheduler.service.TaskService;
 import org.blazer.userservice.core.filter.PermissionsFilter;
 import org.blazer.userservice.core.model.CheckUrlStatus;
 import org.blazer.userservice.core.model.SessionModel;
+import org.blazer.userservice.core.model.UserModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -421,14 +422,24 @@ public class ViewService {
 		return treeList;
 	}
 
-	public List<ViewConfigBody> getConfigsByGroupId(HashMap<String, String> params) {
+	public List<ViewConfigBody> getConfigsByGroupId(HashMap<String, String> params) throws Exception {
 		logger.debug("qeury id " + params.get("id"));
 		String sql = "select * from ds_config where group_id=? and enable=1 order by order_asc, id";
 		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, IntegerUtil.getInt0(params.get("id")));
 		List<ViewConfigBody> rst = new ArrayList<ViewConfigBody>();
+		StringBuilder ids = new StringBuilder();
 		for (Map<String, Object> map : list) {
+			if (ids.length() != 0) {
+				ids.append(",");
+			}
+			ids.append(map.get("user_id"));
+		}
+		List<UserModel> users = PermissionsFilter.findAllUserByUserIds(ids.toString());
+		for (int i = 0; i < list.size(); i++) {
+			Map<String, Object> map = list.get(i);
 			ViewConfigBody vcb = new ViewConfigBody();
 			vcb.setId(IntegerUtil.getInt0(map.get("id")));
+			vcb.setUserName(users.get(i).getUserNameCn());
 			vcb.setConfigType(StringUtil.getStrEmpty(map.get("config_type")));
 			vcb.setConfigName(StringUtil.getStrEmpty(map.get("config_name")));
 			vcb.setRemark(StringUtil.getStrEmpty(map.get("remark")));
@@ -482,15 +493,16 @@ public class ViewService {
 	}
 
 	@Transactional
-	public void saveConfig(ViewConfigBody config) throws SystemRetentionParameters {
+	public void saveConfig(HttpServletRequest request, ViewConfigBody config) throws SystemRetentionParameters {
 		// 新增config
+		SessionModel sm = PermissionsFilter.getSessionModel(request);
 		try {
 			if (config.getId() == null) {
 				// 强制设置configType和enable和orderAsc
 				config.setConfigType("1");
 				config.setEnable(1);
-				String insertConfig = "insert into ds_config(group_id,datasource_id,config_name,config_type,remark,order_asc,enable) values(?,?,?,?,?,99999,?)";
-				int code = jdbcTemplate.update(insertConfig, config.getGroupId(), config.getDatasourceId(), config.getConfigName(), config.getConfigType(),
+				String insertConfig = "insert into ds_config(group_id,datasource_id,user_id,config_name,config_type,remark,order_asc,enable) values(?,?,?,?,?,?,99999,?)";
+				int code = jdbcTemplate.update(insertConfig, config.getGroupId(), config.getDatasourceId(), sm.getUserId(), config.getConfigName(), config.getConfigType(),
 						config.getRemark(), config.getEnable());
 				logger.debug("inset code : " + code);
 				String selectMaxId = "select max(id) as max_id from ds_config";
@@ -503,8 +515,8 @@ public class ViewService {
 			}
 			// 修改config
 			else {
-				String updateConfig = "update ds_config set group_id=?,datasource_id=?,config_name=?,config_type=?,remark=? where id=?";
-				int code = jdbcTemplate.update(updateConfig, config.getGroupId(), config.getDatasourceId(), config.getConfigName(), "1", config.getRemark(), config.getId());
+				String updateConfig = "update ds_config set group_id=?,datasource_id=?,user_id=?,config_name=?,config_type=?,remark=? where id=?";
+				int code = jdbcTemplate.update(updateConfig, config.getGroupId(), config.getDatasourceId(), sm.getUserId(), config.getConfigName(), "1", config.getRemark(), config.getId());
 				logger.debug("update code : " + code);
 			}
 

@@ -1,4 +1,9 @@
 <ul id="center_ul" class="dsul"></ul>
+<style>
+.tooltip-content, .tooltip, .tooltip-top {
+	background-color:white;
+}
+</style>
 <script>
 	$(function() {
 		var queryString = '$queryString';
@@ -259,6 +264,10 @@
 							if (lock_menu == false) {
 								center_choose_li_id = "";
 							}
+						});
+						li.tooltip({
+							content : "作者:" + rst[i].userName + "<br>备注:" + $.ds.replaceAll(rst[i].remark, "\n", "<br>"),
+							position : 'top'
 						});
 						this_ul.append(li);
 					}

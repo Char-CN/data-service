@@ -7,6 +7,7 @@ public class ViewConfigBody {
 	private Integer id;
 	private Integer groupId;
 	private Integer datasourceId;
+	private String userName;
 	private String configName;
 	private String configType;
 	private String remark;
@@ -27,6 +28,14 @@ public class ViewConfigBody {
 
 	public void setGroupId(Integer groupId) {
 		this.groupId = groupId;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
 
 	public Integer getDatasourceId() {

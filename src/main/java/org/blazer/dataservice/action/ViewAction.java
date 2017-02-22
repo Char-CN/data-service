@@ -230,7 +230,13 @@ public class ViewAction extends BaseAction {
 	@RequestMapping("/getConfigsByGroupId")
 	public List<ViewConfigBody> getConfigsByGroupId(HttpServletRequest request, HttpServletResponse response) {
 		logger.debug("map : " + getParamMap(request));
-		return viewService.getConfigsByGroupId(getParamMap(request));
+		try {
+			return viewService.getConfigsByGroupId(getParamMap(request));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return new ArrayList<ViewConfigBody>();
 	}
 
 	@ResponseBody
@@ -256,7 +262,7 @@ public class ViewAction extends BaseAction {
 	@RequestMapping("/saveConfig")
 	public Body saveConfig(HttpServletRequest request, HttpServletResponse response, @RequestBody ViewConfigBody viewConfigBody) {
 		try {
-			viewService.saveConfig(viewConfigBody);
+			viewService.saveConfig(request, viewConfigBody);
 			configCache.initConfigEntity(viewConfigBody.getId());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

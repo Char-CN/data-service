@@ -8,6 +8,7 @@ $(function() {
 				}
 				return urls[1];
 			},
+			analytic_run_task : "analytic/getRunTask.do",
 			find_report_by_task_name : "view/findReportByTaskName.do",
 			find_task_log_by_name : "view/findTaskLogByName.do",
 			find_task_by_name : "view/findTaskByName.do",
