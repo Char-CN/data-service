@@ -8,6 +8,7 @@ $(function() {
 				}
 				return urls[1];
 			},
+			analytic_add_task : "analytic/getAddTask.do",
 			analytic_run_task : "analytic/getRunTask.do",
 			find_report_by_task_name : "view/findReportByTaskName.do",
 			find_task_log_by_name : "view/findTaskLogByName.do",
@@ -31,6 +32,7 @@ $(function() {
 			delete_config : "view/deleteConfig.do",
 			save_config_order : "view/saveConfigOrderAsc.do",
 			save_config : "view/saveConfig.do",
+			move_config : "view/moveConfig.do",
 			save_config_remark : "view/saveConfigRemark.do",
 			find_user_by_page : "user/findUserByPage.do",
 			find_user_by_id : "user/findUserById.do",

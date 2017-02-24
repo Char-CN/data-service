@@ -549,6 +549,11 @@ public class ViewService {
 		}
 	}
 
+	public void moveConfig(HashMap<String, String> params) {
+		String sql = "update ds_config set group_id=? where id=?";
+		jdbcTemplate.update(sql, IntegerUtil.getInt(params.get("group_id")), IntegerUtil.getInt(params.get("id")));
+	}
+
 	public void deleteConfig(HashMap<String, String> params) {
 		String updateConfig = "update ds_config set enable=0 where id=?";
 		int code = jdbcTemplate.update(updateConfig, IntegerUtil.getInt0(params.get("id")));

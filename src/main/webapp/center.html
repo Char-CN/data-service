@@ -58,10 +58,9 @@
 			if (center_choose_li_id == "") {
 				return $.ds.show('请选择一项进行任务执行!');
 			}
-			var id = center_choose_li_id;
 			var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
 			var left = ($(window).width() - 500) / 2;
-			$.ds.commons.openWindow("center_run_task_" + id, $.ds.icon.run, title, "runtask.html", "id=" + id).dialog('resize', {
+			$.ds.commons.openWindow("center_run_task_" + center_choose_li_id, $.ds.icon.run, title, "runtask.html", "id=" + center_choose_li_id).dialog('resize', {
 				height : 200,
 				width : 500,
 				left : left,
@@ -77,14 +76,16 @@
 					if (center_choose_li_id == "") {
 						return $.ds.show('请选择一项进行接口调试!');
 					}
-					var id = center_choose_li_id;
 					var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
-					$.ds.commons.openWindow("center_mysql_debug_" + id, $.ds.icon.bug, title, "mysqldebug.html", "id=" + id);
+					$.ds.commons.openWindow("center_mysql_debug_" + center_choose_li_id, $.ds.icon.bug, title, "mysqldebug.html", "id=" + center_choose_li_id);
 				}
 			});
 		}
 
 		if (isadmin) {
+			center_menu.menu('appendItem', {
+				separator : true
+			});
 			center_menu.menu('appendItem', {
 				text : '新增配置项',
 				iconCls : $.ds.icon.add_cls,
@@ -103,9 +104,8 @@
 					if (center_choose_li_id == "") {
 						return $.ds.show('请选择一项配置进行修改!');
 					}
-					var id = center_choose_li_id;
 					var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
-					openConfig(id, title);
+					openConfig(center_choose_li_id, title);
 				}
 			});
 		}
@@ -118,11 +118,10 @@
 					if (center_choose_li_id == "") {
 						return $.ds.show('请选择一项配置进行删除!');
 					}
-					var id = center_choose_li_id;
 					var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
 					$.messager.confirm('确定', '您确定要删除[' + title + ']吗？删除后不可恢复。请谨慎操作。', function(r){
 						if (r){
-							$.post($.ds.url.delete_config, {id: id}, function(data) {
+							$.post($.ds.url.delete_config, {id: center_choose_li_id}, function(data) {
 								$.ds.show(data.message);
 								this_ul.find("li[ds_index='" + center_choose_li_id + "']").remove();
 							});
@@ -136,22 +135,46 @@
 
 		if (isadmin) {
 			center_menu.menu('appendItem', {
+				separator : true
+			});
+			center_menu.menu('appendItem', {
 				text : '配置定时任务',
 				iconCls : $.ds.icon.clock_cls,
 				onclick : function() {
 					if (center_choose_li_id == "") {
 						return $.ds.show('请选择一项配置加入定时任务!');
 					}
-					var id = center_choose_li_id;
 					var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
-					$.ds.commons.openWindow("center_add_scheduler_" + id, $.ds.icon.clock, title, "addscheduler.html", "id=" + id);
+					$.ds.commons.openWindow("center_add_scheduler_" + center_choose_li_id, $.ds.icon.clock, title, "addscheduler.html", "id=" + center_choose_li_id);
 				}
 			});
 		}
 
 		if (isadmin) {
-			center_menu.append($('<div class="menu-sep"></div>'));
-	
+			center_menu.menu('appendItem', {
+				separator : true
+			});
+			center_menu.menu('appendItem', {
+				text : '移动',
+				iconCls : 'fa fa-arrows fa-1x',
+				onclick : function() {
+					if (center_choose_li_id == "") {
+						return $.ds.show('请选择一项配置移动!');
+					}
+					var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
+					$.ds.commons.openWindow("center_move_config_" + center_choose_li_id, $.ds.icon.clock, title, "moveconfig.html", "id=" + center_choose_li_id + "&group_id=" + id).dialog('resize', {
+						height : 380,
+						width : 400,
+						top : 100
+					});
+				}
+			});
+		}
+
+		if (isadmin) {
+			center_menu.menu('appendItem', {
+				separator : true
+			});
 			center_menu.menu('appendItem', {
 				text : '自定义排序',
 				iconCls : $.ds.icon.list_cls,
@@ -168,7 +191,7 @@
 					return $.ds.show('您已经开启了自定义排序功能，请拖动列表，然后右键→保存!');
 				}
 			});
-	
+
 			center_menu.menu('appendItem', {
 				text : '刷新',
 				iconCls : $.ds.icon.refresh_cls,
@@ -188,9 +211,11 @@
 						bindContextMenu(e);
 					});
 					sortable.option("disabled", true);
-					var configs = [ ];
-					this_ul.find("li").each(function(){
-						configs.push({ id : $(this).DSGetIndex() });
+					var configs = [];
+					this_ul.find("li").each(function() {
+						configs.push({
+							id : $(this).DSGetIndex()
+						});
 					});
 					$.ajax({
 						url : $.ds.url.save_config_order,

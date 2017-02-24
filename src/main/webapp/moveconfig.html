@@ -1,0 +1,71 @@
+请选择需要移动到的目录：
+<ul ds_index="tree">
+</ul>
+<script>
+	$(function() {
+		// 初始化参数、定义参数
+		var queryString = '$queryString';
+		var windowId = '$windowId';
+		var config_id = $.ds.getQueryString(queryString, "id");
+		var group_id = $.ds.getQueryString(queryString, "group_id");
+		var this_window = $("#" + windowId);
+
+		var up_id = undefined;
+		var init = function() {
+			this_window.DSFind("tree").tree({
+				url : $.ds.url.treeAll,
+				checkbox : true,
+				cascadeCheck : false,
+				onClick : function(node) {
+					if (up_id /* && up_id != node.id // 不允许取消选择 */) {
+						this_window.DSFind("tree").tree("uncheck", this_window.DSFind("tree").tree('find', up_id).target);
+					}
+					if (node.checked) {
+						this_window.DSFind("tree").tree('uncheck', node.target);
+					} else {
+						this_window.DSFind("tree").tree('check', node.target);
+					}
+					// 					$.ds.show(node.id + "<br>            " + node.checked + "<br>" + up_id);
+					up_id = node.id;
+				},
+				onLoadSuccess : function(node, data) {
+					// 取消绑定checkbox的点击事件
+					$(this).find('span.tree-checkbox').unbind().click(function() {
+						return false;
+					});
+					// 初始化已经选择的目录
+					this_window.DSFind("tree").tree("check", this_window.DSFind("tree").tree('find', group_id).target);
+					up_id = group_id;
+				}
+			});
+		};
+
+		var refer = function() {
+			init();
+		};
+
+		// 刷新
+		var a_reload = $('<a href="javascript:void(0)" class="icon-reload"></a>');
+		this_window.parent().find(" .panel-tool").prepend(a_reload);
+		a_reload.click(function() {
+			refer();
+		});
+
+		// 保存
+		var a_save = $('<a href="javascript:void(0)" class="icon-save"></a>');
+		this_window.parent().find(" .panel-tool").prepend(a_save);
+		a_save.click(function() {
+			$.post($.ds.url.move_config, {
+				id : config_id,
+				group_id : up_id
+			}, function(data) {
+				if (data.status == 200) {
+					$.ds.commons.referCenterByMenuId(group_id);
+				}
+				$.ds.show(data.message);
+			});
+		});
+
+		init();
+	});
+</script>

@@ -18,6 +18,7 @@ import org.blazer.dataservice.cache.ConfigCache;
 import org.blazer.dataservice.cache.DataSourceCache;
 import org.blazer.dataservice.entity.MappingConfigJob;
 import org.blazer.dataservice.exception.UnknowDataSourceException;
+import org.blazer.dataservice.model.ConfigModel;
 import org.blazer.dataservice.service.ViewService;
 import org.blazer.dataservice.util.IntegerUtil;
 import org.blazer.scheduler.entity.Task;
@@ -49,7 +50,7 @@ public class ViewAction extends BaseAction {
 
 	@Autowired
 	ConfigCache configCache;
-	
+
 	@ResponseBody
 	@RequestMapping("/findReportByTaskName")
 	public ResultModel findReportByTaskName(HttpServletRequest request, HttpServletResponse response) {
@@ -103,7 +104,7 @@ public class ViewAction extends BaseAction {
 		SessionModel sm = PermissionsFilter.getSessionModel(request);
 		Task t = null;
 		try {
-			t = viewService.addTask(request,  response, params, sm);
+			t = viewService.addTask(request, response, params, sm);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			return fail().setMessage(e.getMessage());
@@ -130,11 +131,11 @@ public class ViewAction extends BaseAction {
 		}
 		return success().setMessage("保存成功！");
 	}
-	
+
 	@ResponseBody
 	@RequestMapping("/findSchedulersAll")
 	public List<MappingConfigJob> findSchedulersAll(HttpServletRequest request, HttpServletResponse response) {
-//		HashMap<String, String> params = getParamMap(request);
+		// HashMap<String, String> params = getParamMap(request);
 		List<MappingConfigJob> list = null;
 		try {
 			list = viewService.findSchedulersAll();
@@ -245,7 +246,7 @@ public class ViewAction extends BaseAction {
 		logger.debug("map : " + getParamMap(request));
 		return viewService.getConfigById(getParamMap(request));
 	}
-	
+
 	@ResponseBody
 	@RequestMapping("/saveConfigRemark")
 	public Body saveConfigRemark(HttpServletRequest request, HttpServletResponse response, @RequestBody ViewConfigBody viewConfigBody) {
@@ -264,6 +265,22 @@ public class ViewAction extends BaseAction {
 		try {
 			viewService.saveConfig(request, viewConfigBody);
 			configCache.initConfigEntity(viewConfigBody.getId());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return fail().setMessage(e.getMessage());
+		}
+		return success().setMessage("保存成功！");
+	}
+
+	@ResponseBody
+	@RequestMapping("/moveConfig")
+	public Body moveConfig(HttpServletRequest request, HttpServletResponse response) {
+		try {
+			HashMap<String, String> params = getParamMap(request);
+			viewService.moveConfig(params);
+			ConfigModel cm = configCache.get(IntegerUtil.getInt(params.get("id")));
+			cm.setGroupId(IntegerUtil.getInt(params.get("config_id")));
+			configCache.add(cm);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			return fail().setMessage(e.getMessage());

@@ -31,7 +31,13 @@
 				});
 			});
 			this_window.find('.run_task_list').bind('click', function() {
-				$.ds.commons.openWindow("analytic_run_task", $.ds.icon.role , "执行任务次数列表", "analytic_run_task.html").dialog('resize', {
+				$.ds.commons.openWindow("analytic_run_task", $.ds.icon.list , "执行任务次数列表", "analytic_run_task.html").dialog('resize', {
+					height : 380,
+					top : 100
+				});
+			});
+			this_window.find('.add_task_list').bind('click', function() {
+				$.ds.commons.openWindow("analytic_add_task", $.ds.icon.list , "创建任务次数列表", "analytic_add_task.html").dialog('resize', {
 					height : 380,
 					top : 100
 				});
@@ -74,7 +80,8 @@
 	<fieldset class="dsanalytic" style="margin-top: 20px; padding-bottom: 5px; border: 1px solid;">
 		<legend>使用分析模块</legend>
 		<ul class="dsul">
-			<li class="dsli run_task_list"><i class="fa fa-users fa-3x" aria-hidden="true"></i>执行任务次数列表</li>
+			<li class="dsli run_task_list"><i class="fa fa-list fa-3x" aria-hidden="true"></i>执行任务次数列表</li>
+			<li class="dsli add_task_list"><i class="fa fa-list fa-3x" aria-hidden="true"></i>创建任务次数列表</li>
 		</ul>
 	</fieldset>
 </div>

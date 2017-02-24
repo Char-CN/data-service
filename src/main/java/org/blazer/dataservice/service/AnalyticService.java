@@ -45,4 +45,28 @@ public class AnalyticService {
 		return list;
 	}
 
+	public List<Map<String, Object>> getAddTask(HashMap<String, String> paramMap) throws Exception {
+		String sql = "SELECT user_id as id, COUNT(1) AS ct, MAX(DATE_FORMAT(mtime, '%Y-%m-%d')) AS max_mtime, MAX(DATE_FORMAT(ctime, '%Y-%m-%d')) AS max_ctime"
+				+ " FROM ds_config"
+				+ " WHERE `enable`=1"
+				+ " AND user_id IS NOT NULL "
+				+ " GROUP BY user_id";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		logger.debug(list.toString());
+		StringBuilder ids = new StringBuilder();
+		for (Map<String, Object> map : list) {
+			if (ids.length() != 0) {
+				ids.append(",");
+			}
+			ids.append(map.get("id"));
+		}
+		List<UserModel> users = PermissionsFilter.findAllUserByUserIds(ids.toString());
+		logger.debug(users.toString());
+		for (int i = 0; i < list.size(); i++) {
+			list.get(i).put("user_name", users.get(i).getUserNameCn());
+		}
+		logger.debug(list.toString());
+		return list;
+	}
+
 }

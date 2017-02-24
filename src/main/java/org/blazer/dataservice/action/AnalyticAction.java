@@ -22,12 +22,23 @@ public class AnalyticAction extends BaseAction {
 
 	@Autowired
 	AnalyticService analyticService;
-	
+
 	@ResponseBody
 	@RequestMapping("/getRunTask")
-	public List<Map<String, Object>> findReportByTaskName(HttpServletRequest request, HttpServletResponse response) {
+	public List<Map<String, Object>> getRunTask(HttpServletRequest request, HttpServletResponse response) {
 		try {
 			return analyticService.getRunTask(getParamMap(request));
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		return null;
+	}
+
+	@ResponseBody
+	@RequestMapping("/getAddTask")
+	public List<Map<String, Object>> getAddTask(HttpServletRequest request, HttpServletResponse response) {
+		try {
+			return analyticService.getAddTask(getParamMap(request));
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
