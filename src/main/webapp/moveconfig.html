@@ -31,6 +31,7 @@
 				onLoadSuccess : function(node, data) {
 					// 取消绑定checkbox的点击事件
 					$(this).find('span.tree-checkbox').unbind().click(function() {
+						$(this).parent().click();
 						return false;
 					});
 					// 初始化已经选择的目录

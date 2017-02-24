@@ -21,7 +21,7 @@ public class AnalyticService {
 	JdbcTemplate jdbcTemplate;
 
 	public List<Map<String, Object>> getRunTask(HashMap<String, String> params) throws Exception {
-		String sql = "SELECT mut.user_id as id, COUNT(*) as ct, MAX(DATE_FORMAT(st.execute_time, '%Y-%m-%d')) as max_time"
+		String sql = "SELECT mut.user_id as id, COUNT(*) as ct, MAX(DATE_FORMAT(st.execute_time, '%Y-%m-%d %H:%i:%S')) as max_time"
 				+ " FROM scheduler_task st"
 				+ " INNER JOIN mapping_user_task mut ON st.task_name=mut.task_name"
 				+ " WHERE st.type_name='right_now'"
@@ -46,7 +46,7 @@ public class AnalyticService {
 	}
 
 	public List<Map<String, Object>> getAddTask(HashMap<String, String> paramMap) throws Exception {
-		String sql = "SELECT user_id as id, COUNT(1) AS ct, MAX(DATE_FORMAT(mtime, '%Y-%m-%d')) AS max_mtime, MAX(DATE_FORMAT(ctime, '%Y-%m-%d')) AS max_ctime"
+		String sql = "SELECT user_id as id, COUNT(1) AS ct, MAX(DATE_FORMAT(mtime, '%Y-%m-%d %H:%i:%S')) AS max_mtime, MAX(DATE_FORMAT(ctime, '%Y-%m-%d %H:%i:%S')) AS max_ctime"
 				+ " FROM ds_config"
 				+ " WHERE `enable`=1"
 				+ " AND user_id IS NOT NULL "
