@@ -23,7 +23,10 @@
 			required : true,
 			editable : false,
 			onSelect : function(data) {
-				table.datagrid('reload', {time : this_window.find('#dd').datebox('getValue')});
+				table.datagrid('reload', {
+					startTime : this_window.find('#dd').datebox('getValue') + " 00:00:00",
+					endTime : this_window.find('#dd').datebox('getValue') + " 23:59:59"
+				});
 			}
 		}).datebox('setValue', formatterDate(new Date()));
 		this_window.find('#dd').datebox('calendar').calendar({
@@ -40,9 +43,6 @@
 		});
 		var reload = function() {
 			var pageNumber = table.datagrid('getPager').pagination('options').pageNumber;
-// 			if ($("#autoRefresh").prop("checked")) {
-// 				table.datagrid('reload');
-// 			}
 			if ($("#autoRefresh").prop("checked") || pageNumber == 1) {
 				table.datagrid('reload');
 			}
@@ -51,7 +51,10 @@
 		setTimeout(reload, 15000);
 		table.datagrid({
 			url : $.ds.url.find_task_by_user,
-			queryParams : { time : this_window.find('#dd').datebox('getValue') },
+			queryParams : {
+				startTime : this_window.find('#dd').datebox('getValue') + " 00:00:00",
+				endTime : this_window.find('#dd').datebox('getValue') + " 23:59:59"
+			},
 			method : 'post',
 			singleSelect : true,
 			columns : [ [ {

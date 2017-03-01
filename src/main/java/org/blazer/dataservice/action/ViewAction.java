@@ -104,7 +104,7 @@ public class ViewAction extends BaseAction {
 		SessionModel sm = PermissionsFilter.getSessionModel(request);
 		Task t = null;
 		try {
-			t = viewService.addTask(request, response, params, sm);
+			t = viewService.addTask(params, sm);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			return fail().setMessage(e.getMessage());
@@ -212,11 +212,11 @@ public class ViewAction extends BaseAction {
 		SessionModel sm = PermissionsFilter.getSessionModel(request);
 		logger.debug("session model : " + sm);
 		try {
-			CheckUrlStatus cus = PermissionsFilter.checkUrl(request, response, "isadmin");
+			CheckUrlStatus cus = PermissionsFilter.checkUrl(sm, "isadmin");
 			if (cus == CheckUrlStatus.Success) {
 				return viewService.findTreeById(getParamMap(request), sm);
 			}
-			cus = PermissionsFilter.checkUrl(request, response, "isuser");
+			cus = PermissionsFilter.checkUrl(sm, "isuser");
 			if (cus == CheckUrlStatus.Success) {
 				return viewService.findTreeByIdAndUserId(getParamMap(request), sm);
 			}
@@ -263,7 +263,8 @@ public class ViewAction extends BaseAction {
 	@RequestMapping("/saveConfig")
 	public Body saveConfig(HttpServletRequest request, HttpServletResponse response, @RequestBody ViewConfigBody viewConfigBody) {
 		try {
-			viewService.saveConfig(request, viewConfigBody);
+			SessionModel sm = PermissionsFilter.getSessionModel(request);
+			viewService.saveConfig(sm, viewConfigBody);
 			configCache.initConfigEntity(viewConfigBody.getId());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
