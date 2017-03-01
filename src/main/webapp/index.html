@@ -23,22 +23,46 @@
 <script type="text/javascript" src="js/Sortable.js"></script>
 <script type="text/javascript" src="js/locale/easyui-lang-zh_CN.js"></script>
 <script type="text/javascript" src="js/xdate.dev.min.js"></script>
-<!-- <script type="text/javascript" src="http://bigdata.blazer.org:8030/js/userservice.js"></script> -->
 <script type="text/javascript" src="js/include.js"></script>
 <script>
 	try {
 		var $userservice = new $userservice("data-service");
+		var $isadmin = $userservice.checkurl('isadmin');
+		var $isuser = $userservice.checkurl('isuser');
 	} catch (e) {
 // 		alert("user-service服务器连接出现问题。请联系管理员。" + e);
 	}
 	window.onload = function() {
+		// 初始化north
+		$("#north").panel('refresh', 'north.html');
 		// 初始化west
 		$("#west").panel('refresh', 'west.html');
-		$("#north").panel('refresh', 'north.html');
-		$("#titlebar .home").click(function(){
-			$("#center").panel('refresh', 'manager.html');
-			$("#center").panel('setTitle', '首页');
+		// 初始化west的快捷菜单
+		var link = $('<a style="width: 100%"> <i class="fa fa-home fa-3x"></i></a>').linkbutton({
+			onClick : function() {
+				$("#center").panel('refresh', 'manager.html');
+				$("#center").panel('setTitle', '首页');
+			}
+		}).tooltip({
+			content : "首页",
+			position : 'right'
 		}).click();
+		$("#titlebar").append(link);
+		if ($isadmin || $isuser) {
+			var link = $('<a ds_index="mytasklist" style="width: 100%"> <i class="fa fa-list fa-3x"></i></a>').linkbutton({
+				onClick : function() {
+					$.ds.commons.openWindow("mytasklist", $.ds.icon.list , "我的任务列表", "mytasklist.html").dialog('resize', {
+						height : 380,
+						top : 100
+					});
+				}
+			}).tooltip({
+				content : "我的任务列表",
+				position : 'right'
+			});
+			$("#titlebar").append(link);
+		}
+		// 初始化foot
 		var logout = $('<a href="javascript:void(0);">登出</a>');
 		logout.click(function() {
 			$userservice.logout();
@@ -66,11 +90,11 @@
 		<div id="center" class="easyui-panel" data-options="region:'center',title:' '"></div>
 		<div id="foot" data-options="region:'south'" style="height: 31px; overflow:hidden;"></div>
 	</div>
-	<div id="titlebar" style="padding: 2px">
-		<a href="javascript:void(0)" class="easyui-linkbutton" style="width: 55px" data-options="iconCls:'layout-button-right'"
+	<div id="titlebar" style="padding: 2px; width: 55px;">
+		<a href="javascript:void(0)" class="easyui-linkbutton" style="width: 100%" data-options="iconCls:'layout-button-right'"
 			onclick="$('#main').layout('expand','west')"></a> 
-		<a href="javascript:void(0)" class="easyui-linkbutton home" style="width: 55px"> <i class="fa fa-home fa-4x"></i></a>
-		<a href="javascript:void(0)" class="easyui-linkbutton cog" style="width: 55px"> <i class="fa fa-cog fa-4x"></i></a>
+<!-- 		<a href="javascript:void(0)" class="easyui-linkbutton home" style="width: 55px"> <i class="fa fa-home fa-4x"></i></a> -->
+<!-- 		<a href="javascript:void(0)" class="easyui-linkbutton cog" style="width: 55px"> <i class="fa fa-cog fa-4x"></i></a> -->
 	</div>
 </body>
 </html>

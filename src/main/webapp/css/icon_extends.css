@@ -17,3 +17,7 @@
 .icon-adapter {
 	padding-top: 3px;
 }
+
+.tooltip-content, .tooltip, .tooltip-top {
+	background-color: white;
+}

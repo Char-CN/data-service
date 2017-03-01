@@ -208,6 +208,8 @@ $(function() {
 			edit : '<i class="fa fa-edit fa-1x"></i>',
 			list_cls : 'fa fa-list fa-1x',
 			list : '<i class="fa fa-list fa-1x"></i>',
+			list_alt_cls : 'fa fa-list-alt fa-1x',
+			list_alt : '<i class="fa fa-list-alt fa-1x"></i>',
 			refresh_cls : 'fa fa-refresh fa-1x',
 			refresh : '<i class="fa fa-refresh fa-1x"></i>',
 			loading3_cls : 'fa fa-spinner fa-pulse fa-3x fa-fw',
@@ -245,7 +247,7 @@ $(function() {
 		},
 		confirm : function(message, func) {
 			$.messager.confirm('提示', message, function(r){
-				if (r) func();
+				if (func && r) func();
 			});
 		},
 		getBytesLength : function(str) {
