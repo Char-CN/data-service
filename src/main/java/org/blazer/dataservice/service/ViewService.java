@@ -141,7 +141,7 @@ public class ViewService {
 			}
 		}
 		sql = "";
-		sql += "SELECT count(0) as ct FROM (";
+		sql += "SELECT count(0) AS ct FROM (";
 		sql += " SELECT st.* FROM scheduler_task st";
 		sql += " INNER JOIN scheduler_job sj ON st.job_id=sj.id";
 		sql += " INNER JOIN mapping_config_job mcj ON sj.id=mcj.job_id";
@@ -161,8 +161,8 @@ public class ViewService {
 		return pb;
 	}
 
-	public PageBody<Task> findTaskByAdmin(HashMap<String, String> params, SessionModel sm) throws Exception {
-		PageBody<Task> pb = new PageBody<Task>();
+	public PageBody<Map<String, Object>> findTaskByAdmin(HashMap<String, String> params, SessionModel sm) throws Exception {
+		PageBody<Map<String, Object>> pb = new PageBody<Map<String, Object>>();
 		CheckUrlStatus cus = PermissionsFilter.checkUrl(sm, "isadmin");
 		// 如果不是管理员
 		if (cus != CheckUrlStatus.Success) {
@@ -170,17 +170,15 @@ public class ViewService {
 		}
 		String sql = "";
 		sql += "SELECT * FROM (";
-		sql += " SELECT st.* FROM scheduler_task st";
+		sql += " SELECT st.*, mcj.email AS email, mcj.email_userids AS email_userids FROM scheduler_task st";
 		sql += " INNER JOIN scheduler_job sj ON st.job_id=sj.id";
 		sql += " INNER JOIN mapping_config_job mcj ON sj.id=mcj.job_id";
-		sql += "  WHERE LOCATE(CONCAT(?), CONCAT(',',mcj.email_userids,',')) ";
-		sql += "   and st.execute_time>=?";
+		sql += "  WHERE st.execute_time>=?";
 		sql += "   and st.execute_time<=?";
 		sql += " UNION ALL";
-		sql += "  SELECT st.* FROM mapping_user_task mut";
+		sql += "  SELECT st.*, '' AS email, mut.user_id AS email_userids FROM mapping_user_task mut";
 		sql += "   INNER JOIN scheduler_task st ON st.task_name=mut.task_name";
-		sql += "   WHERE mut.user_id=?";
-		sql += "    and st.execute_time>=?";
+		sql += "   WHERE st.execute_time>=?";
 		sql += "    and st.execute_time<=?";
 		sql += " ) t";
 		sql += " ORDER BY t.execute_time DESC";
@@ -194,36 +192,61 @@ public class ViewService {
 		logger.debug("endTime : " + endTime);
 		logger.debug("start : " + start);
 		logger.debug("end : " + end);
-		logger.debug(SqlUtil.Show(sql, sm.getUserId(), startTime, endTime, sm.getUserId(), startTime, endTime, sm.getUserId(), startTime, endTime, start, end));
-		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, sm.getUserId(), startTime, endTime, sm.getUserId(), startTime, endTime, start, end);
-		logger.debug("list size : " + list.size());
-		List<Task> taskList = HMap.toList(list, Task.class);
-		for (Task task : taskList) {
-			task.setStatus(Status.get(task.getStatusId()));
-			if (TaskType.cron_auto.toString().equals(task.getTypeName())) {
-				task.setRemark(JobServer.getJobById(task.getJobId()).getJobName());
-				task.setTypeName(TaskType.cron_auto.getCNName());
+		logger.debug(SqlUtil.Show(sql, startTime, endTime, startTime, endTime, start, end));
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, startTime, endTime, startTime, endTime, start, end);
+		StringBuilder ids = new StringBuilder();
+		for (Map<String, Object> map : list) {
+			if (ids.length() != 0) {
+				ids.append(",");
+			}
+			ids.append(map.get("email_userids"));
+		}
+		List<UserModel> users = PermissionsFilter.findAllUserByUserIds(ids.toString());
+		int index = 0;
+		for (int i = 0; i < list.size(); i++) {
+			int userCount = StringUtils.splitByWholeSeparatorPreserveAllTokens(StringUtil.getStrEmpty(list.get(i).get("email_userids")), ",").length;
+			String userNames = "";
+			for (int j = 0; j == 0 || j < userCount; j++, index++) {
+				if (j != 0) {
+					userNames += ",";
+				}
+				userNames += users.get(index).getUserNameCn() == null ? "" : users.get(index).getUserNameCn();
+			}
+			list.get(i).put("email", StringUtil.getStrEmpty(list.get(i).get("email")));
+			list.get(i).put("email_usernames", userNames);
+			list.get(i).put("status", Status.get(IntegerUtil.getInt0(list.get(i).get("status_id"))));
+			if (TaskType.cron_auto.toString().equals(list.get(i).get("type_name"))) {
+				list.get(i).put("remark", JobServer.getJobById(IntegerUtil.getInt0(list.get(i).get("job_id"))).getJobName());
+				list.get(i).put("type_name", TaskType.cron_auto.getCNName());
 			} else {
-				task.setTypeName(TaskType.right_now.getCNName());
+				list.get(i).put("type_name", TaskType.right_now.getCNName());
 			}
 		}
+//		List<Task> taskList = HMap.toList(list, Task.class);
+//		for (Task task : taskList) {
+//			task.setStatus(Status.get(task.getStatusId()));
+//			if (TaskType.cron_auto.toString().equals(task.getTypeName())) {
+//				task.setRemark(JobServer.getJobById(task.getJobId()).getJobName());
+//				task.setTypeName(TaskType.cron_auto.getCNName());
+//			} else {
+//				task.setTypeName(TaskType.right_now.getCNName());
+//			}
+//		}
 		sql = "";
-		sql += "SELECT count(0) as ct FROM (";
-		sql += " SELECT st.* FROM scheduler_task st";
+		sql += "SELECT count(0) AS ct FROM (";
+		sql += " SELECT st.*, mcj.email AS email, mcj.email_userids AS email_userids FROM scheduler_task st";
 		sql += " INNER JOIN scheduler_job sj ON st.job_id=sj.id";
 		sql += " INNER JOIN mapping_config_job mcj ON sj.id=mcj.job_id";
-		sql += "  WHERE LOCATE(CONCAT(?), CONCAT(',',mcj.email_userids,',')) ";
-		sql += "   and st.execute_time>=?";
+		sql += "  WHERE st.execute_time>=?";
 		sql += "   and st.execute_time<=?";
 		sql += " UNION ALL";
-		sql += "  SELECT st.* FROM mapping_user_task mut";
+		sql += "  SELECT st.*, '' AS email, mut.user_id AS email_userids FROM mapping_user_task mut";
 		sql += "   INNER JOIN scheduler_task st ON st.task_name=mut.task_name";
-		sql += "   WHERE mut.user_id=?";
-		sql += "    and st.execute_time>=?";
+		sql += "   WHERE st.execute_time>=?";
 		sql += "    and st.execute_time<=?";
 		sql += " ) t";
-		pb.setTotal(IntegerUtil.getInt0(jdbcTemplate.queryForList(sql, sm.getUserId(), startTime, endTime, sm.getUserId(), startTime, endTime).get(0).get("ct")));
-		pb.setRows(taskList);
+		pb.setTotal(IntegerUtil.getInt0(jdbcTemplate.queryForList(sql, startTime, endTime, startTime, endTime).get(0).get("ct")));
+		pb.setRows(list);
 		logger.debug(pb.toString());
 		return pb;
 	}
@@ -325,7 +348,6 @@ public class ViewService {
 			// mcj.getJob().getParams().add(new JobParam("result_path",
 			// resultPath));
 			jobService.saveJob(mcj.getJob());
-			System.out.println(mcj);
 			if (mcj.getId() == null) {
 				String sql = "insert into mapping_config_job(config_id, job_id, user_id, result_mode, email, email_userids) values(?, ?, ?, ?, ?, ?)";
 				jdbcTemplate.update(sql, mcj.getConfigId(), mcj.getJob().getId(), sm.getUserId(), mcj.getResultMode(), mcj.getEmail(), mcj.getEmailUserids());

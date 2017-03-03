@@ -50,7 +50,7 @@
 		};
 		setTimeout(reload, 15000);
 		table.datagrid({
-			url : $.ds.url.find_task_by_user,
+			url : $.ds.url.find_task_by_admin,
 			queryParams : {
 				startTime : this_window.find('#dd').datebox('getValue') + " 00:00:00",
 				endTime : this_window.find('#dd').datebox('getValue') + " 23:59:59"
@@ -62,7 +62,7 @@
 				title : 'id',
 				hidden : true
 			}, {
-				field : 'taskName',
+				field : 'task_name',
 				title : '任务名称',
 				hidden : true
 			}, {
@@ -70,7 +70,7 @@
 				width : "30%",
 				title : '任务说明'
 			}, {
-				field : 'typeName',
+				field : 'type_name',
 				width : "10%",
 				title : '执行类型'
 			}, {
@@ -81,7 +81,7 @@
 					return $.ds.commons.getStatus(value);
 				}
 			}, {
-				field : 'executeTime',
+				field : 'execute_time',
 				width : "15%",
 				title : '开始时间',
 				formatter : function(value){
@@ -91,7 +91,7 @@
 					return new XDate(value).toString("yyyy-MM-dd HH:mm:ss");
 				}
 			}, {
-				field : 'endTime',
+				field : 'end_time',
 				width : "15%",
 				title : '结束时间',
 				formatter : function(value){
@@ -101,16 +101,24 @@
 					return new XDate(value).toString("yyyy-MM-dd HH:mm:ss");
 				}
 			}, {
+				field : 'email',
+				width : "30%",
+				title : '邮件地址'
+			}, {
+				field : 'email_usernames',
+				width : "30%",
+				title : '邮件人员'
+			}, {
 				field : '操作',
 				width : "15%",
 				title : '操作',
 				formatter : function(value, row){
 					var ret = '&nbsp;';
-					ret += '<span title="日志" style="cursor:pointer" onclick="$.ds.commons.openTaskLog(\'' + row.taskName + '\')">' + $.ds.icon.file + '</span>　';
+					ret += '<span title="日志" style="cursor:pointer" onclick="$.ds.commons.openTaskLog(\'' + row.task_name + '\')">' + $.ds.icon.file + '</span>　';
 					var status = $.ds.commons.getStatus(row.status);
 					if (status == "执行成功") {
-						ret += '<span title="下载" style="cursor:pointer" onclick="window.open(\'download/get.do?taskName=' + row.taskName + '\')">' + $.ds.icon.download + '</span>　';
-						ret += '<span title="报表" style="cursor:pointer" onclick="window.open(\'reports.html?taskName=' + row.taskName + '\')">' + $.ds.icon.table + '</span>　';
+						ret += '<span title="下载" style="cursor:pointer" onclick="window.open(\'download/get.do?taskName=' + row.task_name + '\')">' + $.ds.icon.download + '</span>　';
+						ret += '<span title="报表" style="cursor:pointer" onclick="window.open(\'reports.html?taskName=' + row.task_name + '\')">' + $.ds.icon.table + '</span>　';
 					}
 					if (status == "正在执行" || status == "等待执行") {
 						ret += '<span title="停止" style="cursor:pointer" onclick="alert(\'开发中\')">' + $.ds.icon.remove + '</span>';

@@ -21,6 +21,7 @@ $(function() {
 			get_config : "dataservice/getconfig.do",
 			add_task : "view/addTask.do",
 			find_task_by_user : "view/findTaskByUser.do",
+			find_task_by_admin : "view/findTaskByAdmin.do",
 			tree : "view/getTree.do",
 			treeAll : "view/getTreeAll.do",
 			get_user_group_ids : "view/getUserGroupIds.do",

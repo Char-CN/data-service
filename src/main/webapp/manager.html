@@ -19,11 +19,15 @@
 				});
 			});
 			this_window.find('.all_task_list').bind('click', function() {
-				$.ds.confirm('对不起，暂未开放。');
+// 				$.ds.confirm('对不起，暂未开放。');
 // 				$.ds.commons.openWindow("mytasklist", $.ds.icon.list_alt , "所有任务列表", "mytasklist.html").dialog('resize', {
 // 					height : 380,
 // 					top : 100
 // 				});
+				$.ds.commons.openWindow("mytasklist", $.ds.icon.list_alt , "所有任务列表", "alltasklist.html").dialog('resize', {
+					height : 400,
+					top : 100
+				});
 			});
 			this_window.find('.my_task_list').bind('click', function() {
 				$("#titlebar").DSFind("mytasklist").click();
@@ -34,19 +38,19 @@
 			});
 			this_window.find('.scheduler_list').bind('click', function() {
 				$.ds.commons.openWindow("schedulerlist", $.ds.icon.clock , "调度任务列表", "schedulerlist.html").dialog('resize', {
-					height : 380,
+					height : 400,
 					top : 100
 				});
 			});
 			this_window.find('.run_task_list').bind('click', function() {
 				$.ds.commons.openWindow("analytic_run_task", $.ds.icon.table , "执行任务次数列表", "analytic_run_task.html").dialog('resize', {
-					height : 380,
+					height : 400,
 					top : 100
 				});
 			});
 			this_window.find('.add_task_list').bind('click', function() {
 				$.ds.commons.openWindow("analytic_add_task", $.ds.icon.table , "创建任务次数列表", "analytic_add_task.html").dialog('resize', {
-					height : 380,
+					height : 400,
 					top : 100
 				});
 			});
@@ -57,7 +61,7 @@
 			this_window.find(".all_task_list").css("display", "none");
 			this_window.find('.my_task_list').bind('click', function() {
 				$.ds.commons.openWindow("mytasklist", $.ds.icon.list , "我的任务列表", "mytasklist.html").dialog('resize', {
-					height : 380,
+					height : 400,
 					top : 100
 				});
 			});

@@ -3,6 +3,7 @@ package org.blazer.dataservice.action;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -95,6 +96,19 @@ public class ViewAction extends BaseAction {
 			logger.error(e.getMessage(), e);
 		}
 		return new PageBody<Task>();
+	}
+
+	@ResponseBody
+	@RequestMapping("/findTaskByAdmin")
+	public PageBody<Map<String, Object>> findTaskByAdmin(HttpServletRequest request, HttpServletResponse response) {
+		HashMap<String, String> params = getParamMap(request);
+		SessionModel sm = PermissionsFilter.getSessionModel(request);
+		try {
+			return viewService.findTaskByAdmin(params, sm);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		return new PageBody<Map<String, Object>>();
 	}
 
 	@ResponseBody

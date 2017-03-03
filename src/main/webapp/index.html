@@ -52,7 +52,7 @@
 			var link = $('<a ds_index="mytasklist" style="width: 100%"> <i class="fa fa-list fa-3x"></i></a>').linkbutton({
 				onClick : function() {
 					$.ds.commons.openWindow("mytasklist", $.ds.icon.list , "我的任务列表", "mytasklist.html").dialog('resize', {
-						height : 380,
+						height : 400,
 						top : 100
 					});
 				}
@@ -67,7 +67,7 @@
 		logout.click(function() {
 			$userservice.logout();
 		});
-		var login = $('<span style="float: right; padding: 7px;">' + $userservice.userName + '('+ $userservice.userNameCn+')&nbsp;&nbsp;</span>');
+		var login = $('<span style="float: right; padding: 7px;">' + $userservice.userName + '(' + $userservice.userNameCn + ')&nbsp;&nbsp;</span>');
 		login.append(logout);
 		$("#foot").append(login);
 	};
