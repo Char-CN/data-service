@@ -67,15 +67,18 @@
 				hidden : true
 			}, {
 				field : 'remark',
-				width : "30%",
-				title : '任务说明'
+				width : "20%",
+				title : '任务说明',
+				formatter : function(value){
+					return '<span title="'+value+'"  class="easyui-tooltip remark-tooltip">'+value+'</span>';
+				}
 			}, {
 				field : 'type_name',
-				width : "10%",
+				width : "8%",
 				title : '执行类型'
 			}, {
 				field : 'status',
-				width : "10%",
+				width : "8%",
 				title : '状态',
 				formatter : function(value){
 					return $.ds.commons.getStatus(value);
@@ -102,15 +105,21 @@
 				}
 			}, {
 				field : 'email',
-				width : "30%",
-				title : '邮件地址'
+				width : "15%",
+				title : '邮件地址',
+				formatter : function(value){
+					return '<span title="'+value+'">'+value+'</span>';
+				}
 			}, {
 				field : 'email_usernames',
-				width : "30%",
-				title : '邮件人员'
+				width : "8%",
+				title : '邮件人员',
+				formatter : function(value){
+					return '<span title="'+value+'">'+value+'</span>';
+				}
 			}, {
 				field : '操作',
-				width : "15%",
+				width : "9%",
 				title : '操作',
 				formatter : function(value, row){
 					var ret = '&nbsp;';
@@ -126,6 +135,15 @@
 					return ret;
 				}
 			} ] ],
+			onLoadSuccess: function() {
+//                 $(".easyui-tooltip.remark-tooltip").tooltip({
+//                     onShow: function () {
+//                         $(this).tooltip('tip').css({
+//                             borderColor: '#000'
+//                         });
+//                     }
+//                 });
+			},
 			rownumbers : true,
 			singleSelect : true,
 			autoRowHeight : false,
