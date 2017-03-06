@@ -79,17 +79,17 @@
 				var email_users = sche.DSFind('email_users').combobox('getValues');
 				var emailUserids = "";
 				var email = "";
-				for (var i in email_users) {
-					if (isNaN(email_users[i])) {
+				for (var k in email_users) {
+					if (isNaN(email_users[k])) {
 						if (email != "") {
 							email += ",";
 						}
-						email += email_users[i];
+						email += email_users[k];
 					} else {
 						if (emailUserids != "") {
 							emailUserids += ",";
 						}
-						emailUserids += email_users[i];
+						emailUserids += email_users[k];
 					}
 				}
 				var jobName = this_window.DSFind("name").textbox('getValue');
