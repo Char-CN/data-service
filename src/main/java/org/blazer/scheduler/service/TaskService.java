@@ -1,5 +1,6 @@
 package org.blazer.scheduler.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UnknownFormatConversionException;
@@ -102,6 +103,16 @@ public class TaskService {
 	}
 
 	/**
+	 * 传入task对象前请修改statusid
+	 * 
+	 * @param task
+	 */
+	public void updateEndTimeNowAndStatusAndException(Task task) {
+		String sql = "update scheduler_task set end_time=now(), status_id=?, exception=? where task_name=?";
+		jdbcTemplate.update(sql, task.getStatusId(), task.getException(), task.getTaskName());
+	}
+
+	/**
 	 * 传入task对象前请修改exception和statusid
 	 * 
 	 * @param task
@@ -109,6 +120,13 @@ public class TaskService {
 	public void updateExceptionAndStatus(Task task) {
 		String sql = "update scheduler_task set exception=?, status_id=? where task_name=?";
 		jdbcTemplate.update(sql, task.getException(), task.getStatusId(), task.getTaskName());
+	}
+
+	public List<Task> findTasksByStatus(Status status) throws Exception {
+		String sql = "select * from scheduler_task where status_id=?";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, status.getId());
+		List<Task> rstList = HMap.toList(list, Task.class);
+		return rstList;
 	}
 
 	public static void main(String[] args) {

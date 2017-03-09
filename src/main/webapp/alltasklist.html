@@ -43,7 +43,7 @@
 		});
 		var reload = function() {
 			var pageNumber = table.datagrid('getPager').pagination('options').pageNumber;
-			if ($("#autoRefresh").prop("checked") || pageNumber == 1) {
+			if ($("#autoRefresh").prop("checked")) {
 				table.datagrid('reload');
 			}
 			setTimeout(reload, 15000);

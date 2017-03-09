@@ -195,13 +195,12 @@ public class ViewService {
 		logger.debug(SqlUtil.Show(sql, startTime, endTime, startTime, endTime, start, end));
 		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, startTime, endTime, startTime, endTime, start, end);
 		StringBuilder ids = new StringBuilder();
-		for (Map<String, Object> map : list) {
-			if (ids.length() != 0) {
-				ids.append(",");
-			}
-			ids.append(map.get("email_userids"));
+		for (int i = 0; i < list.size(); i++) {
+			ids.append(list.get(i).get("email_userids") + ((i + 1) == list.size() ? "" : ","));
 		}
+		System.out.println(ids.toString());
 		List<UserModel> users = PermissionsFilter.findAllUserByUserIds(ids.toString());
+		System.out.println(users.toString());
 		int index = 0;
 		for (int i = 0; i < list.size(); i++) {
 			int userCount = StringUtils.splitByWholeSeparatorPreserveAllTokens(StringUtil.getStrEmpty(list.get(i).get("email_userids")), ",").length;

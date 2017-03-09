@@ -43,7 +43,7 @@
 		});
 		var reload = function() {
 			var pageNumber = table.datagrid('getPager').pagination('options').pageNumber;
-			if ($("#autoRefresh").prop("checked") || pageNumber == 1) {
+			if ($("#autoRefresh").prop("checked")) {
 				table.datagrid('reload');
 			}
 			setTimeout(reload, 15000);
@@ -113,7 +113,7 @@
 						ret += '<span title="报表" style="cursor:pointer" onclick="window.open(\'reports.html?taskName=' + row.taskName + '\')">' + $.ds.icon.table + '</span>　';
 					}
 					if (status == "正在执行" || status == "等待执行") {
-						ret += '<span title="停止" style="cursor:pointer" onclick="alert(\'开发中\')">' + $.ds.icon.remove + '</span>';
+						ret += '<span title="停止" style="cursor:pointer" onclick="$.ds.commons.cancelTask(\'' + row.taskName + '\')">' + $.ds.icon.remove + '</span>';
 					}
 					return ret;
 				}

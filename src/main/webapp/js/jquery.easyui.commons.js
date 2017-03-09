@@ -87,6 +87,11 @@ $(function() {
 					return "执行取消";
 				return "未知状态";
 			},
+			cancelTask : function(taskName) {
+				$.ds.commons.confirm('您确定要停止该任务吗？', function(taskName) {
+					alert(taskName);
+				})
+			},
 			openTaskLog : function(taskName) {
 				var width = 800;
 				$.ds.commons.openWindow(taskName, $.ds.icon.file, taskName, "taskinfo.html", "taskName=" + taskName).dialog('resize', {

@@ -24,9 +24,7 @@ import org.blazer.scheduler.util.SequenceUtil;
 import org.blazer.scheduler.util.SpringContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
-@Component(value = "taskServer")
 public class TaskServer extends Thread {
 
 	private static final Logger logger = LoggerFactory.getLogger("scheduler");
@@ -68,21 +66,33 @@ public class TaskServer extends Thread {
 		}
 	}
 
-	public static void cancelTaskByName(String taskName) throws TaskNotFoundException {
-		// 用索引删除
-		if (!indexTaskNameToTask.containsKey(taskName)) {
-			throw new TaskNotFoundException("该任务[" + taskName + "]不是正在执行的状态。");
-		}
+	/**
+	 * 取消正在执行的任务
+	 * 
+	 * @param taskName
+	 *            任务名称
+	 * @throws TaskNotFoundException
+	 */
+	public static void cancelTaskByName(String taskName) {
 		ProcessModel pm = indexTaskNameToTask.get(taskName);
-		indexTaskNameToTask.remove(taskName);
-		try {
-			if (pm.getProcess() != null && pm.getProcess().isAlive()) {
-				pm.getProcess().destroy();
+		if (pm != null) {
+			// 删除索引的 Task
+			indexTaskNameToTask.remove(taskName);
+			try {
+				if (pm.getProcess() != null && pm.getProcess().isAlive()) {
+					pm.getProcess().destroy();
+				}
+			} catch (Exception e) {
+				logger.error("[Notice] cancel task error.");
+				logger.error(e.getMessage(), e);
 			}
-		} catch (Exception e) {
 		}
-		pm.getTask().setStatusId(Status.CANCEL.getId());
-		taskService.updateEndTimeNowAndStatus(pm.getTask());
+		// 删除数据库中的Task
+		Task task = new Task();
+		task.setStatusId(Status.CANCEL.getId());
+		task.setTaskName(taskName);
+		taskService.updateEndTimeNowAndStatus(task);
+		logger.info("停止任务[" + taskName + "]成功。");
 	}
 
 	/**
@@ -193,16 +203,19 @@ public class TaskServer extends Thread {
 				while (true) {
 					try {
 						String currentTime = DateUtil.newDateStr();
-						if (!timeToProcessModelMap.containsKey(currentTime)) {
+						ConcurrentLinkedQueue<ProcessModel> pmQueue = timeToProcessModelMap.get(currentTime);
+						// 判断当前时间是否存在任务
+						if (pmQueue == null) {
 							Thread.sleep(1000);
 							continue;
-						}
-						ConcurrentLinkedQueue<ProcessModel> pmQueue = timeToProcessModelMap.get(currentTime);
-						if (pmQueue.isEmpty()) {
+						} else if (pmQueue.isEmpty()) {
 							timeToProcessModelMap.remove(currentTime);
-						} else {
-							// 执行任务
-							ProcessModel pm = pmQueue.element();
+							continue;
+						}
+						ProcessModel pm = null;
+						try {
+							// 获取任务信息
+							pm = pmQueue.element();
 							String cmd = pm.getCmdArray()[pm.getCmdIndex()];
 							String logPath = pm.getTask().getLogPath();
 							String errorLogPath = pm.getTask().getErrorLogPath();
@@ -210,18 +223,42 @@ public class TaskServer extends Thread {
 							String[] params = pm.getJob().toArrayParams();
 							params = addSystemParams(params, pm.getTask());
 							pm.setCmdParams(params);
-							Process process = ProcessHelper.run(cmd, params, logPath, errorLogPath, false);
-							pm.setProcess(process);
 							// 存入task的参数信息
 							pm.getTask().setParams(pm.getJob().toStrParams());
 							pm.getTask().setStatusId(Status.RUN.getId());
+							// 并且更新状态
 							taskService.updateExecuteTimeNowAndParamsAndStatus(pm.getTask());
-							// processTaskList.add(pm);
+							// 增加索引
 							indexTaskNameToTask.put(pm.getTask().getTaskName(), pm);
 							if (TaskType.cron_auto.toString().equals(pm.getTask().getTypeName())) {
 								JobServer.addQueue(pm.getJob().getId());
 							}
-							pmQueue.remove();
+							// 执行任务
+							Process process = ProcessHelper.run(cmd, params, logPath, errorLogPath, false);
+							pm.setProcess(process);
+						} catch (Exception e) {
+							logger.error(e.getMessage(), e);
+							if (pm == null) {
+								logger.error("[Notice]队列中存在null值，请管理员检查。");
+							} else if (pm.getTask() != null && pm.getTask().getTaskName() != null) {
+								logger.error("[Notice]" + pm.getTask().getTaskName() + "执行错误，请管理员检查。");
+								// 任务错误日志
+								pm.getTask().setException(e.toString());
+								pm.getTask().setStatusId(Status.FAIL.getId());
+								// 更新状态
+								taskService.updateEndTimeNowAndStatusAndException(pm.getTask());
+							} else {
+								logger.error("[Notice]TaskName存在null值，请管理员检查。");
+							}
+						} finally {
+							try {
+								pmQueue.remove();
+								if (pmQueue.isEmpty()) {
+									timeToProcessModelMap.remove(currentTime);
+								}
+								Thread.sleep(100);
+							} catch (Exception ee) {
+							}
 						}
 					} catch (Exception e) {
 						logger.error(e.getMessage(), e);
@@ -288,7 +325,8 @@ public class TaskServer extends Thread {
 								}
 								// 当前任务未跑完
 								else {
-									// waitFor... do nothing...
+									// waitFor
+									// do nothing
 								}
 							}
 						}
@@ -308,6 +346,7 @@ public class TaskServer extends Thread {
 	}
 
 	public TaskServer() {
+		// 初始化配置参数
 		Properties properties = (Properties) SpringContextUtil.getBean("schedulerProperties");
 		task_log_path = (String) properties.get("task_log_path");
 		// 设置默认值
@@ -315,6 +354,16 @@ public class TaskServer extends Thread {
 		// 设置以/结尾
 		task_log_path = task_log_path.endsWith(File.separator) ? task_log_path : task_log_path + File.separator;
 		logger.info("初始化日志目录：" + task_log_path);
+
+		// 检查数据库，如果有[正在执行]的任务，则cancel
+		try {
+			List<Task> list = taskService.findTasksByStatus(Status.RUN);
+			for (Task task : list) {
+				cancelTaskByName(task.getTaskName());
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
 	}
 
 }

@@ -30,11 +30,8 @@ public class AnalyticService {
 		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
 		logger.debug(list.toString());
 		StringBuilder ids = new StringBuilder();
-		for (Map<String, Object> map : list) {
-			if (ids.length() != 0) {
-				ids.append(",");
-			}
-			ids.append(map.get("id"));
+		for (int i = 0; i < list.size(); i++) {
+			ids.append(list.get(i).get("id") + ((i + 1) == list.size() ? "" : ","));
 		}
 		List<UserModel> users = PermissionsFilter.findAllUserByUserIds(ids.toString());
 		logger.debug(users.toString());
@@ -54,11 +51,8 @@ public class AnalyticService {
 		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
 		logger.debug(list.toString());
 		StringBuilder ids = new StringBuilder();
-		for (Map<String, Object> map : list) {
-			if (ids.length() != 0) {
-				ids.append(",");
-			}
-			ids.append(map.get("id"));
+		for (int i = 0; i < list.size(); i++) {
+			ids.append(list.get(i).get("id") + ((i + 1) == list.size() ? "" : ","));
 		}
 		List<UserModel> users = PermissionsFilter.findAllUserByUserIds(ids.toString());
 		logger.debug(users.toString());

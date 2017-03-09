@@ -10,9 +10,7 @@ import org.blazer.scheduler.service.JobService;
 import org.blazer.scheduler.util.SpringContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
-@Component(value = "jobServer")
 public class JobServer extends Thread {
 
 	private static final Logger logger = LoggerFactory.getLogger("scheduler");

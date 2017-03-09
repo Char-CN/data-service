@@ -181,6 +181,9 @@
 				}
 			});
 
+			// 清除config信息
+			this_window.DSFind("schedulers").empty();
+			addSchedulerCount = 1;
 			// 获取config信息
 			$.post($.ds.url.config_by_id + "?id=" + id, function(data) {
 				this_window.DSFind("id").val(data.id);
@@ -295,11 +298,11 @@
 				});
 			}
 			for ( var i in personData) {
-				var email = personData[i].email;
-				if (email == undefined || email == null || email == "") {
+				var _email = personData[i].email;
+				if (_email == undefined || _email == null || _email == "") {
 					continue;
 				}
-				var op = $('<option value="' + personData[i].id + '">' + email + '</option>');
+				var op = $('<option value="' + personData[i].id + '">' + _email + '</option>');
 				select.append(op);
 			}
 			var email_value = "";
@@ -319,8 +322,7 @@
 				multiple : true,
 				value : email_value
 			});
-			select.combobox('select', 'test@qq.com');
-			
+
 			// 参数信息
 			tb.append('<tr style="width:100%;"><td colspan="2">以下是所有参数信息：</td></tr>');
 			if (params_key.length == 0) {

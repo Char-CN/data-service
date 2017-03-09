@@ -73,13 +73,38 @@ public class SchedulerServer extends Thread implements InitializingBean {
 		// 获取配置路径
 		TimeUtil tu = TimeUtil.createAndPoint();
 		tu.setLogger(logger);
-		JobServer jobServer = new JobServer();
-		jobServer.start();
-		TaskServer taskServer = new TaskServer();
-		taskServer.start();
-		SchedulerServer schedulerServer = new SchedulerServer();
-		schedulerServer.start();
-		tu.printMs("启动scheduler服务成功。");
+
+		/**
+		 * 先启动task server，因为在初始化task server的时候会清除当前时间之前的所有正在执行的任务。
+		 * 再启动job  server，此时会把当前时间之后的任务初始化。
+		 */
+
+		////////////////////// 启动 task server //////////////////////
+		try {
+			TaskServer taskServer = new TaskServer();
+			taskServer.start();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		tu.printMs("启动Task服务成功。");
+
+		////////////////////// 启动 job server //////////////////////
+		try {
+			JobServer jobServer = new JobServer();
+			jobServer.start();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		tu.printMs("启动Job服务成功。");
+
+		////////////////////// 启动 scheduler server //////////////////////
+		try {
+			SchedulerServer schedulerServer = new SchedulerServer();
+			schedulerServer.start();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		tu.printMs("启动Scheduler服务成功。");
 	}
 
 }
