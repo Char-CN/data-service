@@ -56,14 +56,19 @@
 		var a_save = $('<a href="javascript:void(0)" class="icon-save"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_save);
 		a_save.click(function() {
-			$.post($.ds.url.move_config, {
-				id : config_id,
-				group_id : up_id
-			}, function(data) {
-				if (data.status == 200) {
-					$.ds.commons.referCenterByMenuId(group_id);
+			var target_name = this_window.DSFind("tree").tree('find', up_id).text;
+			$.messager.confirm('确定', '您确定要移动到[' + target_name + ']目录吗？<br>移动后将排在该目录最后一个位置。', function(r) {
+				if (r) {
+					$.post($.ds.url.move_config, {
+						id : config_id,
+						group_id : up_id
+					}, function(data) {
+						if (data.status == 200) {
+							$.ds.commons.referCenterByMenuId(group_id);
+						}
+						$.ds.show(data.message);
+					});
 				}
-				$.ds.show(data.message);
 			});
 		});
 
