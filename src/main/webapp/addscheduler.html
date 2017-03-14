@@ -329,6 +329,7 @@
 				tb.append('<tr><td width="20%"></td><td width="80%">没有任何参数。</td></tr>');
 			} else {
 				for ( var i in params_key) {
+// 					alert(params_key[i]);
 					tb.append('<tr ds_index="param" style="width:100%;"><td style="width:20%;" align="center">' + params_key[i] + '</td><td style="width:80%;"><input ds_index="param_' + i + '"></td></tr>');
 					var val = '';
 					for (var j in params) {

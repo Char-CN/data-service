@@ -8,6 +8,7 @@ import java.util.HashMap;
 public class DateUtil {
 
 	public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
+	public static final SimpleDateFormat yyyy_MM_dd_HH_mm_ss_SSS = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS");
 
 	public static Date newDate() {
 		Calendar c = Calendar.getInstance();
@@ -20,6 +21,10 @@ public class DateUtil {
 		c.set(Calendar.SECOND, 0);
 		c.add(Calendar.SECOND, addSeconds);
 		return c.getTime();
+	}
+
+	public static String newDateStr_yyyy_MM_dd_HH_mm_ss_SSS() {
+		return yyyy_MM_dd_HH_mm_ss_SSS.format(new Date());
 	}
 
 	public static String newDateStr() {

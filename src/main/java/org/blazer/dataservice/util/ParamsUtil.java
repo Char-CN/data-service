@@ -2,8 +2,17 @@ package org.blazer.dataservice.util;
 
 import java.util.HashSet;
 
+/**
+ * 参数工具
+ * 
+ * @author hyy
+ *
+ */
 public class ParamsUtil {
 
+	/**
+	 * 该Set是系统保留参数，当任务执行时候，还会传入参数SYS_TASK_NAME。由于SYS_TASK_NAME是系统允许的参数，不在该列表内。
+	 */
 	public static final HashSet<String> Set = new HashSet<String>() {
 		private static final long serialVersionUID = -2212280133747455803L;
 		{
@@ -13,5 +22,27 @@ public class ParamsUtil {
 			add("${emails}");
 		}
 	};
+
+	/**
+	 * 参数是否是Excel类型的
+	 * 
+	 * @return
+	 */
+	public static boolean isExcel(String param) {
+		if (param != null && !"".equals(param) && !"${excel".equalsIgnoreCase(param.substring(0, 7))) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * 参数是否是Excel并且合法，配合isExcel一起使用。
+	 * 
+	 * @param param
+	 * @return
+	 */
+	public static boolean isExcelValid(String param) {
+		return param.length() > 9;
+	}
 
 }

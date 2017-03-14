@@ -300,6 +300,9 @@ $(function() {
 		getCustomKey : function(key) {
 			return key.replace('${', '').replace('}', '');
 		},
+		isExcel : function(key) {
+			return key.toLowerCase().indexOf('excel') == 0;
+		},
 		getQueryString : function(queryString, name) {
 			var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
 			var r = queryString.match(reg);

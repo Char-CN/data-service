@@ -17,6 +17,7 @@ import org.blazer.dataservice.body.view.ViewConfigBody;
 import org.blazer.dataservice.body.view.ViewMappingConfigJobBody;
 import org.blazer.dataservice.cache.ConfigCache;
 import org.blazer.dataservice.cache.DataSourceCache;
+import org.blazer.dataservice.entity.DSUpload;
 import org.blazer.dataservice.entity.MappingConfigJob;
 import org.blazer.dataservice.exception.UnknowDataSourceException;
 import org.blazer.dataservice.model.ConfigModel;
@@ -35,7 +36,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller(value = "viewAction")
 @RequestMapping("/view")
@@ -51,6 +55,22 @@ public class ViewAction extends BaseAction {
 
 	@Autowired
 	ConfigCache configCache;
+
+	@ResponseBody
+	@RequestMapping(value = "/upload", method = RequestMethod.POST)
+	public Body upload(HttpServletRequest request, @RequestParam("file") MultipartFile file) {
+		HashMap<String, String> params = getParamMap(request);
+		SessionModel sm = PermissionsFilter.getSessionModel(request);
+		// 保存
+		try {
+			DSUpload upload = viewService.upload(params, sm, file);
+			logger.info("上传文件成功：" + upload.toString());
+			return new Body().success().setMessage(upload.getFileName());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return new Body().error().setMessage(e.getMessage());
+		}
+	}
 
 	@ResponseBody
 	@RequestMapping("/findReportByTaskName")

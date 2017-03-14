@@ -1,6 +1,7 @@
 package org.blazer.dataservice.service;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,6 +17,8 @@ import org.blazer.dataservice.body.view.ViewConfigBody;
 import org.blazer.dataservice.body.view.ViewConfigDetailBody;
 import org.blazer.dataservice.body.view.ViewMappingConfigJobBody;
 import org.blazer.dataservice.cache.ConfigCache;
+import org.blazer.dataservice.cache.DataSourceCache;
+import org.blazer.dataservice.entity.DSUpload;
 import org.blazer.dataservice.entity.DSGroup;
 import org.blazer.dataservice.entity.MappingConfigJob;
 import org.blazer.dataservice.exception.NoPermissionsException;
@@ -36,6 +39,7 @@ import org.blazer.scheduler.model.ResultModel;
 import org.blazer.scheduler.model.TaskLog;
 import org.blazer.scheduler.service.JobService;
 import org.blazer.scheduler.service.TaskService;
+import org.blazer.scheduler.util.DateUtil;
 import org.blazer.userservice.core.filter.PermissionsFilter;
 import org.blazer.userservice.core.model.CheckUrlStatus;
 import org.blazer.userservice.core.model.SessionModel;
@@ -47,6 +51,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service(value = "viewService")
 public class ViewService {
@@ -65,6 +70,9 @@ public class ViewService {
 	@Autowired
 	ConfigCache configCache;
 
+	@Autowired
+	DataSourceCache dataSourceCache;
+
 	@Value("#{scriptProperties.script_path}")
 	private String scriptPath;
 
@@ -74,8 +82,31 @@ public class ViewService {
 	@Value("#{scriptProperties.result_path}")
 	private String resultPath;
 
+	@Value("#{scriptProperties.upload_path}")
+	private String uploadPath;
+
 	@Value("#{reportProperties.read_row_number}")
 	private Integer readRowNumber;
+
+	public DSUpload upload(HashMap<String, String> params, SessionModel sm, MultipartFile file) throws IllegalStateException, IOException {
+		String config_id = params.get("config_id");
+		String uuid = DateUtil.newDateStr_yyyy_MM_dd_HH_mm_ss_SSS() + "_" + sm.getUserId() + "_" + config_id;
+		DSUpload upload = new DSUpload();
+		String originalFileName = file.getOriginalFilename();
+		String suffix = originalFileName.substring(originalFileName.lastIndexOf("."));
+		upload.setFileOldName(originalFileName);
+		upload.setFileSuffix(suffix);
+		upload.setFilePath(uploadPath);
+		upload.setUserId(sm.getUserId());
+		upload.setFileName(uuid);
+		// 保存文件
+		File targetFile = new File(uploadPath, uuid + suffix);
+		file.transferTo(targetFile);
+		// 保存到数据库
+		String sql = "insert into ds_upload(user_id, file_name, file_suffix, file_path, file_old_name) values(?,?,?,?,?)";
+		jdbcTemplate.update(sql, sm.getUserId(), upload.getFileName(), upload.getFileSuffix(), upload.getFilePath(), upload.getFileOldName());
+		return upload;
+	}
 
 	public ResultModel findReportByTaskName(HashMap<String, String> params) throws Exception {
 		// 为了减小服务器压力，每次均只允许读取100行
@@ -83,7 +114,7 @@ public class ViewService {
 		Integer skipRowNumber = IntegerUtil.getInt0(params.get("skipRowNumber"));
 		Integer maxRowNumber = readRowNumber;
 		if (skipRowNumber == 0) {
-			maxRowNumber ++;
+			maxRowNumber++;
 		}
 		ResultModel rm = ProcessHelper.readSingleLog(resultPath + File.separator + taskName + ".csv", skipRowNumber, maxRowNumber);
 		return rm;
@@ -221,16 +252,16 @@ public class ViewService {
 				list.get(i).put("type_name", TaskType.right_now.getCNName());
 			}
 		}
-//		List<Task> taskList = HMap.toList(list, Task.class);
-//		for (Task task : taskList) {
-//			task.setStatus(Status.get(task.getStatusId()));
-//			if (TaskType.cron_auto.toString().equals(task.getTypeName())) {
-//				task.setRemark(JobServer.getJobById(task.getJobId()).getJobName());
-//				task.setTypeName(TaskType.cron_auto.getCNName());
-//			} else {
-//				task.setTypeName(TaskType.right_now.getCNName());
-//			}
-//		}
+		// List<Task> taskList = HMap.toList(list, Task.class);
+		// for (Task task : taskList) {
+		// task.setStatus(Status.get(task.getStatusId()));
+		// if (TaskType.cron_auto.toString().equals(task.getTypeName())) {
+		// task.setRemark(JobServer.getJobById(task.getJobId()).getJobName());
+		// task.setTypeName(TaskType.cron_auto.getCNName());
+		// } else {
+		// task.setTypeName(TaskType.right_now.getCNName());
+		// }
+		// }
 		sql = "";
 		sql += "SELECT count(0) AS ct FROM (";
 		sql += " SELECT st.*, mcj.email AS email, mcj.email_userids AS email_userids FROM scheduler_task st";
@@ -354,7 +385,8 @@ public class ViewService {
 				mcj.setId(IntegerUtil.getInt0(jdbcTemplate.queryForList(sql).get(0).get("id")));
 			} else {
 				String sql = "update mapping_config_job set config_id=?, job_id=?, user_id=?, result_mode=?, email=?, email_userids=? where id=?";
-				jdbcTemplate.update(sql, mcj.getConfigId(), mcj.getJob().getId(), sm.getUserId(), mcj.getResultMode(), mcj.getEmail(), mcj.getEmailUserids(), mcj.getId());
+				jdbcTemplate.update(sql, mcj.getConfigId(), mcj.getJob().getId(), sm.getUserId(), mcj.getResultMode(), mcj.getEmail(), mcj.getEmailUserids(),
+						mcj.getId());
 				existsMap.remove(mcj.getId());
 			}
 			// mcj.getJob().getParams().add(new
@@ -571,15 +603,21 @@ public class ViewService {
 
 	@Transactional
 	public void saveConfig(SessionModel sm, ViewConfigBody config) throws SystemRetentionParameters {
+		// 先检查合法性
+
 		// 新增config
 		try {
+			// 允许参数中有带EXCEL:开头的
+			String dbName = dataSourceCache.getDataSourceBean(config.getDatasourceId()).getDatabase_name();
+			// 是否是一个允许上传Excel的数据源
+			boolean allowUploadExcelDatasource = dbName.equalsIgnoreCase("hive");
 			if (config.getId() == null) {
 				// 强制设置configType和enable和orderAsc
 				config.setConfigType("1");
 				config.setEnable(1);
 				String insertConfig = "insert into ds_config(group_id,datasource_id,user_id,config_name,config_type,remark,order_asc,enable) values(?,?,?,?,?,?,99999,?)";
-				int code = jdbcTemplate.update(insertConfig, config.getGroupId(), config.getDatasourceId(), sm.getUserId(), config.getConfigName(), config.getConfigType(),
-						config.getRemark(), config.getEnable());
+				int code = jdbcTemplate.update(insertConfig, config.getGroupId(), config.getDatasourceId(), sm.getUserId(), config.getConfigName(),
+						config.getConfigType(), config.getRemark(), config.getEnable());
 				logger.debug("inset code : " + code);
 				String selectMaxId = "select max(id) as max_id from ds_config";
 				Integer maxId = IntegerUtil.getInt0(jdbcTemplate.queryForList(selectMaxId).get(0).get("max_id"));
@@ -592,7 +630,8 @@ public class ViewService {
 			// 修改config
 			else {
 				String updateConfig = "update ds_config set group_id=?,datasource_id=?,user_id=?,config_name=?,config_type=?,remark=? where id=?";
-				int code = jdbcTemplate.update(updateConfig, config.getGroupId(), config.getDatasourceId(), sm.getUserId(), config.getConfigName(), "1", config.getRemark(), config.getId());
+				int code = jdbcTemplate.update(updateConfig, config.getGroupId(), config.getDatasourceId(), sm.getUserId(), config.getConfigName(), "1",
+						config.getRemark(), config.getId());
 				logger.debug("update code : " + code);
 			}
 
@@ -605,7 +644,18 @@ public class ViewService {
 			for (ViewConfigDetailBody detail : config.getList()) {
 				for (String param : SqlUtil.ExtractParams(detail.getValues())) {
 					if (ParamsUtil.Set.contains(param)) {
-						throw new RuntimeException("有系统保留参数:" + param);
+						throw new RuntimeException("有系统保留参数[" + param + "],请更换参数名称!");
+					}
+					// 是一个Excel参数
+					if (ParamsUtil.isExcel(param)) {
+						// 参数不合法
+						if (!ParamsUtil.isExcelValid(param)) {
+							throw new RuntimeException("Excel类型参数[" + param + "]不合法，请检查是否没有写Excel名称!");
+						}
+						// 参数合法，数据源不允许Excel
+						if (!allowUploadExcelDatasource) {
+							throw new RuntimeException("数据源[" + dbName + "]不允许上传Excel，请更换数据源，或者更换参数名!");
+						}
 					}
 				}
 			}

@@ -54,10 +54,10 @@
 				return $.ds.show('请选择一项进行任务执行!');
 			}
 			var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
-			var left = ($(window).width() - 500) / 2;
+			var left = ($(window).width() - 600) / 2;
 			$.ds.commons.openWindow("center_run_task_" + center_choose_li_id, $.ds.icon.run, title, "runtask.html", "id=" + center_choose_li_id).dialog('resize', {
 				height : 200,
-				width : 500,
+				width : 600,
 				left : left,
 				top : 100
 			});
