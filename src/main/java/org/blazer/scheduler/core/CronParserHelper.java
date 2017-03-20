@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.blazer.dataservice.util.IntegerUtil;
+import org.blazer.scheduler.expression.CronCalcTimeoutException;
 import org.blazer.scheduler.expression.CronException;
 import org.blazer.scheduler.util.DateUtil;
 
@@ -208,7 +209,7 @@ public class CronParserHelper {
 		System.out.println();
 	}
 
-	public static Date getNextDate(String cron) throws CronException {
+	public static Date getNextDate(String cron) throws CronException, CronCalcTimeoutException {
 		return getNextDate(DateUtil.newDate(), cron);
 	}
 
@@ -259,7 +260,7 @@ public class CronParserHelper {
 		return true;
 	}
 
-	public static Date getNextDate(Date date, String cron) throws CronException {
+	public static Date getNextDate(Date date, String cron) throws CronException, CronCalcTimeoutException {
 		// 最小粒度每分钟执行1次
 		// */2 * * * *
 		// */2 * * * *
@@ -282,7 +283,13 @@ public class CronParserHelper {
 		// 由于是NextDate，Next表示下一分钟，步长是1分钟
 		c.add(Calendar.MINUTE, 1);
 		_date = c.getTime();
+
+		int calcCount = 0;
 		while (true) {
+			if (calcCount >= 1000000) {
+				throw new CronCalcTimeoutException("calc count " + calcCount + " beyond 1000000 , please check the cron.");
+			}
+			calcCount++;
 			/**
 			 * 验证周几
 			 */
