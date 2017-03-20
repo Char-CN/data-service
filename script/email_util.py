@@ -13,7 +13,7 @@ class EmailUtil():
 
     mail_host = "smtp.163.com"  # 设置服务器
     mail_user = "blazerhehe"  # 用户名
-    mail_pass = "blazer123"  # 口令
+    mail_pass = "blazer222"  # 口令
     mail_postfix = "163.com"  # 发件箱的后缀
     me = "布雷泽何<%s@%s>" % (mail_user, mail_postfix)
 
