@@ -31,6 +31,8 @@ import org.blazer.scheduler.util.DateUtil;
  * 
  * 每一位支持的语法：[*]或者[* / 2]或者[1,2,3]或者[1-3]或者[1]
  * 
+ * 现在只对语法进行了简单的正则校验，并不完善，待后续完善。
+ * 
  */
 public class CronParserHelper {
 
@@ -85,6 +87,16 @@ public class CronParserHelper {
 		System.out.println(cron + "  : " + isValid(cron));
 		l1 = System.currentTimeMillis();
 		next = getNextDate(DateUtil.newDate(), cron);
+		l2 = System.currentTimeMillis();
+		System.out.println("waster time : " + (l2 - l1) + "ms");
+		System.out.println("next time   : " + sdf.format(next));
+		l1 = System.currentTimeMillis();
+		next = getNextDate(next, cron);
+		l2 = System.currentTimeMillis();
+		System.out.println("waster time : " + (l2 - l1) + "ms");
+		System.out.println("next time   : " + sdf.format(next));
+		l1 = System.currentTimeMillis();
+		next = getNextDate(next, cron);
 		l2 = System.currentTimeMillis();
 		System.out.println("waster time : " + (l2 - l1) + "ms");
 		System.out.println("next time   : " + sdf.format(next));
@@ -175,6 +187,25 @@ public class CronParserHelper {
 		System.out.println("waster time : " + (l2 - l1) + "ms");
 		System.out.println("next time   : " + sdf.format(next));
 		System.out.println();
+
+		cron = "1 1 1 1 0";
+		System.out.println(cron + "  : " + isValid(cron));
+		l1 = System.currentTimeMillis();
+		next = getNextDate(DateUtil.newDate(), cron);
+		l2 = System.currentTimeMillis();
+		System.out.println("waster time : " + (l2 - l1) + "ms");
+		System.out.println("next time   : " + sdf.format(next));
+		l1 = System.currentTimeMillis();
+		next = getNextDate(next, cron);
+		l2 = System.currentTimeMillis();
+		System.out.println("waster time : " + (l2 - l1) + "ms");
+		System.out.println("next time   : " + sdf.format(next));
+		l1 = System.currentTimeMillis();
+		next = getNextDate(next, cron);
+		l2 = System.currentTimeMillis();
+		System.out.println("waster time : " + (l2 - l1) + "ms");
+		System.out.println("next time   : " + sdf.format(next));
+		System.out.println();
 	}
 
 	public static Date getNextDate(String cron) throws CronException {
@@ -235,7 +266,6 @@ public class CronParserHelper {
 		if (cron == null) {
 			throw new CronException("not valid cron [" + cron + "]");
 		}
-		cron = cron.trim();
 		if (!isValid(cron)) {
 			throw new CronException("not valid cron [" + cron + "]");
 		}
@@ -247,293 +277,78 @@ public class CronParserHelper {
 		String weekday = array[4];
 		Date _date = new Date(date.getTime());
 
+		Calendar c = Calendar.getInstance();
+		c.setTime(_date);
+		// 由于是NextDate，Next表示下一分钟，步长是1分钟
+		c.add(Calendar.MINUTE, 1);
+		_date = c.getTime();
 		while (true) {
-			Calendar c = Calendar.getInstance();
-			c.setTime(_date);
-			// 每次增加1分钟
-			c.add(Calendar.MINUTE, 1);
-			_date = c.getTime();
-
 			/**
 			 * 验证周几
 			 */
 			if (!checkWeek(c, weekday)) {
+				// TODO : 此处为了提高效率，当不符合该周几时候，强制下一次计算为下一天 yyyy-MM-dd(Next Day)
+				// 00:00:xx
+				c.add(Calendar.DAY_OF_YEAR, 1);
+				c.set(Calendar.MINUTE, 0);
+				c.set(Calendar.HOUR_OF_DAY, 0);
+				_date = c.getTime();
 				continue;
 			}
-
-			// if (weekday.matches(R1)) {
-			// // do nothing
-			// }
-			// if (weekday.matches(R2)) {
-			// String[] strs = weekday.split("/");
-			// Integer step = IntegerUtil.getInt0(strs[1]);
-			// // 当前星期几
-			// int currentWeek =
-			// DateUtil.FIELD2WEEK.get(c.get(Calendar.DAY_OF_WEEK));
-			// // 不通过验证
-			// if (currentWeek % step != 0) {
-			// continue;
-			// }
-			// }
-			// if (weekday.matches(R3)) {
-			// String[] weeks = weekday.split(",");
-			// // 当前星期几
-			// int currentWeek =
-			// DateUtil.FIELD2WEEK.get(c.get(Calendar.DAY_OF_WEEK));
-			// boolean flag = false;
-			// inner: for (String s : weeks) {
-			// if (IntegerUtil.getInt0(s) == currentWeek) {
-			// flag = true;
-			// break inner;
-			// }
-			// }
-			// if (!flag) {
-			// continue;
-			// }
-			// }
-			// if (weekday.matches(R4)) {
-			// String[] weeks = weekday.split("-");
-			// // 当前星期几
-			// int currentWeek =
-			// DateUtil.FIELD2WEEK.get(c.get(Calendar.DAY_OF_WEEK));
-			// boolean flag = false;
-			// int begin = IntegerUtil.getInt0(weeks[0]);
-			// int end = IntegerUtil.getInt0(weeks[1]);
-			// inner: for (int i = begin; i < end; i++) {
-			// if (i == currentWeek) {
-			// flag = true;
-			// break inner;
-			// }
-			// }
-			// if (!flag) {
-			// continue;
-			// }
-			// }
 
 			/**
 			 * 验证几月
 			 */
 			if (!checkMonth(c, month)) {
+				// TODO : 此处为了提高效率，当不符合该月时候，强制下一次计算为下一月 yyyy-MM(Next Month)-01
+				// 00:00:xx
+				c.add(Calendar.MONTH, 1);
+				c.set(Calendar.DAY_OF_MONTH, 1);
+				c.set(Calendar.MINUTE, 0);
+				c.set(Calendar.HOUR_OF_DAY, 0);
+				_date = c.getTime();
 				continue;
 			}
-			// if (month.matches(R1)) {
-			// // do nothing
-			// }
-			// if (month.matches(R2)) {
-			// String[] strs = month.split("/");
-			// Integer step = IntegerUtil.getInt0(strs[1]);
-			// // 当前第几月
-			// int currentMonth = c.get(Calendar.MONTH) + 1;
-			// // 不通过验证
-			// if (currentMonth % step != 0) {
-			// continue;
-			// }
-			// }
-			// if (month.matches(R3)) {
-			// String[] months = month.split(",");
-			// // 当前第几月
-			// int currentMonth = c.get(Calendar.MONTH) + 1;
-			// boolean flag = false;
-			// inner: for (String s : months) {
-			// if (IntegerUtil.getInt0(s) == currentMonth) {
-			// flag = true;
-			// break inner;
-			// }
-			// }
-			// if (!flag) {
-			// continue;
-			// }
-			// }
-			// if (month.matches(R4)) {
-			// String[] months = month.split("-");
-			// // 当前第几月
-			// int currentMonth = c.get(Calendar.MONTH) + 1;
-			// // 当前第几天
-			// boolean flag = false;
-			// int begin = IntegerUtil.getInt0(months[0]);
-			// int end = IntegerUtil.getInt0(months[1]);
-			// inner: for (int i = begin; i < end; i++) {
-			// if (i == currentMonth) {
-			// flag = true;
-			// break inner;
-			// }
-			// }
-			// if (!flag) {
-			// continue;
-			// }
-			// }
 
 			/**
 			 * 验证几天
 			 */
 			if (!checkDay(c, day)) {
+				// TODO : 此处为了提高效率，当不符合该天时候，强制下一次计算为下一天 yyyy-MM-dd(Next Day)
+				// 00:00:xx
+				c.add(Calendar.DAY_OF_YEAR, 1);
+				c.set(Calendar.MINUTE, 0);
+				c.set(Calendar.HOUR_OF_DAY, 0);
+				_date = c.getTime();
 				continue;
 			}
-			// if (day.matches(R1)) {
-			// // do nothing
-			// }
-			// if (day.matches(R2)) {
-			// String[] strs = day.split("/");
-			// Integer step = IntegerUtil.getInt0(strs[1]);
-			// // 当前第几天
-			// int currentDay = c.get(Calendar.DAY_OF_MONTH);
-			// // 不通过验证
-			// if (currentDay % step != 0) {
-			// continue;
-			// }
-			// }
-			// if (day.matches(R3)) {
-			// String[] days = day.split(",");
-			// // 当前第几天
-			// int currentDay = c.get(Calendar.DAY_OF_MONTH);
-			// boolean flag = false;
-			// inner: for (String s : days) {
-			// if (IntegerUtil.getInt0(s) == currentDay) {
-			// flag = true;
-			// break inner;
-			// }
-			// }
-			// if (!flag) {
-			// continue;
-			// }
-			// }
-			// if (day.matches(R4)) {
-			// String[] days = day.split("-");
-			// // 当前第几天
-			// int currentDay = c.get(Calendar.DAY_OF_MONTH);
-			// // 当前第几天
-			// boolean flag = false;
-			// int begin = IntegerUtil.getInt0(days[0]);
-			// int end = IntegerUtil.getInt0(days[1]);
-			// inner: for (int i = begin; i < end; i++) {
-			// if (i == currentDay) {
-			// flag = true;
-			// break inner;
-			// }
-			// }
-			// if (!flag) {
-			// continue;
-			// }
-			// }
 
 			/**
 			 * 验证几时
 			 */
 			if (!checkHour(c, hour)) {
-				// TODO : 此处为了提高效率，当不符合该小时时候，强制下一次计算为下一小时
-				if ((hour.matches(R3) || hour.matches(R3)) && minute.matches(R1)) {
-					c.set(Calendar.MINUTE, 59);
-					_date = c.getTime();
-				}
+				// TODO : 此处为了提高效率，当不符合该小时时候，强制下一次计算为下一小时 yyyy-MM-dd HH(Next
+				// Hour):00:xx
+				c.add(Calendar.HOUR_OF_DAY, 1);
+				c.set(Calendar.MINUTE, 0);
+				_date = c.getTime();
 				continue;
 			}
-			// if (hour.matches(R1)) {
-			// // do nothing
-			// }
-			// if (hour.matches(R2)) {
-			// String[] strs = hour.split("/");
-			// Integer step = IntegerUtil.getInt0(strs[1]);
-			// // 当前小时
-			// int currentHour = c.get(Calendar.HOUR_OF_DAY);
-			// // 不通过验证
-			// if (currentHour % step != 0) {
-			// continue;
-			// }
-			// }
-			// if (hour.matches(R3)) {
-			// String[] hours = hour.split(",");
-			// // 当前小时
-			// int currentHour = c.get(Calendar.HOUR_OF_DAY);
-			// // 当前第几天
-			// boolean flag = false;
-			// inner: for (String s : hours) {
-			// if (IntegerUtil.getInt0(s) == currentHour) {
-			// flag = true;
-			// break inner;
-			// }
-			// }
-			// if (!flag) {
-			// // : 此处为了提高效率，当不符合该小时时候，强制下一次计算为下一小时
-			// if (minute.matches(R1)) {
-			// c.set(Calendar.MINUTE, 59);
-			// _date = c.getTime();
-			// }
-			// continue;
-			// }
-			// }
-			// if (hour.matches(R4)) {
-			// String[] hours = hour.split("-");
-			// // 当前小时
-			// int currentHour = c.get(Calendar.HOUR_OF_DAY);
-			// // 当前第几天
-			// boolean flag = false;
-			// int begin = IntegerUtil.getInt0(hours[0]);
-			// int end = IntegerUtil.getInt0(hours[1]);
-			// inner: for (int i = begin; i < end; i++) {
-			// if (i == currentHour) {
-			// flag = true;
-			// break inner;
-			// }
-			// }
-			// if (!flag) {
-			// continue;
-			// }
-			// }
 
 			/**
 			 * 验证几分
 			 */
 			if (!checkMinute(c, minute)) {
+				// TODO : 此处为了提高效率，当不符合该分钟的时候，强制下一次计算为下一分钟 yyyy-MM-dd HH:mm(Next
+				// Minute):xx
+				c.add(Calendar.MINUTE, 1);
+				_date = c.getTime();
 				continue;
 			}
-			// if (minute.matches(R1)) {
-			// // do nothing
-			// }
-			// if (minute.matches(R2)) {
-			// String[] strs = minute.split("/");
-			// Integer step = IntegerUtil.getInt0(strs[1]);
-			// // 当前分钟
-			// int currentMinute = c.get(Calendar.MINUTE);
-			// // 不通过验证
-			// if (currentMinute % step != 0) {
-			// continue;
-			// }
-			// }
-			// if (minute.matches(R3)) {
-			// String[] minutes = minute.split(",");
-			// // 当前分钟
-			// int currentMinute = c.get(Calendar.MINUTE);
-			// // 当前第几天
-			// boolean flag = false;
-			// inner: for (String s : minutes) {
-			// if (IntegerUtil.getInt0(s) == currentMinute) {
-			// flag = true;
-			// break inner;
-			// }
-			// }
-			// if (!flag) {
-			// continue;
-			// }
-			// }
-			// if (minute.matches(R4)) {
-			// String[] minutes = minute.split("-");
-			// // 当前分钟
-			// int currentMinute = c.get(Calendar.MINUTE);
-			// // 当前第几天
-			// boolean flag = false;
-			// int begin = IntegerUtil.getInt0(minutes[0]);
-			// int end = IntegerUtil.getInt0(minutes[1]);
-			// inner: for (int i = begin; i < end; i++) {
-			// if (i == currentMinute) {
-			// flag = true;
-			// break inner;
-			// }
-			// }
-			// if (!flag) {
-			// continue;
-			// }
-			// }
-			// ok
+
+			/**
+			 * 验证全部通过
+			 */
 			break;
 		}
 		return _date;
@@ -813,12 +628,14 @@ public class CronParserHelper {
 	public static boolean isValid(String cron) {
 		if (cron == null)
 			return false;
+		cron = cron.trim();
 		return cron.matches(EXPRESSION);
 	}
 
 	public static boolean isNotValid(String cron) {
 		if (cron == null)
 			return true;
+		cron = cron.trim();
 		return !cron.matches(EXPRESSION);
 	}
 
