@@ -5,6 +5,7 @@ public class DSUpload {
 	private Integer id;
 	private Integer userId;
 	private String fileName;
+	private String fileFullName;
 	private String fileSuffix;
 	private String filePath;
 	private String fileOldName;
@@ -57,10 +58,18 @@ public class DSUpload {
 		this.fileOldName = fileOldName;
 	}
 
+	public String getFileFullName() {
+		return fileFullName;
+	}
+
+	public void setFileFullName(String fileFullName) {
+		this.fileFullName = fileFullName;
+	}
+
 	@Override
 	public String toString() {
-		return "DSUpload [id=" + id + ", userId=" + userId + ", fileName=" + fileName + ", fileSuffix=" + fileSuffix + ", filePath=" + filePath + ", fileOldName="
-				+ fileOldName + "]";
+		return "DSUpload [id=" + id + ", userId=" + userId + ", fileName=" + fileName + ", fileFullName=" + fileFullName + ", fileSuffix=" + fileSuffix + ", filePath="
+				+ filePath + ", fileOldName=" + fileOldName + "]";
 	}
 
 }

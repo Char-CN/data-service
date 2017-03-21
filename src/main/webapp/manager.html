@@ -4,11 +4,8 @@
 		var this_window = $("#" + windowId);
 		var this_ul = this_window.find("#center_ul");
 		this_window.find('.datasource').bind('click', function() {
-			$.ds.alert('抱歉，该功能暂未开放，配置数据源请联系管理员。');
+			$.ds.alert('如需新增数据源请联系-系统管理员。');
 		});
-
-// 		var isadmin = $userservice.checkurl('isadmin');
-// 		var isuser = $userservice.checkurl('isuser');
 
 		if ($isadmin) {
 			this_window.find('.permissions').bind('click', function() {
@@ -19,22 +16,14 @@
 				});
 			});
 			this_window.find('.all_task_list').bind('click', function() {
-// 				$.ds.confirm('对不起，暂未开放。');
-// 				$.ds.commons.openWindow("mytasklist", $.ds.icon.list_alt , "所有任务列表", "mytasklist.html").dialog('resize', {
-// 					height : 380,
-// 					top : 100
-// 				});
 				$.ds.commons.openWindow("mytasklist", $.ds.icon.list_alt , "所有任务列表", "alltasklist.html").dialog('resize', {
 					height : 400,
 					top : 100
 				});
 			});
 			this_window.find('.my_task_list').bind('click', function() {
+				// 引用左边快捷按钮的点击事件
 				$("#titlebar").DSFind("mytasklist").click();
-// 				$.ds.commons.openWindow("mytasklist", $.ds.icon.list , "我的任务列表", "mytasklist.html").dialog('resize', {
-// 					height : 380,
-// 					top : 100
-// 				});
 			});
 			this_window.find('.scheduler_list').bind('click', function() {
 				$.ds.commons.openWindow("schedulerlist", $.ds.icon.clock , "调度任务列表", "schedulerlist.html").dialog('resize', {

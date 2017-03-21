@@ -3,12 +3,12 @@
 		<table style="border-collapse: separate; border-spacing: 10px; width: 100%;">
 			<tbody>
 				<tr>
-					<td width="20%"><span>数据源:</span></td>
-					<td width="80%" ds_index="td_datasource"></td>
+					<td width="25%"><span>数据源:</span></td>
+					<td width="75%" ds_index="td_datasource"></td>
 				</tr>
 				<tr>
-					<td width="20%"><span>名称:</span></td>
-					<td width="80%" ds_index="td_name"></td>
+					<td width="25%"><span>名称:</span></td>
+					<td width="75%" ds_index="td_name"></td>
 				</tr>
 			</tbody>
 			<tbody>
@@ -109,7 +109,12 @@
 					var p = param.eq(j);
 					var po = { };
 					po.paramName = p.find('td').eq(0).html();
-					po.defaultValue = p.find('td').eq(1).DSFind('param_' + j).textbox('getValue');
+// 					po.defaultValue = p.find('td').eq(1).DSFind('param_' + j).textbox('getValue');
+					if ($.ds.isExcel(po.paramName)) {
+						po.defaultValue = p.find('td').eq(1).DSFind('key_value').filebox('getText');
+					} else {
+						po.defaultValue = p.find('td').eq(1).DSFind('key_value').textbox('getValue');
+					}
 					mcj.job.params.push(po);
 				}
 				arr.push(mcj);
@@ -261,7 +266,7 @@
 			pan.append(tb);
 			tb.append('<input ds_index="job_id" type="hidden" value="' + jobId + '">');
 			tb.append('<input ds_index="mcj_id" type="hidden" value="' + mcjId + '">');
-			tb.append('<tr style="width:100%;"><td style="width:20%;">cron表达式：</td><td style="width:80%;"><input ds_index="cron"></td></tr>');
+			tb.append('<tr style="width:100%;"><td style="width:25%;">cron表达式：</td><td style="width:75%;"><input ds_index="cron"></td></tr>');
 			tb.DSFind('cron').textbox({
 				required : true,
 				validateOnCreate : false,
@@ -270,7 +275,7 @@
 				multiline : false,
 				value : cron
 			});
-			tb.append('<tr style="width:100%;"><td style="width:20%;">接收方式：</td><td style="width:80%;"><select ds_index="mode"></td></tr>');
+			tb.append('<tr style="width:100%;"><td style="width:25%;">接收方式：</td><td style="width:75%;"><select ds_index="mode"></td></tr>');
 			// 接收方式
 			var select = tb.DSFind('mode');
 			select.append('<option value="1">邮件[文件]</option>');
@@ -280,7 +285,7 @@
 				panelMaxHeight : 27
 			});
 			select.combobox('setValue', resultMode);
-			tb.append('<tr style="width:100%;"><td style="width:20%;">邮件地址：</td><td style="width:80%;"><select ds_index="email_users"></td></tr>');
+			tb.append('<tr style="width:100%;"><td style="width:25%;">邮件地址：</td><td style="width:75%;"><select ds_index="email_users"></td></tr>');
 			// 邮件地址
 			var select = tb.DSFind("email_users");
 			// 只用ajax请求一次
@@ -326,23 +331,110 @@
 			// 参数信息
 			tb.append('<tr style="width:100%;"><td colspan="2">以下是所有参数信息：</td></tr>');
 			if (params_key.length == 0) {
-				tb.append('<tr><td width="20%"></td><td width="80%">没有任何参数。</td></tr>');
+				tb.append('<tr><td width="25%"></td><td width="75%">没有任何参数。</td></tr>');
 			} else {
 				for ( var i in params_key) {
 // 					alert(params_key[i]);
-					tb.append('<tr ds_index="param" style="width:100%;"><td style="width:20%;" align="center">' + params_key[i] + '</td><td style="width:80%;"><input ds_index="param_' + i + '"></td></tr>');
+					var tr = $('<tr ds_index="param" style="width:100%;"></tr>');
+					var key = $.ds.getCustomKey(params_key[i]);
+					if (key == "SYS_TASK_NAME") {
+						// 强制过滤该系统参数
+						continue;
+					}
+					var td_key = $('<td align="center">' + key + '</td>');
+					var key_textbox = $('<input ds_index="key_value" name="file">');
+					var td_value = $('<td ></td>').append(key_textbox);
+					tb.append(tr.append(td_key).append(td_value));
+
+// 					tb.append('<tr ds_index="param" style="width:100%;"><td style="width:25%;" align="center">' + params_key[i] + '</td><td style="width:75%;"><input ds_index="param_' + i + '"></td></tr>');
 					var val = '';
 					for (var j in params) {
 						if (params[j].paramName == params_key[i]) {
 							val = params[j].defaultValue;
 						}
 					}
-					tb.DSFind('param_' + i).textbox({
-						validateOnCreate : false,
-						width : "100%",
-						multiline : false,
-						value : val
-					});
+
+					if ($.ds.isExcel(key)) {
+						var progress = $('<div ds_index="pro" style="float:right">').progressbar({
+							width : '130',
+						    value : 0
+						});
+						td_value.append(progress);
+						key_textbox.filebox({
+							required : true,
+							validType : 'uploadFile',
+							buttonText : 'Choose File',
+							buttonAlign : 'right',
+							value : val,
+							accept : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel',
+							width : "470",
+							onChange : function() {
+						        var fd = new FormData();
+						        var file = $(this).parent().find("input[name=file]").get(0).files[0];
+						        // file.size单位是b
+						        if (file.size > 1024 * 1024 * 10) {
+						        	// 大于10M
+						        	$.ds.alert("上传失败，文件大于10M！<br>服务器压力大请手下留情！");
+						        	return;
+						        }
+								fd.append("file", file);
+					            var xhr = new XMLHttpRequest();
+					            xhr.onload = function (evt) {
+						       		var message = evt.target.responseText;
+					            };
+					            var this_obj = $(this);
+								var uploadProgress = function(evt) {
+							        if (evt.lengthComputable) {
+							            var percentComplete = Math.round(evt.loaded * 100 / evt.total);
+							            if (percentComplete == 100) {
+								            this_obj.parent().DSFind("key_value").filebox('setText', '上传成功,正在处理文件...请耐心等待...');
+							            }
+							            this_obj.parent().DSFind("pro").progressbar('setValue', percentComplete);
+							        } else {
+							            this_obj.parent().DSFind("key_value").filebox('setText', '无法计算上传进度...');
+							        }
+								};
+								var uploadComplete = function(evt) {
+									var data = JSON.parse(evt.target.responseText);
+									if (data.status != 200) {
+										$.ds.alert(data.message);
+									}
+						            this_obj.parent().DSFind("key_value").filebox('setText', data.message);
+								};
+								var uploadFailed = function(evt) {
+						        	$.ds.alert("上传出错！");
+								};
+								var uploadCanceled = function(evt) {
+						        	$.ds.alert("上传已由用户或浏览器取消删除连接！");
+								};
+						        xhr.upload.addEventListener("progress", uploadProgress, false);
+								xhr.addEventListener("load", uploadComplete, false);
+								xhr.addEventListener("error", uploadFailed, false);
+								xhr.addEventListener("abort", uploadCanceled, false);
+								xhr.open("POST", "/view/upload.do?task_type=right_now&config_id=" + id);
+								xhr.send(fd);
+							}
+						});
+					} else {
+// 						key_textbox.textbox({
+// 							validateOnCreate : false,
+// 							validateOnBlur : true,
+// 							width : "100%",
+// 							multiline : false
+// 						});
+						key_textbox.textbox({
+							validateOnCreate : false,
+							width : "100%",
+							multiline : false,
+							value : val
+						});
+					}
+// 					tb.DSFind('key_value').textbox({
+// 						validateOnCreate : false,
+// 						width : "100%",
+// 						multiline : false,
+// 						value : val
+// 					});
 				}
 			}
 			addSchedulerCount++;

@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.blazer.scheduler.entity.Job;
+import org.blazer.scheduler.expression.CronCalcTimeoutException;
 import org.blazer.scheduler.model.ProcessModel;
 import org.blazer.scheduler.service.JobService;
 import org.blazer.scheduler.util.SpringContextUtil;
@@ -81,16 +82,22 @@ public class JobServer extends Thread {
 		Exception exception = null;
 		boolean error = false;
 		while (true) {
+			Integer jobId = null;
 			try {
 				if (waitSpawnTaskJobIdQueue.isEmpty()) {
 					Thread.sleep(1000);
 					continue;
 				}
-				Integer jobId = waitSpawnTaskJobIdQueue.element();
+				jobId = waitSpawnTaskJobIdQueue.element();
 				ProcessModel pm = TaskServer.spawnAutoCronTaskProcess(jobIdToJobMap.get(jobId));
 				logger.debug("spawn cron auto task process : " + pm);
 				waitSpawnTaskJobIdQueue.remove();
 				error = false;
+			} catch (CronCalcTimeoutException e) {
+				error = true;
+				exception = e;
+				waitSpawnTaskJobIdQueue.remove(jobId);
+				waitSpawnTaskJobIdQueue.add(jobId);
 			} catch (Exception e) {
 				error = true;
 				exception = e;

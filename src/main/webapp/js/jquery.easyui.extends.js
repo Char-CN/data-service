@@ -69,6 +69,15 @@ $(function() {
 			},
 			message : '请填写正确邮箱并且用英文逗号分割!'
 		},
+		uploadFile : {
+			validator : function(value) {
+				if (value.toLowerCase().indexOf('excel.right_now_') != 0) {
+					return false;
+				}
+				return true;
+			},
+			message : '请确保您上传的文件正确!'
+		},
 		// 一组textbox的唯一值验证
 		onlyValue : {
 			// 例如一组标签 ：

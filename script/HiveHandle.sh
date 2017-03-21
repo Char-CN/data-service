@@ -1,26 +1,10 @@
 #!/bin/sh
 source ~/.bash_profile
 
-############################################################################# 配置信息
-debug=true;
-java_path="/usr/bin/java";
-jar_path="/Users/hyy/Work/workspace/date-format/target/date-format-0.0.1-SNAPSHOT.jar"
-jar_path2="/Users/hyy/Work/workspace/BlazerUtil/out/BlazerUtil-1.0.jar"
-mysql_path="/usr/local/mysql/bin/mysql";
-hive_path="/Users/hyy/Work/hive-1.2.1-bin/bin/hive";
-python_path="/usr/bin/python";
-conn="${mysql_path} -h172.16.52.137 -uroot -p123456 -Ddw_dataservice -N -e";
-get_mails_url="http://bigdata.blazer.org:8030/userservice/getmailsbyuserids.do"
-email_util="email_util.py";
-function log() {
-  if [ $debug == true ];
-  then
-    echo "$1"
-  else
-    echo ""
-  fi
-}
-############################################################################# 获取路径begin
+############################################################################# 配置文件名称
+config_file_name="config.sh"
+
+############################################################################# 获取路径
 SOURCE="$0"
 while [ -h "$SOURCE"  ]; do
     DIR="$( cd -P "$( dirname "$SOURCE"  )" && pwd  )"
@@ -29,9 +13,17 @@ while [ -h "$SOURCE"  ]; do
 done
 WORKSPACE="$( cd -P "$( dirname "$SOURCE"  )" && pwd  )"
 cd ${WORKSPACE}
-############################################################################# 获取路径end ${WORKSPACE}
-
-############################################################################# 获取参数begin
+############################################################################# 加载配置文件
+if [ -f ${WORKSPACE}/${config_file_name} ];
+then
+  echo "加载配置文件: ${WORKSPACE}/${config_file_name}"
+  source ${WORKSPACE}/${config_file_name}
+else
+  echo "找不到配置文件：${WORKSPACE}/${config_file_name}，请检查！"
+  exit 1
+fi
+echo "debug模式是否打开：$debug"
+############################################################################# 获取参数
 params_sh_sys_split="^_^"
 params_sh_sys_maps=""
 
@@ -62,8 +54,16 @@ function get() {
   echo ""
   return
 }
-############################################################################# 获取参数end
-
+############################################################################# log函数
+function log() {
+  if [ $debug == true ];
+  then
+    echo "$1"
+  else
+    echo ""
+  fi
+}
+############################################################################# 获取传入参数
 result_path=$(get result_path)
 mapping_config_job_id=$(get mapping_config_job_id)
 config_id=$(get config_id)
@@ -74,7 +74,6 @@ echo "result_path           : ${result_path}";
 echo "mapping_config_job_id : ${mapping_config_job_id}";
 echo "config_id             : ${config_id}";
 echo "emails                : ${emails}";
-
 ############################################################################# 获取数据源信息
 echo "################## config_id存在表示即时查询的任务";
 if [ "${config_id}" == "" ];
@@ -156,7 +155,7 @@ do
   # 格式[df|today+0|yyyy-MM-dd]
   if [[ ${#value_arr[@]} != 1 ]];
   then
-    real_value=`${java_path} -jar ${jar_path} ${value}`
+    real_value=`${java_path} -jar ${format_jar} ${value}`
     query_sql=${query_sql//\$\{${key}\}/${real_value}};
   else
     query_sql=${query_sql//\$\{${key}\}/${value}};
@@ -185,8 +184,8 @@ fi
 
 echo $(log "${exec_cmd} \"${query_sql}\" > ${result_path}/${SYS_TASK_NAME}.csv");
 
+############################################################################# 执行命令
 echo "开始执行查询任务......";
-
 ${exec_cmd} "${query_sql}" > ${result_path}/${SYS_TASK_NAME}.csv
 
 if [ "$?" = "0" ];
@@ -214,7 +213,7 @@ then
   fi
   if [ "${config_id}" == "" ];
   then
-    # 根据mappingid查询实际执行sql
+    # 根据mappingid查询实际执行的备注信息
     sql="
     SET NAMES utf8;
     select REPLACE(dc.remark, '\n', '</br>') from mapping_config_job mcj
@@ -226,7 +225,7 @@ then
       and mcj.id=${mapping_config_job_id}
     ";
   else
-    # 根据config查询实际执行sql
+    # 根据config查询实际执行的备注信息
     sql="
     SET NAMES utf8;
     select REPLACE(dc.remark, '\n', '</br>') from ds_config dc
@@ -242,11 +241,17 @@ then
   email_title="${config_name}_报表_${SYS_TASK_NAME}"
   email_content="您好，请查收本次任务的附件。</br>备注信息：${email_content}"
   result_file_path="${result_path}/${SYS_TASK_NAME}.csv"
-  echo ${java_path} -jar ${jar_path2} "com.blazer.convert.Csv2Excel" "${result_path}" "${SYS_TASK_NAME}.csv"
-  ${java_path} -jar ${jar_path2} "com.blazer.convert.Csv2Excel" "${result_path}" "${SYS_TASK_NAME}.csv"
+  echo ${java_path} -jar ${util_jar} "com.blazer.convert.Csv2Excel" "${result_path}" "${SYS_TASK_NAME}.csv"
+  ${java_path} -jar ${util_jar} "com.blazer.convert.Csv2Excel" "${result_path}" "${SYS_TASK_NAME}.csv"
   if [ "$?" = "0" ];
   then
     result_file_path=${result_path}/${SYS_TASK_NAME}.xlsx
+  fi
+  echo "${zip_path} -j ${result_path}/${SYS_TASK_NAME}.zip ${result_file_path}"
+  ${zip_path} -j ${result_path}/${SYS_TASK_NAME}.zip ${result_file_path}
+  if [ "$?" = "0" ];
+  then
+    result_file_path=${result_path}/${SYS_TASK_NAME}.zip
   fi
   echo $(log "${python_path} ${email_util} ${emails} ${email_title} ${email_content} ${result_file_path}");
   ${python_path} ${email_util} "${emails}" "${email_title}" "${email_content}" "${result_file_path}"

@@ -52,7 +52,9 @@ public class DateUtil {
 			put(4, Calendar.THURSDAY);
 			put(5, Calendar.FRIDAY);
 			put(6, Calendar.SATURDAY);
+			// 让 7 和 0 都表示为星期日;
 			put(7, Calendar.SUNDAY);
+			put(0, Calendar.SUNDAY);
 		}
 	};
 
@@ -65,7 +67,9 @@ public class DateUtil {
 			put(Calendar.THURSDAY, 4);
 			put(Calendar.FRIDAY, 5);
 			put(Calendar.SATURDAY, 6);
+			// 让 7 和 0 都表示为星期日;
 			put(Calendar.SUNDAY, 7);
+			put(Calendar.SUNDAY, 0);
 		}
 	};
 

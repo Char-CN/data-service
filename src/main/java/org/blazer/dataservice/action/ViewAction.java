@@ -17,7 +17,6 @@ import org.blazer.dataservice.body.view.ViewConfigBody;
 import org.blazer.dataservice.body.view.ViewMappingConfigJobBody;
 import org.blazer.dataservice.cache.ConfigCache;
 import org.blazer.dataservice.cache.DataSourceCache;
-import org.blazer.dataservice.entity.DSUpload;
 import org.blazer.dataservice.entity.MappingConfigJob;
 import org.blazer.dataservice.exception.UnknowDataSourceException;
 import org.blazer.dataservice.model.ConfigModel;
@@ -61,11 +60,10 @@ public class ViewAction extends BaseAction {
 	public Body upload(HttpServletRequest request, @RequestParam("file") MultipartFile file) {
 		HashMap<String, String> params = getParamMap(request);
 		SessionModel sm = PermissionsFilter.getSessionModel(request);
-		// 保存
 		try {
-			DSUpload upload = viewService.upload(params, sm, file);
-			logger.info("上传文件成功：" + upload.toString());
-			return new Body().success().setMessage(upload.getFileName());
+			// 保存到服务器
+			String message = viewService.upload(params, sm, file);
+			return new Body().success().setMessage(message);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			return new Body().error().setMessage(e.getMessage());

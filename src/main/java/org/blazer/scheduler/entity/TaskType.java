@@ -30,7 +30,7 @@ public enum TaskType {
 	}
 
 	public static void main(String[] args) {
-		System.out.println();
+		System.out.println(TaskType.right_now);
 	}
 
 }

@@ -3,12 +3,12 @@
 		<table style="border-collapse: separate; border-spacing: 10px; width: 100%;">
 			<tbody>
 				<tr>
-					<td width="30%"><span>名称:</span></td>
-					<td width="70%" ds_index="td_name"></td>
+					<td width="20%"><span>名称:</span></td>
+					<td width="80%" ds_index="td_name"></td>
 				</tr>
 				<tr>
-					<td width="30%"><span>备注:</span></td>
-					<td width="70%" ds_index="td_remark"></td>
+					<td width="20%"><span>备注:</span></td>
+					<td width="80%" ds_index="td_remark"></td>
 				</tr>
 				<tr>
 					<td colspan="2">以下是所有参数信息：</td>
@@ -89,7 +89,12 @@
 			this_window.DSFind('params').find('tr').each(function() {
 				try {
 					var key = $(this).find('td:eq(0)').text();
-					var value = $(this).find('td:eq(1)').DSFind('key_value').textbox('getValue');
+					var value = "";
+					if ($.ds.isExcel(key)) {
+						value = $(this).find('td:eq(1)').DSFind('key_value').filebox('getText');
+					} else {
+						value = $(this).find('td:eq(1)').DSFind('key_value').textbox('getValue');
+					}
 					params += "&" + $.ds.getCustomKey(key) + "=" + value;
 				} catch (e) {
 				}
@@ -165,9 +170,13 @@
 					for ( var i in rst.params) {
 						var tr = $("<tr></tr>");
 						var key = $.ds.getCustomKey(rst.params[i]);
-						var td_key = $("<td>" + key + "</td>");
+						if (key == "SYS_TASK_NAME") {
+							// 强制过滤该系统参数
+							continue;
+						}
+						var td_key = $('<td align="center">' + key + '</td>');
 						var key_textbox = $('<input ds_index="key_value" name="file">');
-						var td_value = $("<td></td>").append(key_textbox);
+						var td_value = $('<td ></td>').append(key_textbox);
 						tbody.append(tr.append(td_key).append(td_value));
 						if ($.ds.isExcel(key)) {
 							var progress = $('<div ds_index="pro" style="float:right">').progressbar({
@@ -176,13 +185,22 @@
 							});
 							td_value.append(progress);
 							key_textbox.filebox({
+								required : true,
+								validType : 'uploadFile',
 								buttonText : 'Choose File',
 								buttonAlign : 'right',
 								accept : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel',
-								width : "250",
+								width : "380",
 								onChange : function() {
 							        var fd = new FormData();
-									fd.append("file", $(this).parent().find("input[name=file]").get(0).files[0]);
+							        var file = $(this).parent().find("input[name=file]").get(0).files[0];
+							        // file.size单位是b
+							        if (file.size > 1024 * 1024 * 10) {
+							        	// 大于10M
+							        	$.ds.alert("上传失败，文件大于10M！<br>服务器压力大请手下留情！");
+							        	return;
+							        }
+									fd.append("file", file);
 						            var xhr = new XMLHttpRequest();
 						            xhr.onload = function (evt) {
 							       		var message = evt.target.responseText;
@@ -191,29 +209,32 @@
 									var uploadProgress = function(evt) {
 								        if (evt.lengthComputable) {
 								            var percentComplete = Math.round(evt.loaded * 100 / evt.total);
+								            if (percentComplete == 100) {
+									            this_obj.parent().DSFind("key_value").filebox('setText', '上传成功,正在处理文件...请耐心等待...');
+								            }
 								            this_obj.parent().DSFind("pro").progressbar('setValue', percentComplete);
 								        } else {
-								            this_obj.parent().DSFind("pro").html('无法计算');
+								            this_obj.parent().DSFind("key_value").filebox('setText', '无法计算上传进度...');
 								        }
 									};
 									var uploadComplete = function(evt) {
 										var data = JSON.parse(evt.target.responseText);
 										if (data.status != 200) {
-											$.ds.alert("上传失败！" + data.message);
+											$.ds.alert(data.message);
 										}
 							            this_obj.parent().DSFind("key_value").filebox('setText', data.message);
 									};
 									var uploadFailed = function(evt) {
-										alert("上传出错.");
-									}
+							        	$.ds.alert("上传出错！");
+									};
 									var uploadCanceled = function(evt) {
-										alert("上传已由用户或浏览器取消删除连接.");
-									}
+							        	$.ds.alert("上传已由用户或浏览器取消删除连接！");
+									};
 							        xhr.upload.addEventListener("progress", uploadProgress, false);
 									xhr.addEventListener("load", uploadComplete, false);
 									xhr.addEventListener("error", uploadFailed, false);
 									xhr.addEventListener("abort", uploadCanceled, false);
-									xhr.open("POST", "/view/upload.do?config_id=" + id);
+									xhr.open("POST", "/view/upload.do?task_type=right_now&config_id=" + id);
 									xhr.send(fd);
 								}
 							});
