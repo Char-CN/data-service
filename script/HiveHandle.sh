@@ -144,6 +144,8 @@ query_sql=`${conn} "${sql}"`;
 echo $(log "$query_sql");
 
 echo $(log "################## 实际查询的sql参数替换处理");
+# 强制替换系统任务名称参数
+query_sql=${query_sql//\$\{SYS_TASK_NAME\}/${SYS_TASK_NAME}};
 arr=(${params_sh_sys_maps//${params_sh_sys_split}/ })
 for((i=0;i<${#arr[@]};i++))
 do
