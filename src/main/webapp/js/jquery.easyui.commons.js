@@ -8,6 +8,8 @@ $(function() {
 				}
 				return urls[1];
 			},
+			upload : "file/upload.do",
+			download : "file/download.do",
 			analytic_add_task : "analytic/getAddTask.do",
 			analytic_run_task : "analytic/getRunTask.do",
 			find_report_by_task_name : "view/findReportByTaskName.do",

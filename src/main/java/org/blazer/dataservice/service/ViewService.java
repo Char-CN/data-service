@@ -18,9 +18,7 @@ import org.blazer.dataservice.body.view.ViewMappingConfigJobBody;
 import org.blazer.dataservice.cache.ConfigCache;
 import org.blazer.dataservice.cache.DataSourceCache;
 import org.blazer.dataservice.entity.DSGroup;
-import org.blazer.dataservice.entity.DSUpload;
 import org.blazer.dataservice.entity.MappingConfigJob;
-import org.blazer.dataservice.exception.FileHandleException;
 import org.blazer.dataservice.exception.NoPermissionsException;
 import org.blazer.dataservice.exception.SystemRetentionParameters;
 import org.blazer.dataservice.util.HMap;
@@ -31,17 +29,14 @@ import org.blazer.dataservice.util.StringUtil;
 import org.blazer.scheduler.core.JobServer;
 import org.blazer.scheduler.core.ProcessHelper;
 import org.blazer.scheduler.core.TaskServer;
-import org.blazer.scheduler.entity.Job;
 import org.blazer.scheduler.entity.JobParam;
 import org.blazer.scheduler.entity.Status;
 import org.blazer.scheduler.entity.Task;
 import org.blazer.scheduler.entity.TaskType;
-import org.blazer.scheduler.model.ProcessModel;
 import org.blazer.scheduler.model.ResultModel;
 import org.blazer.scheduler.model.TaskLog;
 import org.blazer.scheduler.service.JobService;
 import org.blazer.scheduler.service.TaskService;
-import org.blazer.scheduler.util.DateUtil;
 import org.blazer.userservice.core.filter.PermissionsFilter;
 import org.blazer.userservice.core.model.CheckUrlStatus;
 import org.blazer.userservice.core.model.SessionModel;
@@ -53,7 +48,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service(value = "viewService")
 public class ViewService {
@@ -84,70 +78,8 @@ public class ViewService {
 	@Value("#{scriptProperties.result_path}")
 	private String resultPath;
 
-	@Value("#{scriptProperties.upload_path}")
-	private String uploadPath;
-
-	@Value("#{scriptProperties.upload_shell}")
-	private String uploadShell;
-
-	@Value("#{scriptProperties.upload_file_import_database}")
-	private String uploadFileImportDatabase;
-
 	@Value("#{reportProperties.read_row_number}")
 	private Integer readRowNumber;
-
-	public String upload(HashMap<String, String> params, SessionModel sm, MultipartFile file) throws Exception {
-		String config_id = params.get("config_id");
-		String uuid = null;
-		if (TaskType.right_now.toString().equals(params.get("task_type"))) {
-			uuid = TaskType.right_now + "_" + DateUtil.newDateStr_yyyy_MM_dd_HH_mm_ss_SSS() + "_" + sm.getUserId() + "_" + config_id;
-		} else {
-			uuid = TaskType.cron_auto + "_" + DateUtil.newDateStr_yyyy_MM_dd_HH_mm_ss_SSS() + "_" + sm.getUserId() + "_" + config_id;
-		}
-		String originalFileName = file.getOriginalFilename();
-		String suffix = originalFileName.substring(originalFileName.lastIndexOf("."));
-		// 保存文件
-		File targetFile = new File(uploadPath, uuid + suffix);
-		file.transferTo(targetFile);
-		// 保存到数据库
-		DSUpload upload = new DSUpload();
-		upload.setFileOldName(originalFileName);
-		upload.setFileSuffix(suffix);
-		upload.setFilePath(uploadPath);
-		upload.setUserId(sm.getUserId());
-		upload.setFileName(uuid);
-		upload.setFileFullName(uuid + suffix);
-		// 处理文件
-		String cmdParams = " config_id=" + params.get("config_id");
-		cmdParams += " upload_path=" + uploadPath;
-		cmdParams += " upload_name=" + uuid + suffix;
-		cmdParams += " uuid=" + uuid;
-		String cmd = "sh " + scriptPath + File.separator + uploadShell + cmdParams;
-		logger.info("上传文件执行的UploadHandle.sh：" + cmd);
-		Job job = new Job();
-		job.setId(-10);
-		job.setJobName("上传文件处理");
-		job.setCommand(cmd);
-		job.setParams(null);
-		// paramList 是需要记录的参数信息
-		ProcessModel pm = TaskServer.spawnRightNowTaskProcess(job);
-		String sql = "insert into ds_upload(user_id, task_name, file_name, file_full_name, file_suffix, file_path, file_old_name) values(?,?,?,?,?,?,?)";
-		jdbcTemplate.update(sql, sm.getUserId(), pm.getTask().getTaskName(), upload.getFileName(), upload.getFileFullName(), upload.getFileSuffix(), upload.getFilePath(), upload.getFileOldName());
-		pm.getTask().setRemark("上传文件处理 的即时任务。");
-		taskService.updateTaskRemark(pm.getTask());
-		int statusId = pm.getTask().getStatusId();
-		// 等待任务执行结束
-		for (; (statusId == 10 || statusId == 20); statusId = pm.getTask().getStatusId()) {
-			Thread.sleep(1000);
-		}
-		if (statusId >= 40) {
-			logger.info("上传文件成功，文件处理失败。" + upload.getFilePath() + File.separator + upload.getFileFullName());
-			throw new FileHandleException("上传文件成功,文件处理失败。");
-		} else {
-			logger.info("上传文件成功，文件处理成功。" + upload.getFilePath() + File.separator + upload.getFileFullName());
-		}
-		return uploadFileImportDatabase + "." + uuid;
-	}
 
 	public ResultModel findReportByTaskName(HashMap<String, String> params) throws Exception {
 		// 为了减小服务器压力，每次均只允许读取100行

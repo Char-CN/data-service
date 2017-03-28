@@ -109,7 +109,7 @@
 					ret += '<span title="日志" style="cursor:pointer" onclick="$.ds.commons.openTaskLog(\'' + row.taskName + '\')">' + $.ds.icon.file + '</span>　';
 					var status = $.ds.commons.getStatus(row.status);
 					if (status == "执行成功") {
-						ret += '<span title="下载" style="cursor:pointer" onclick="window.open(\'download/get.do?taskName=' + row.taskName + '\')">' + $.ds.icon.download + '</span>　';
+						ret += '<span title="下载" style="cursor:pointer" onclick="window.open(\'' + $.ds.url.download + '?taskName=' + row.taskName + '\')">' + $.ds.icon.download + '</span>　';
 						ret += '<span title="报表" style="cursor:pointer" onclick="window.open(\'reports.html?taskName=' + row.taskName + '\')">' + $.ds.icon.table + '</span>　';
 					}
 					if (status == "正在执行" || status == "等待执行") {

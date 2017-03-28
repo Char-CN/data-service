@@ -411,7 +411,7 @@
 								xhr.addEventListener("load", uploadComplete, false);
 								xhr.addEventListener("error", uploadFailed, false);
 								xhr.addEventListener("abort", uploadCanceled, false);
-								xhr.open("POST", "/view/upload.do?task_type=right_now&config_id=" + id);
+								xhr.open("POST", $.ds.url.upload + "?task_type=right_now&config_id=" + id);
 								xhr.send(fd);
 							}
 						});

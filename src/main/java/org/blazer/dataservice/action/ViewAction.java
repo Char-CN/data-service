@@ -35,10 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 
 @Controller(value = "viewAction")
 @RequestMapping("/view")
@@ -54,21 +51,6 @@ public class ViewAction extends BaseAction {
 
 	@Autowired
 	ConfigCache configCache;
-
-	@ResponseBody
-	@RequestMapping(value = "/upload", method = RequestMethod.POST)
-	public Body upload(HttpServletRequest request, @RequestParam("file") MultipartFile file) {
-		HashMap<String, String> params = getParamMap(request);
-		SessionModel sm = PermissionsFilter.getSessionModel(request);
-		try {
-			// 保存到服务器
-			String message = viewService.upload(params, sm, file);
-			return new Body().success().setMessage(message);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			return new Body().error().setMessage(e.getMessage());
-		}
-	}
 
 	@ResponseBody
 	@RequestMapping("/findReportByTaskName")
