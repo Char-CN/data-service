@@ -66,7 +66,7 @@
 		a_help.click(function() {
 			var msg = '<div style="font-family:Arial,Helvetica,sans-serif;-moz-user-select: text; -webkit-user-select: text; user-select: text;">';
 			msg += "1.参数占位符：${参数名称}<br>&nbsp;&nbsp;&nbsp;当前任务唯一名称：${SYS_TASK_NAME}<br>&nbsp;&nbsp;&nbsp;上传Excel为临时表：${excel.参数名称}<br><br>";
-			msg += "2.数据库可能不区分大小写，但是SQL参数是区分大小写的。就像（程序是没有国界的，程序员<img src='images/guoqi.png' width='16' height='12'/>是有国界<img src='images/guoqi.png' width='16' height='12'/>的）一个道理。大小写不同事2个参数。<br><br>";
+			msg += "2.数据库可能不区分大小写，但是SQL参数是区分大小写的。就像（程序是没有国界的，程序员<img src='images/guoqi.png' width='16' height='12'/>是有国界<img src='images/guoqi.png' width='16' height='12'/>的）一个道理。大小写不同是2个参数。<br><br>";
 			msg += "3.数据源是Mysql时，需要输出中文表头，需要这么写(字段 as '中文')<br><br>";
 			msg += "4.数据源是Hive时，需要输出中文表头，需要这么写(字段 as `中文`)<br><br>";
 			msg += "5.当数据源是Hive，且执行多条SQL时，需要先写(set hive.cli.print.header=false;)，在最后查询的SQL中写(set hive.cli.print.header=true;)，那么将输出最终表头<br><br>";
