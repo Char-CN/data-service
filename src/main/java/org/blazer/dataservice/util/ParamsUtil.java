@@ -29,7 +29,7 @@ public class ParamsUtil {
 	 * @return
 	 */
 	public static boolean isExcel(String param) {
-		if (param != null && !"".equals(param) && !"${excel".equalsIgnoreCase(param.substring(0, 7))) {
+		if (param != null && !"".equals(param) && !param.toLowerCase().startsWith("${excel.")) {
 			return false;
 		}
 		return true;
