@@ -138,10 +138,10 @@ else
 fi
 
 echo $(log "${sql}");
-echo $(log "################## 实际查询的sql");
+echo "################## 实际查询的sql";
 query_sql=`${conn} "${sql}"`;
 
-echo $(log "$query_sql");
+echo "${query_sql}";
 
 echo $(log "################## 实际查询的sql参数替换处理");
 # 强制替换系统任务名称参数
@@ -172,7 +172,7 @@ else
 fi
 
 echo "################## 处理后的实际查询的sql";
-echo "$query_sql";
+echo "${query_sql}";
 
 ############################################################################# 拼接实际执行的命令
 echo $(log "################## 判断是mysql类型还是hive类型");
@@ -184,7 +184,8 @@ else
   exec_cmd="${hive_path} -e"
 fi
 
-echo $(log "${exec_cmd} \"${query_sql}\" > ${result_path}/${SYS_TASK_NAME}.csv");
+echo "################## 执行的命令"
+echo "${exec_cmd} \"${query_sql}\" > ${result_path}/${SYS_TASK_NAME}.csv";
 
 ############################################################################# 执行命令
 echo "开始执行查询任务......";

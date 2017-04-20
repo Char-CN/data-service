@@ -1,19 +1,19 @@
 package org.blazer.test;
 
 import java.sql.SQLException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
-
-import org.blazer.dataservice.dao.TransactionDao;
-
-import com.alibaba.druid.pool.DruidDataSource;
-
-import java.sql.DriverManager;
+//import java.sql.Connection;
+//import java.sql.ResultSet;
+//import java.sql.Statement;
+//
+//import org.blazer.dataservice.dao.TransactionDao;
+//
+//import com.alibaba.druid.pool.DruidDataSource;
+//
+//import java.sql.DriverManager;
 
 public class HiveJDBCTest {
 
-	private static String driverName = "org.apache.hadoop.hive.jdbc.HiveDriver";
+//	private static String driverName = "org.apache.hadoop.hive.jdbc.HiveDriver";
 
 	public static void main(String[] args) throws SQLException {
 //		try {
@@ -23,13 +23,13 @@ public class HiveJDBCTest {
 //			System.exit(1);
 //		}
 
-		DruidDataSource dataSource = new DruidDataSource();
-		dataSource.setUsername("hive");
-		dataSource.setPassword("hive");
-		dataSource.setUrl("jdbc:hive2://172.16.52.124:10000/default");
-		TransactionDao dao = new TransactionDao(dataSource);
-		String sql1 = "insert into jdbcTest values(1, 'bbbb')";
-		dao.update(sql1);
+//		DruidDataSource dataSource = new DruidDataSource();
+//		dataSource.setUsername("hive");
+//		dataSource.setPassword("hive");
+//		dataSource.setUrl("jdbc:hive2://172.16.52.124:10000/default");
+//		TransactionDao dao = new TransactionDao(dataSource);
+//		String sql1 = "insert into jdbcTest values(1, 'bbbb')";
+//		dao.update(sql1);
 
 //		Connection con = DriverManager.getConnection("jdbc:hive2://172.16.52.124:10000/default", "hive", "hive");
 //		Statement stmt = con.createStatement();
@@ -71,4 +71,5 @@ public class HiveJDBCTest {
 //			System.out.println(res.getString(1));
 //		}
 	}
+
 }
