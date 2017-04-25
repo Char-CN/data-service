@@ -63,7 +63,7 @@
 		<!-- 用户登录存活周期，单位是秒 -->
 		<init-param>
 			<param-name>cookieSeconds</param-name>
-			<param-value>1800</param-value>
+			<param-value>36000</param-value>
 		</init-param>
 		<!-- 过滤url -->
 		<init-param>
