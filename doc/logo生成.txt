@@ -1,0 +1,7 @@
+
+logo.png生成地址：http://xiuxiu.web.meitu.com/main.html
+<br>
+生成格式：
+100x400
+方正隶变简体
+66px

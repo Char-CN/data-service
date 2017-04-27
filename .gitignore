@@ -2,3 +2,4 @@
 /logs/
 /ehcache/
 .pydevproject
+.DS_Store
