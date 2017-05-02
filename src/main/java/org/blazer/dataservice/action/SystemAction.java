@@ -26,21 +26,15 @@ public class SystemAction {
 	ConfigCache configCache;
 
 	@ResponseBody
-	@RequestMapping("/referConfig")
-	public String getConfig(HttpServletRequest request, HttpServletResponse response) {
+	@RequestMapping("/refer")
+	public String referDataSource(HttpServletRequest request, HttpServletResponse response) {
 		try {
+			dataSourceCache.initDataSource();
 			configCache.initConfigEntity();
 		} catch (UnknowDataSourceException e) {
 			logger.error(e.toString(), e);
 			return "fail";
 		}
-		return "ok";
-	}
-
-	@ResponseBody
-	@RequestMapping("/referDataSource")
-	public String referDataSource(HttpServletRequest request, HttpServletResponse response) {
-		dataSourceCache.initDataSource();
 		return "ok";
 	}
 
