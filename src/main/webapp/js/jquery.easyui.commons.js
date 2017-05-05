@@ -89,6 +89,21 @@ $(function() {
 					return "执行取消";
 				return "未知状态";
 			},
+			getStatusColor : function(value, row) {
+				var color = "";
+				if (row.status == "WAIT")
+					color = "";
+				if (row.status == "RUN")
+					color = "#6699ff";
+				if (row.status == "SUCCESS")
+					color = "#33aa00";
+				if (row.status == "FAIL")
+					color = "red";
+				if (row.status == "CANCEL")
+					color = "#FFD700";
+				var rst = "<span style='color:" + color + "'><strong>" + value + "</span></strong>";
+				return rst;
+			},
 			cancelTask : function(taskName) {
 				$.ds.commons.confirm('您确定要停止该任务吗？', function(taskName) {
 					alert(taskName);

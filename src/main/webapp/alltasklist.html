@@ -39,16 +39,19 @@
 		var a_reload = $('<a href="javascript:void(0)" class="icon-reload"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_reload);
 		a_reload.click(function() {
+			clearTimeout(reload_id);
 			table.datagrid('reload');
+			reload_id = setTimeout(reload, 15000);
 		});
 		var reload = function() {
+			clearTimeout(reload_id);
 			var pageNumber = table.datagrid('getPager').pagination('options').pageNumber;
 			if ($("#autoRefresh").prop("checked")) {
 				table.datagrid('reload');
 			}
-			setTimeout(reload, 15000);
+			reload_id = setTimeout(reload, 15000);
 		};
-		setTimeout(reload, 15000);
+		reload_id = setTimeout(reload, 15000);
 		table.datagrid({
 			url : $.ds.url.find_task_by_admin,
 			queryParams : {
@@ -80,8 +83,9 @@
 				field : 'status',
 				width : "8%",
 				title : '状态',
-				formatter : function(value){
-					return $.ds.commons.getStatus(value);
+				formatter : function(value, row){
+// 					return $.ds.commons.getStatus(value);
+					return $.ds.commons.getStatusColor($.ds.commons.getStatus(value), row);
 				}
 			}, {
 				field : 'execute_time',
