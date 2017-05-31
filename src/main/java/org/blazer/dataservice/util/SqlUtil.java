@@ -8,7 +8,8 @@ import java.util.regex.Pattern;
 public class SqlUtil {
 
 	/**
-	 * 将替换括号之内的内容:.*([';]+|(--)+).*
+	 * 防止SQL注入, 将替换括号之内的内容:.*([';]+|(--)+).*
+	 * 
 	 * @param sql
 	 * @return
 	 */

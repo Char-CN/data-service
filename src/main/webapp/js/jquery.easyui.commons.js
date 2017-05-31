@@ -29,6 +29,7 @@ $(function() {
 			get_user_group_ids : "view/getUserGroupIds.do",
 			save_user_group : "view/saveUserGroup.do",
 			configs_by_group_id : "view/getConfigsByGroupId.do",
+			configs_by_config_name : "view/getConfigsByConfigName.do",
 			config_by_id : "view/getConfigById.do",
 			datasource_all : "view/getDataSourceAll.do",
 			run_config : "view/runConfig.do",
@@ -55,6 +56,7 @@ $(function() {
 		},
 		commons : {
 			chooseTreeId : "",
+			chooseConfigName : "",
 			referCenterByMenuId : function(id) {
 				$.ds.commons.chooseTreeId = id;
 				var c = $("#center");
@@ -71,6 +73,28 @@ $(function() {
 					href : 'center.html',
 					extractor : function(data) {
 						data = $.ds.replaceAll(data, "[$]queryString", "id=" + id);
+						data = $.ds.replaceAll(data, "[$]windowId", "center");
+						return data;
+					}
+				});
+			},
+			referCenterByConfigName : function(configName) {
+				$.ds.commons.chooseTreeId = "";
+				$.ds.commons.chooseConfigName = configName;
+				var c = $("#center");
+				c.unbind('contextmenu');
+				c.bind('contextmenu', function(e) {
+					e.preventDefault();
+					$('#center_menu').menu('show', {
+						left : e.pageX,
+						top : e.pageY
+					});
+					rp_center_block = true;
+				});
+				c.panel({
+					href : 'center_search.html',
+					extractor : function(data) {
+						data = $.ds.replaceAll(data, "[$]queryString", "configName=" + configName);
 						data = $.ds.replaceAll(data, "[$]windowId", "center");
 						return data;
 					}

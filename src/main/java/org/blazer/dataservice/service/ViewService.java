@@ -284,6 +284,7 @@ public class ViewService {
 				paramList.add(new JobParam(key, params.get(key)));
 			}
 			String cmd = "sh " + scriptPath + File.separator + scriptName + cmdParams.toString();
+			logger.info("Real command : " + cmd);
 			// paramList 是需要记录的参数信息
 			task = TaskServer.spawnRightNowTaskProcess(cmd, paramList).getTask();
 			task.setRemark(configCache.get(configId).getConfigName() + " 即时查询任务");
@@ -499,9 +500,9 @@ public class ViewService {
 	}
 
 	public List<ViewConfigBody> getConfigsByGroupId(HashMap<String, String> params) throws Exception {
-		logger.debug("qeury id " + params.get("id"));
+		logger.debug("qeury id " + params.get("group_id"));
 		String sql = "select * from ds_config where group_id=? and enable=1 order by order_asc, id";
-		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, IntegerUtil.getInt0(params.get("id")));
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql, IntegerUtil.getInt0(params.get("group_id")));
 		List<ViewConfigBody> rst = new ArrayList<ViewConfigBody>();
 		StringBuilder ids = new StringBuilder();
 		for (Map<String, Object> map : list) {
@@ -519,6 +520,70 @@ public class ViewService {
 			vcb.setConfigType(StringUtil.getStrEmpty(map.get("config_type")));
 			vcb.setConfigName(StringUtil.getStrEmpty(map.get("config_name")));
 			vcb.setRemark(StringUtil.getStrEmpty(map.get("remark")));
+			vcb.setList(new ArrayList<ViewConfigDetailBody>());
+			rst.add(vcb);
+			logger.debug(vcb.toString());
+		}
+		logger.debug("rst size : " + rst.size());
+		return rst;
+	}
+
+	public List<ViewConfigBody> getConfigsByConfigNameAndAdmin(HashMap<String, String> params) throws Exception {
+		logger.debug("qeury config name " + params.get("configName"));
+		StringBuilder sbSql = new StringBuilder();
+		sbSql.append("select * from ds_config where enable=1 and config_name like '%" + SqlUtil.TransactSQLInjection(params.get("configName")) + "%' order by order_asc, id");
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sbSql.toString());
+		List<ViewConfigBody> rst = new ArrayList<ViewConfigBody>();
+		StringBuilder ids = new StringBuilder();
+		for (Map<String, Object> map : list) {
+			if (ids.length() != 0) {
+				ids.append(",");
+			}
+			ids.append(map.get("user_id"));
+		}
+		List<UserModel> users = PermissionsFilter.findAllUserByUserIds(ids.toString());
+		for (int i = 0; i < list.size(); i++) {
+			Map<String, Object> map = list.get(i);
+			ViewConfigBody vcb = new ViewConfigBody();
+			vcb.setId(IntegerUtil.getInt0(map.get("id")));
+			vcb.setUserName(users.get(i).getUserNameCn());
+			vcb.setConfigType(StringUtil.getStrEmpty(map.get("config_type")));
+			vcb.setConfigName(StringUtil.getStrEmpty(map.get("config_name")));
+			vcb.setRemark(StringUtil.getStrEmpty(map.get("remark")));
+			vcb.setGroupId(IntegerUtil.getInt(map.get("group_id")));
+			vcb.setList(new ArrayList<ViewConfigDetailBody>());
+			rst.add(vcb);
+			logger.debug(vcb.toString());
+		}
+		logger.debug("rst size : " + rst.size());
+		return rst;
+	}
+
+	public List<ViewConfigBody> getConfigsByConfigNameAndUser(SessionModel sm, HashMap<String, String> params) throws Exception {
+		logger.debug("qeury config name " + params.get("configName"));
+		StringBuilder sbSql = new StringBuilder();
+		sbSql.append("select ds.* from (select * from ds_user_group where user_id=?) dug");
+		sbSql.append(" inner join ds_config ds on dug.group_id=ds.group_id");
+		sbSql.append(" where enable=1 and config_name like '%" + SqlUtil.TransactSQLInjection(params.get("configName")) + "%' order by order_asc, id");
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sbSql.toString(), sm.getUserId());
+		List<ViewConfigBody> rst = new ArrayList<ViewConfigBody>();
+		StringBuilder ids = new StringBuilder();
+		for (Map<String, Object> map : list) {
+			if (ids.length() != 0) {
+				ids.append(",");
+			}
+			ids.append(map.get("user_id"));
+		}
+		List<UserModel> users = PermissionsFilter.findAllUserByUserIds(ids.toString());
+		for (int i = 0; i < list.size(); i++) {
+			Map<String, Object> map = list.get(i);
+			ViewConfigBody vcb = new ViewConfigBody();
+			vcb.setId(IntegerUtil.getInt0(map.get("id")));
+			vcb.setUserName(users.get(i).getUserNameCn());
+			vcb.setConfigType(StringUtil.getStrEmpty(map.get("config_type")));
+			vcb.setConfigName(StringUtil.getStrEmpty(map.get("config_name")));
+			vcb.setRemark(StringUtil.getStrEmpty(map.get("remark")));
+			vcb.setGroupId(IntegerUtil.getInt(map.get("group_id")));
 			vcb.setList(new ArrayList<ViewConfigDetailBody>());
 			rst.add(vcb);
 			logger.debug(vcb.toString());

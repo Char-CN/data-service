@@ -43,7 +43,7 @@
 			top : 100
 		});
 		// 刷新
-		var a_reload = $('<a href="javascript:void(0)" class="icon-reload"></a>');
+		var a_reload = $('<a href="javascript:void(0)" class="icon-adapter ' + $.ds.icon.refresh_cls + '"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_reload);
 		a_reload.click(function() {
 			$.ds.show('您正在刷新[' + this_window.window('options').title + ']');
@@ -65,6 +65,7 @@
 			getLog();
 		};
 
+		var overed = false;
 		var getLog = function() {
 // 			this_window.DSFind("taskName").html($.ds.icon.loading + 'loading...');
 // 			this_window.DSFind("remark").html($.ds.icon.loading + 'loading...');
@@ -100,6 +101,20 @@
 					if (status == "正在执行" || status == "等待执行" || skipRowNumber != data.logModel.total) {
 						skipRowNumber = data.logModel.total;
 						interval_code = setTimeout(getLog, 3000);
+					} else if (!overed && status == "执行成功") {
+						// 表格
+						var top = $('<a href="javascript:void(0)" class="icon-adapter ' + $.ds.icon.table_cls + '"></a>');
+						this_window.parent().find(" .panel-tool").prepend(top);
+						top.click(function() {
+							window.open('reports.html?taskName=' + taskName);
+						});
+						// 下载
+						var top = $('<a href="javascript:void(0)" class="icon-adapter ' + $.ds.icon.download_cls + '"></a>');
+						this_window.parent().find(" .panel-tool").prepend(top);
+						top.click(function() {
+							window.open($.ds.url.download + '?taskName=' + taskName);
+						});
+						overed = true;
 					}
 				} catch (e) {
 					interval_code = setTimeout(getLog, 1000);

@@ -97,7 +97,7 @@
 	</logger>
 
 	<logger name="scheduler" additivity="false" level="debug">
-		<appender-ref ref="consoleAppender" />
+<!-- 		<appender-ref ref="consoleAppender" /> -->
 		<appender-ref ref="schedulerAppenderByTime" />
 	</logger>
 

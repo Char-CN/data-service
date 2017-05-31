@@ -3,7 +3,8 @@
 	$(function() {
 		var queryString = '$queryString';
 		var windowId = '$windowId';
-		var id = $.ds.getQueryString(queryString, "id");
+		var group_id = $.ds.getQueryString(queryString, "id");
+		var configName = $.ds.getQueryString(queryString, "configName");
 		var this_window = $("#" + windowId);
 		var this_ul = this_window.find("#center_ul");
 		// 删除所有menu，因为menu是被easyui放在body中的。
@@ -86,7 +87,7 @@
 				iconCls : $.ds.icon.add_cls,
 				disabled : false,
 				onclick : function() {
-					$.ds.commons.openWindow("center_add_config", $.ds.icon.add , "新增配置项", "addconfig.html", "group_id=" + id);
+					$.ds.commons.openWindow("center_add_config", $.ds.icon.add , "新增配置项", "addconfig.html", "group_id=" + group_id);
 				}
 			});
 		}
@@ -157,7 +158,7 @@
 						return $.ds.show('请选择一项配置移动!');
 					}
 					var title = this_ul.find("li[ds_index='" + center_choose_li_id + "']").attr("ds_title");
-					$.ds.commons.openWindow("center_move_config_" + center_choose_li_id, $.ds.icon.clock, title, "moveconfig.html", "id=" + center_choose_li_id + "&group_id=" + id).dialog('resize', {
+					$.ds.commons.openWindow("center_move_config_" + center_choose_li_id, $.ds.icon.clock, title, "moveconfig.html", "id=" + center_choose_li_id + "&group_id=" + group_id).dialog('resize', {
 						height : 380,
 						width : 400,
 						top : 100
@@ -243,14 +244,14 @@
 		}
 
 		var openConfig = function(_id, title) {
-			$.ds.commons.openWindow("center_add_config_" + _id, $.ds.icon.edit, title, "addconfig.html", "id=" + _id + "&group_id=" + id);
+			$.ds.commons.openWindow("center_add_config_" + _id, $.ds.icon.edit, title, "addconfig.html", "id=" + _id + "&group_id=" + group_id);
 		};
 
 		var init = function() {
 			lock_menu = false;
 			center_choose_li_id = "";
 			sortable.option("disabled", true);
-			var url = $.ds.url.configs_by_group_id + "?id=" + id;
+			var url = $.ds.url.configs_by_group_id + "?group_id=" + group_id;
 			$.post(url, function(data) {
 				this_ul.empty();
 				var rst = eval(data);

@@ -18,8 +18,8 @@ import org.blazer.dataservice.body.view.ViewMappingConfigJobBody;
 import org.blazer.dataservice.cache.ConfigCache;
 import org.blazer.dataservice.cache.DataSourceCache;
 import org.blazer.dataservice.entity.MappingConfigJob;
-import org.blazer.dataservice.exception.UnknowDataSourceException;
 import org.blazer.dataservice.model.ConfigModel;
+import org.blazer.dataservice.model.DataSourceModel;
 import org.blazer.dataservice.service.ViewService;
 import org.blazer.dataservice.util.IntegerUtil;
 import org.blazer.scheduler.entity.Task;
@@ -248,8 +248,28 @@ public class ViewAction extends BaseAction {
 		try {
 			return viewService.getConfigsByGroupId(getParamMap(request));
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
+		}
+		return new ArrayList<ViewConfigBody>();
+	}
+
+	@ResponseBody
+	@RequestMapping("/getConfigsByConfigName")
+	public List<ViewConfigBody> getConfigsByConfigName(HttpServletRequest request, HttpServletResponse response) {
+		logger.debug("map : " + getParamMap(request));
+		SessionModel sm = PermissionsFilter.getSessionModel(request);
+		logger.debug("session model : " + sm);
+		try {
+			CheckUrlStatus cus = PermissionsFilter.checkUrl(sm, "isadmin");
+			if (cus == CheckUrlStatus.Success) {
+				return viewService.getConfigsByConfigNameAndAdmin(getParamMap(request));
+			}
+			cus = PermissionsFilter.checkUrl(sm, "isuser");
+			if (cus == CheckUrlStatus.Success) {
+				return viewService.getConfigsByConfigNameAndUser(sm, getParamMap(request));
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 		}
 		return new ArrayList<ViewConfigBody>();
 	}
@@ -331,15 +351,22 @@ public class ViewAction extends BaseAction {
 
 	@ResponseBody
 	@RequestMapping("/getDataSourceAll")
-	public List<DataSourceBody> getDataSourceAll(HttpServletRequest request, HttpServletResponse response) throws UnknowDataSourceException {
+	public List<DataSourceBody> getDataSourceAll(HttpServletRequest request, HttpServletResponse response) {
 		logger.debug("map : " + getParamMap(request));
 		List<DataSourceBody> list = new ArrayList<DataSourceBody>();
 		for (Integer i : dataSourceCache.getKeySet()) {
 			DataSourceBody dsb = new DataSourceBody();
 			dsb.setId(i);
-			dsb.setDatabaseName(dataSourceCache.getDataSourceBean(i).getDatabase_name());
-			dsb.setTitle(dataSourceCache.getDataSourceBean(i).getTitle());
-			dsb.setRemark(dataSourceCache.getDataSourceBean(i).getRemark());
+			DataSourceModel dsm = dataSourceCache.getDataSourceBean(i);
+			if (dsm == null) {
+				dsb.setDatabaseName("NotFoundDataSource");
+				dsb.setTitle("NotFoundDataSource");
+				dsb.setRemark("NotFoundDataSource");
+			} else {
+				dsb.setDatabaseName(dsm.getDatabase_name());
+				dsb.setTitle(dsm.getTitle());
+				dsb.setRemark(dsm.getRemark());
+			}
 			list.add(dsb);
 		}
 		return list;

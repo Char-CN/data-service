@@ -18,6 +18,8 @@ format_jar="date-format-0.0.1-SNAPSHOT.jar";
 
 util_jar="BlazerUtil-1.0.jar";
 
+data_service_util_jar="data-service-util-0.0.1-SNAPSHOT.jar";
+
 email_util="email_util.py";
 
 conn="${mysql_path} -h172.16.52.137 -uroot -p123456 -Ddw_dataservice -N -e";

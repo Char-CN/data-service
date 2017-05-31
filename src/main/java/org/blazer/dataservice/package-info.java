@@ -1,9 +1,9 @@
-package org.blazer.dataservice;
-
 /**
  * action : 处理http请求
  * 
  * body : 交互所用的对象
+ * 
+ * cache : 缓存常用类（暂用内存缓存）
  * 
  * dao : 数据库访问
  * 
@@ -22,3 +22,4 @@ package org.blazer.dataservice;
  * util : 工具类
  * 
  */
+package org.blazer.dataservice;

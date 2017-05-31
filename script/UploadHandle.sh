@@ -112,15 +112,36 @@ username=`echo $rst | awk -F ' ' '{print $6}'`;
 password=`echo $rst | awk -F ' ' '{print $7}'`;
 config_name=`echo $rst | awk -F ' ' '{print $8}'`;
 
+echo "Excel转Csv"
+
+upload_excel=${upload_path}/${upload_name}
+upload_csv=${upload_excel}.csv
+upload_csv_head=${upload_csv}.head
+echo "upload_excel          : ${upload_excel}";
+echo "upload_csv            : ${upload_csv}";
+echo "upload_csv_head       : ${upload_csv_head}";
+
+echo ${java_path} -jar ${data_service_util_jar} "org.blazer.util.Excel2Csv" "${upload_excel}"
+${java_path} -jar ${data_service_util_jar} "org.blazer.util.Excel2Csv" "${upload_excel}"
+
+
+echo head -1 ${upload_csv} > ${upload_csv_head}
+head -1 ${upload_csv} > ${upload_csv_head}
+
+# mac and linux parameter -ia
+echo sed -ig '1d' ${upload_csv}
+sed -ig '1d' ${upload_csv}
+
+head=`cat ${upload_csv_head}`
+echo "head : $head"
+head=`${java_path} -jar ${data_service_util_jar} "org.blazer.util.Convert2Pinyin" "${head}"`
+echo "convert head : $head"
 
 echo $(log "################## 判断是mysql类型还是hive类型");
 if [ ${db_type} == "mysql" ];
 then
   echo $(log "################## 导入到mysql");
-  echo ${java_path} -jar ${util_jar} "com.blazer.convert.Excel2Csv" "${upload_path}" "${upload_name}" " varchar(200), "
-  ${java_path} -jar ${util_jar} "com.blazer.convert.Excel2Csv" "${upload_path}" "${upload_name}" " varchar(200), "
-  body_file_name="${uuid}.csv";
-  fields=`cat ${upload_path}/${uuid}_head.csv`;
+  fields=${head//	/ varchar(200), };
   query_sql="
     set names 'utf8';
     use ${import_database};
@@ -131,7 +152,7 @@ then
     DEFAULT CHARACTER SET=utf8 
     COLLATE=utf8_general_ci 
     ROW_FORMAT=COMPACT;
-    LOAD DATA LOCAL INFILE '${upload_path}/${body_file_name}' INTO TABLE ${uuid} 
+    LOAD DATA LOCAL INFILE '${upload_path}/${upload_name}.csv' INTO TABLE ${uuid} 
     character set utf8 
     FIELDS TERMINATED BY '\t' 
     ENCLOSED BY '\"' 
@@ -141,10 +162,7 @@ then
 elif [ ${db_type} == "hive" ];
 then
   echo $(log "################## 导入到hive");
-  echo ${java_path} -jar ${util_jar} "com.blazer.convert.Excel2Csv" "${upload_path}" "${upload_name}" " string, "
-  ${java_path} -jar ${util_jar} "com.blazer.convert.Excel2Csv" "${upload_path}" "${upload_name}" " string, "
-  body_file_name="${uuid}.csv";
-  fields=`cat ${upload_path}/${uuid}_head.csv`;
+  fields=${head//	/ string, };
   query_sql="
     use ${import_database};
     create table ${uuid}(
@@ -152,26 +170,21 @@ then
     )
     ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t'
     STORED AS TEXTFILE;
-    LOAD DATA LOCAL INPATH '${upload_path}/${body_file_name}' INTO TABLE ${uuid}
+    LOAD DATA LOCAL INPATH '${upload_path}/${upload_name}.csv' INTO TABLE ${uuid}
   ";
   exec_cmd="${hive_path} -e"
 fi
 
 echo $(log "${exec_cmd} \"${query_sql}\"");
 
-echo "开始执行查询任务......";
+echo "开始执行......";
 ${exec_cmd} "${query_sql}"
 if [ "$?" == "0" ];
 then
-  echo "查询成功。"
+  echo "执行成功。"
   exit 0
 else
-  echo "查询失败。"
+  echo "执行失败。"
   exit 1
 fi
 
-#sql="
-#  SET NAMES utf8;
-#  update ds_upload set handle_status='${status}' where file_name='${upload_name}';
-#";
-#rst=`${conn} "${sql}"`

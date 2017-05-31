@@ -95,7 +95,7 @@
 					} else {
 						value = $(this).find('td:eq(1)').DSFind('key_value').textbox('getValue');
 					}
-					params += "&" + $.ds.getCustomKey(key) + "=" + value;
+					params += "&" + $.ds.getCustomKey(key) + "=" + encodeURIComponent(value);
 				} catch (e) {
 				}
 			});
@@ -194,10 +194,12 @@
 								onChange : function() {
 							        var fd = new FormData();
 							        var file = $(this).parent().find("input[name=file]").get(0).files[0];
+							        // 后台限制最大100
+							        var m_size = 20;
 							        // file.size单位是b
-							        if (file.size > 1024 * 1024 * 10) {
-							        	// 大于10M
-							        	$.ds.alert("上传失败，文件大于10M！<br>服务器压力大请手下留情！");
+							        if (file.size > 1024 * 1024 * m_size) {
+							        	// 大于 m_size M
+							        	$.ds.alert("上传失败，文件大于" + m_size + "M！<br>服务器压力大请手下留情！");
 							        	return;
 							        }
 									fd.append("file", file);

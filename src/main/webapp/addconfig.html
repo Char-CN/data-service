@@ -141,7 +141,11 @@
 								if (isAdd) {
 									this_window.window('close');
 								}
-								$.ds.commons.referCenterByMenuId(group_id);
+								if ($.ds.commons.chooseTreeId == "") {
+									$.ds.commons.referCenterByConfigName($.ds.commons.chooseConfigName);
+								} else {
+									$.ds.commons.referCenterByMenuId(group_id);
+								}
 							} 
 						},
 						error : function(XMLHttpRequest, textStatus, errorThrown) {

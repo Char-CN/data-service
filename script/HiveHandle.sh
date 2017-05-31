@@ -157,7 +157,7 @@ do
   # 格式[df|today+0|yyyy-MM-dd]
   if [[ ${#value_arr[@]} != 1 ]];
   then
-    real_value=`${java_path} -jar ${format_jar} ${value}`
+    real_value=`${java_path} -jar ${data_service_util_jar} "org.blazer.dateformat.DateFormat" "${value}"`
     query_sql=${query_sql//\$\{${key}\}/${real_value}};
   else
     query_sql=${query_sql//\$\{${key}\}/${value}};
@@ -244,11 +244,11 @@ then
   email_title="${config_name}_报表_${SYS_TASK_NAME}"
   email_content="您好，请查收本次任务的附件。</br>备注信息：${email_content}"
   result_file_path="${result_path}/${SYS_TASK_NAME}.csv"
-  echo ${java_path} -jar ${util_jar} "com.blazer.convert.Csv2Excel" "${result_path}" "${SYS_TASK_NAME}.csv"
-  ${java_path} -jar ${util_jar} "com.blazer.convert.Csv2Excel" "${result_path}" "${SYS_TASK_NAME}.csv"
+  echo ${java_path} -jar ${data_service_util_jar} "org.blazer.util.Csv2Excel" "${result_path}/${SYS_TASK_NAME}.csv"
+  ${java_path} -jar ${data_service_util_jar} "org.blazer.util.Csv2Excel" "${result_path}/${SYS_TASK_NAME}.csv"
   if [ "$?" = "0" ];
   then
-    result_file_path=${result_path}/${SYS_TASK_NAME}.xlsx
+    result_file_path=${result_path}/${SYS_TASK_NAME}.csv.xlsx
   fi
   echo "${zip_path} -j ${result_path}/${SYS_TASK_NAME}.zip ${result_file_path}"
   ${zip_path} -j ${result_path}/${SYS_TASK_NAME}.zip ${result_file_path}

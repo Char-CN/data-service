@@ -105,5 +105,17 @@
 			onBrforeDrag : function(target, source, point) {
 			}
 		}).appendTo("#west");
+
+		var search = $("<a>");
+		search.appendTo("#west_search");
+		search.searchbox({
+			searcher : function(value) {
+				$.ds.commons.referCenterByConfigName(value);
+			},
+			width : '100%',
+			height : '100%',
+			prompt : '请输入查询名称'
+		});
+		search.searchbox('textbox').focus();
 	});
 </script>

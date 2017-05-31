@@ -8,7 +8,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.blazer.dataservice.dao.Dao;
 import org.blazer.dataservice.dao.TransactionDao;
-import org.blazer.dataservice.exception.UnknowDataSourceException;
 import org.blazer.dataservice.model.DataSourceModel;
 import org.blazer.dataservice.util.IntegerUtil;
 import org.blazer.dataservice.util.SqlUtil;
@@ -176,9 +175,10 @@ public class DataSourceCache implements InitializingBean {
 	 * @return
 	 * @throws UnknowDataSourceException
 	 */
-	public Dao getDao(Integer id) throws UnknowDataSourceException {
+	public Dao getDao(Integer id) {
 		if (!dataSourceMap.containsKey(id)) {
-			throw new UnknowDataSourceException("not found the datasource id[" + id + "]");
+			logger.error("UnknowDataSource Exception : not found the datasource id[" + id + "]");
+			return null;
 		}
 		return dataSourceMap.get(id).getDao();
 	}
@@ -190,9 +190,10 @@ public class DataSourceCache implements InitializingBean {
 	 * @return
 	 * @throws UnknowDataSourceException
 	 */
-	public DataSourceModel getDataSourceBean(Integer id) throws UnknowDataSourceException {
+	public DataSourceModel getDataSourceBean(Integer id) {
 		if (!dataSourceMap.containsKey(id)) {
-			throw new UnknowDataSourceException("not found the datasource id[" + id + "]");
+			logger.error("UnknowDataSource Exception : not found the datasource id[" + id + "]");
+			return null;
 		}
 		return dataSourceMap.get(id);
 	}

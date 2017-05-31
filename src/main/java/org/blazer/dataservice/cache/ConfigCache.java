@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.blazer.dataservice.exception.UnknowDataSourceException;
 import org.blazer.dataservice.model.ConfigDetailModel;
 import org.blazer.dataservice.model.ConfigModel;
 import org.blazer.dataservice.util.IntegerUtil;
@@ -71,7 +70,7 @@ public class ConfigCache extends BaseCache implements InitializingBean {
 			logger.debug("config is not in cache ... id : " + id);
 			try {
 				this.initConfigEntity(id);
-			} catch (UnknowDataSourceException e) {
+			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
 		} else {
@@ -92,7 +91,7 @@ public class ConfigCache extends BaseCache implements InitializingBean {
 		timeUtil.printMs("加载配置项");
 	}
 
-	public void initConfigEntity() throws UnknowDataSourceException {
+	public void initConfigEntity() {
 		// 先清空
 		this.clear();
 		List<Map<String, Object>> configList = jdbcTemplate.queryForList("select id,datasource_id,config_name,config_type,group_id from ds_config where enable=1");
@@ -133,7 +132,7 @@ public class ConfigCache extends BaseCache implements InitializingBean {
 		logger.info("init success config list size : " + configList.size());
 	}
 
-	public void initConfigEntity(Integer id) throws UnknowDataSourceException {
+	public void initConfigEntity(Integer id) {
 		if (id == null) {
 			logger.info("config id is null, init fail");
 			return;
