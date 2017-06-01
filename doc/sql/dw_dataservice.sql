@@ -19,7 +19,10 @@ CREATE TABLE `ds_config` (
   `enable` int(9) DEFAULT '1',
   `mtime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `ctime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `IDX_DATASOURCE_ID` (`datasource_id`),
+  KEY `IDX_GROUP_ID` (`group_id`),
+  KEY `IDX_USER_ID` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=155 DEFAULT CHARSET=utf8;
 
 /*Table structure for table `ds_config_detail` */
@@ -36,7 +39,9 @@ CREATE TABLE `ds_config_detail` (
   `enable` int(9) DEFAULT '1',
   `mtime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `ctime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `IDX_DATASOURCE_ID` (`datasource_id`),
+  KEY `IDX_CONFIG_ID` (`config_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1060 DEFAULT CHARSET=utf8;
 
 /*Table structure for table `ds_datasource` */
@@ -71,7 +76,8 @@ CREATE TABLE `ds_group` (
   `order_asc` int(9) DEFAULT NULL,
   `mtime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `IDX_PARENT_ID` (`parent_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8;
 
 /*Table structure for table `ds_upload` */
@@ -109,6 +115,115 @@ CREATE TABLE `ds_user_group` (
   KEY `IDX_GROUP_ID` (`group_id`) USING BTREE,
   KEY `IDX_USER_ID` (`user_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=175 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+/*Table structure for table `mapping_config_job` */
+
+DROP TABLE IF EXISTS `mapping_config_job`;
+
+CREATE TABLE `mapping_config_job` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `config_id` bigint(20) DEFAULT NULL,
+  `job_id` bigint(20) DEFAULT NULL,
+  `user_id` bigint(20) DEFAULT NULL,
+  `result_mode` int(9) DEFAULT NULL,
+  `email` varchar(128) DEFAULT NULL,
+  `email_userids` varchar(256) DEFAULT NULL,
+  `enable` int(9) DEFAULT '1',
+  `mtime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `ctime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `IDX_CONFIG_ID` (`config_id`),
+  KEY `IDX_USER_ID` (`user_id`),
+  KEY `IDX_JOB_ID` (`job_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8;
+
+/*Table structure for table `mapping_user_task` */
+
+DROP TABLE IF EXISTS `mapping_user_task`;
+
+CREATE TABLE `mapping_user_task` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) DEFAULT NULL,
+  `task_name` varchar(100) DEFAULT NULL,
+  `mtime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `ctime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `IDX_USER_ID` (`user_id`),
+  KEY `IDX_TASK_NAME` (`task_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=953 DEFAULT CHARSET=utf8;
+
+/*Table structure for table `scheduler_job` */
+
+DROP TABLE IF EXISTS `scheduler_job`;
+
+CREATE TABLE `scheduler_job` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `type` int(9) DEFAULT '1',
+  `job_name` varchar(50) DEFAULT NULL,
+  `cron` varchar(20) DEFAULT NULL,
+  `command` varchar(512) DEFAULT NULL,
+  `remark` varchar(512) DEFAULT NULL,
+  `enable` int(9) DEFAULT '1',
+  `mtime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `ctime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8;
+
+/*Table structure for table `scheduler_job_param` */
+
+DROP TABLE IF EXISTS `scheduler_job_param`;
+
+CREATE TABLE `scheduler_job_param` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `job_id` bigint(20) DEFAULT NULL,
+  `param_name` varchar(50) DEFAULT NULL,
+  `title_name` varchar(50) DEFAULT NULL,
+  `default_value` varchar(100) DEFAULT NULL,
+  `enable` int(9) DEFAULT '1',
+  `mtime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `ctime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `IDX_JOB_ID` (`job_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+
+/*Table structure for table `scheduler_status` */
+
+DROP TABLE IF EXISTS `scheduler_status`;
+
+CREATE TABLE `scheduler_status` (
+  `id` bigint(20) DEFAULT NULL,
+  `status_name` varchar(20) DEFAULT NULL,
+  `ctime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `mtime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*Table structure for table `scheduler_task` */
+
+DROP TABLE IF EXISTS `scheduler_task`;
+
+CREATE TABLE `scheduler_task` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `job_id` bigint(20) DEFAULT NULL,
+  `status_id` bigint(20) DEFAULT NULL,
+  `type_name` varchar(20) DEFAULT NULL COMMENT 'cron_auto|right_now',
+  `task_name` varchar(100) DEFAULT NULL COMMENT '以 yyyy_MM_dd_HH_mm_JobId_[cron_auto|right_now]_01 格式来定义task_name',
+  `execute_time` datetime DEFAULT NULL,
+  `end_time` datetime DEFAULT NULL,
+  `command` varchar(512) DEFAULT NULL,
+  `params` varchar(512) DEFAULT NULL,
+  `log_path` varchar(512) DEFAULT NULL,
+  `error_log_path` varchar(512) DEFAULT NULL,
+  `exception` text,
+  `remark` varchar(255) DEFAULT NULL,
+  `mtime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `ctime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `IDX_TASK_NAME` (`task_name`) USING BTREE,
+  KEY `IDX_EXECUTE_TIME` (`execute_time`),
+  KEY `IDX_END_TIME` (`end_time`),
+  KEY `IDX_JOB_ID` (`job_id`),
+  KEY `IDX_STATUS_ID` (`status_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1459 DEFAULT CHARSET=utf8;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
