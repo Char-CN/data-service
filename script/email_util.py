@@ -15,7 +15,7 @@ class EmailUtil():
     mail_user = "blazerhehe"  # 用户名
     mail_pass = "blazer222"  # 口令
     mail_postfix = "163.com"  # 发件箱的后缀
-    me = "布雷泽何<%s@%s>" % (mail_user, mail_postfix)
+    me = ("%s<%s>") % (Header('布雷泽何', 'utf-8'), mail_user)
 
     @staticmethod
     def send(to_list, sub, content, filenames = None, retry = None, seconds = None):
