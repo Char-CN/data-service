@@ -10,6 +10,8 @@ public class ViewConfigBody {
 	private String userName;
 	private String configName;
 	private String configType;
+	private Integer isInterface;
+	private Integer isTask;
 	private String remark;
 	private Integer enable;
 	private List<ViewConfigDetailBody> list;
@@ -68,6 +70,22 @@ public class ViewConfigBody {
 
 	public void setConfigType(String configType) {
 		this.configType = configType;
+	}
+
+	public Integer getIsInterface() {
+		return isInterface;
+	}
+
+	public void setIsInterface(Integer isInterface) {
+		this.isInterface = isInterface;
+	}
+
+	public Integer getIsTask() {
+		return isTask;
+	}
+
+	public void setIsTask(Integer isTask) {
+		this.isTask = isTask;
 	}
 
 	public String getRemark() {

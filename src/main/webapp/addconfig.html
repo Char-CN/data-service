@@ -10,6 +10,10 @@
 				<td width="80%" ds_index="td_name"></td>
 			</tr>
 			<tr>
+				<td width="20%"><span>属性:</span></td>
+				<td width="80%" ds_index="td_attribute"></td>
+			</tr>
+			<tr>
 				<td width="20%"><span>备注:</span></td>
 				<td width="80%" ds_index="td_remark"></td>
 			</tr>
@@ -114,6 +118,8 @@
 					configBody.groupId = group_id;
 					configBody.datasourceId = this_window.DSFind("datasource").combobox('getValue');
 					configBody.configName = this_window.DSFind("name").textbox("getValue");
+					configBody.isInterface = this_window.DSFind("is_interface").prop('checked') ? "1" : "0";
+					configBody.isTask = this_window.DSFind("is_task").prop('checked') ? "1" : "0";
 					configBody.remark = this_window.DSFind("remark").textbox("getValue");
 					configBody.configType = "1";
 					configBody.list = [ ];
@@ -165,6 +171,7 @@
 			this_window.DSFind("params").empty();
 			this_window.DSFind("td_datasource").empty();
 			this_window.DSFind("td_name").empty();
+			this_window.DSFind("td_attribute").empty();
 			this_window.DSFind("td_remark").empty();
 			// 清空后添加
 			this_window.DSFind("td_datasource").append($('<select style="width: 100%"></select>').DSAdd('datasource'));
@@ -172,6 +179,22 @@
 			this_window.DSFind("td_name").append(input_id);
 			var te = $('<input>').DSAdd('name');
 			this_window.DSFind("td_name").append(te);
+			var ck1 = $('<input type="checkbox" checked style="cursor: pointer">').DSAdd('is_interface');
+			var ck2 = $('<input type="checkbox" checked style="cursor: pointer">').DSAdd('is_task');
+			var sp1 = $('<span style="cursor: pointer">接口调试</span>');
+			sp1.click(function() {
+				var flag = this_window.DSFind("is_interface").prop('checked');
+				this_window.DSFind("is_interface").prop('checked', !flag);
+			})
+			var sp2 = $('<span style="cursor: pointer">任务执行</span>');
+			sp2.click(function() {
+				var flag = this_window.DSFind("is_task").prop('checked');
+				this_window.DSFind("is_task").prop('checked', !flag);
+			})
+			this_window.DSFind("td_attribute").append(ck1);
+			this_window.DSFind("td_attribute").append(sp1).append('&nbsp;&nbsp;');
+			this_window.DSFind("td_attribute").append(ck2);
+			this_window.DSFind("td_attribute").append(sp2);
 			var te_remark = $('<input>').DSAdd('remark');
 			this_window.DSFind("td_remark").append(te_remark);
 			te.textbox({
@@ -223,6 +246,8 @@
 					this_window.DSFind("datasource").combobox('select', data.datasourceId);
 					this_window.DSFind("id").val(data.id);
 					this_window.DSFind("name").textbox('initValue', data.configName);
+					this_window.DSFind("is_interface").prop('checked', data.isInterface == "0" ? false : true);
+					this_window.DSFind("is_task").prop('checked', data.isTask == "0" ? false : true);
 					this_window.DSFind("remark").textbox('initValue', data.remark);
 					if (data.list.length == 0) {
 						addDetailPanel();

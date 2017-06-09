@@ -7,6 +7,8 @@ public class ConfigBody extends Body {
 	private Integer id;
 	private String configName;
 	private String configType;
+	private Integer isInterface;
+	private Integer isTask;
 	private String remark;
 	private HashMap<String, ConfigDetailBody> details;
 
@@ -40,6 +42,22 @@ public class ConfigBody extends Body {
 
 	public void setRemark(String remark) {
 		this.remark = remark;
+	}
+
+	public Integer getIsInterface() {
+		return isInterface;
+	}
+
+	public void setIsInterface(Integer isInterface) {
+		this.isInterface = isInterface;
+	}
+
+	public Integer getIsTask() {
+		return isTask;
+	}
+
+	public void setIsTask(Integer isTask) {
+		this.isTask = isTask;
 	}
 
 	public HashMap<String, ConfigDetailBody> getDetails() {

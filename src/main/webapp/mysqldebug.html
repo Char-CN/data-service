@@ -104,6 +104,14 @@
 			$.post(url, function(data) {
 				if (data.status != 200) {
 					$.ds.alert(data.message);
+					// 删除刷新的图标，增加错误提示
+					this_window.DSFind("panel").each(function() {
+						$(this).find(".panel").remove();
+						$(this).DSFind("grid_message").remove();
+						var p = $('<p></p>').DSAdd('grid_message');
+						p.append(data.message);
+						$(this).append(p);
+					});
 					run_lock = false;
 					return;
 				}

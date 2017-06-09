@@ -14,6 +14,8 @@ public class ConfigModel implements Serializable {
 	private DataSourceModel dataSourceModel;
 	private String configName;
 	private String configType;
+	private boolean isInterface;
+	private boolean isTask;
 	private List<ConfigDetailModel> detailList;
 
 	public DataSourceModel getDataSourceModel() {
@@ -62,6 +64,22 @@ public class ConfigModel implements Serializable {
 
 	public void setConfigType(String configType) {
 		this.configType = configType;
+	}
+
+	public boolean isInterface() {
+		return isInterface;
+	}
+
+	public void setInterface(boolean isInterface) {
+		this.isInterface = isInterface;
+	}
+
+	public boolean isTask() {
+		return isTask;
+	}
+
+	public void setTask(boolean isTask) {
+		this.isTask = isTask;
 	}
 
 	public List<ConfigDetailModel> getDetailList() {

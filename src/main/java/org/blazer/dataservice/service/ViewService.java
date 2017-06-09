@@ -266,8 +266,12 @@ public class ViewService {
 				if (!checkUserOnGroup(sm.getUserId(), configCache.get(configId).getGroupId())) {
 					logger.error("UserId=" + sm.getUserId());
 					logger.error("GroupId=" + configCache.get(configId).getGroupId());
-					throw new NoPermissionsException("该用户无权执行该配置。");
+					throw new NoPermissionsException("该用户无权执行该配置。无法执行！");
 				}
+			}
+			// 判断是否是任务
+			if (!configCache.get(configId).isTask()) {
+				throw new RuntimeException("该配置不是一个任务。无法执行！");
 			}
 			// 增加参数
 			StringBuilder cmdParams = new StringBuilder();
@@ -606,6 +610,8 @@ public class ViewService {
 		vcb.setDatasourceId(IntegerUtil.getInt0(list.get(0).get("datasource_id")));
 		vcb.setConfigType(StringUtil.getStrEmpty(list.get(0).get("config_type")));
 		vcb.setConfigName(StringUtil.getStrEmpty(list.get(0).get("config_name")));
+		vcb.setIsInterface(IntegerUtil.getInt0(list.get(0).get("is_interface")));
+		vcb.setIsTask(IntegerUtil.getInt0(list.get(0).get("is_task")));
 		vcb.setRemark(StringUtil.getStrEmpty(list.get(0).get("remark")));
 		vcb.setEnable(IntegerUtil.getInt0(list.get(0).get("enable")));
 		vcb.setList(new ArrayList<ViewConfigDetailBody>());
@@ -647,9 +653,9 @@ public class ViewService {
 				// 强制设置configType和enable和orderAsc
 				config.setConfigType("1");
 				config.setEnable(1);
-				String insertConfig = "insert into ds_config(group_id,datasource_id,user_id,config_name,config_type,remark,order_asc,enable) values(?,?,?,?,?,?,99999,?)";
+				String insertConfig = "insert into ds_config(group_id,datasource_id,user_id,config_name,config_type,is_interface,is_task,remark,order_asc,enable) values(?,?,?,?,?,?,?,?,99999,?)";
 				int code = jdbcTemplate.update(insertConfig, config.getGroupId(), config.getDatasourceId(), sm.getUserId(), config.getConfigName(),
-						config.getConfigType(), config.getRemark(), config.getEnable());
+						config.getConfigType(), config.getIsInterface(), config.getIsTask(), config.getRemark(), config.getEnable());
 				logger.debug("inset code : " + code);
 				String selectMaxId = "select max(id) as max_id from ds_config";
 				Integer maxId = IntegerUtil.getInt0(jdbcTemplate.queryForList(selectMaxId).get(0).get("max_id"));
@@ -661,9 +667,9 @@ public class ViewService {
 			}
 			// 修改config
 			else {
-				String updateConfig = "update ds_config set group_id=?,datasource_id=?,user_id=?,config_name=?,config_type=?,remark=? where id=?";
+				String updateConfig = "update ds_config set group_id=?,datasource_id=?,user_id=?,config_name=?,config_type=?,is_interface=?,is_task=?,remark=? where id=?";
 				int code = jdbcTemplate.update(updateConfig, config.getGroupId(), config.getDatasourceId(), sm.getUserId(), config.getConfigName(), "1",
-						config.getRemark(), config.getId());
+						config.getIsInterface(), config.getIsTask(), config.getRemark(), config.getId());
 				logger.debug("update code : " + code);
 			}
 

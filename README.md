@@ -3,8 +3,12 @@
 
 <br>
 <br>
-发布需要修改：
+发布需要：
 <br>
 1.修改过滤器: web.xml 中的 PermissionsFilter
 <br>
 2.修改数据源: datasource.properties
+<br>
+3.修改调度路径：scheduler.properties
+<br>
+4.修改脚本路径：script.properties

@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.blazer.dataservice.model.ConfigDetailModel;
 import org.blazer.dataservice.model.ConfigModel;
+import org.blazer.dataservice.util.BooleanUtil;
 import org.blazer.dataservice.util.IntegerUtil;
 import org.blazer.dataservice.util.StringUtil;
 import org.blazer.dataservice.util.TimeUtil;
@@ -94,7 +95,7 @@ public class ConfigCache extends BaseCache implements InitializingBean {
 	public void initConfigEntity() {
 		// 先清空
 		this.clear();
-		List<Map<String, Object>> configList = jdbcTemplate.queryForList("select id,datasource_id,config_name,config_type,group_id from ds_config where enable=1");
+		List<Map<String, Object>> configList = jdbcTemplate.queryForList("select id,datasource_id,config_name,config_type,group_id,is_interface,is_task from ds_config where enable=1");
 		for (Map<String, Object> configMap : configList) {
 			ConfigModel config = new ConfigModel();
 			config.setId(IntegerUtil.getInt0(configMap.get("id")));
@@ -110,6 +111,8 @@ public class ConfigCache extends BaseCache implements InitializingBean {
 			}
 			config.setConfigName(StringUtil.getStrEmpty(configMap.get("config_name")));
 			config.setConfigType(StringUtil.getStrEmpty(configMap.get("config_type")));
+			config.setInterface(BooleanUtil.getBool(configMap.get("is_interface")));
+			config.setTask(BooleanUtil.getBool(configMap.get("is_task")));
 			List<ConfigDetailModel> detailList = new ArrayList<ConfigDetailModel>();
 			List<Map<String, Object>> rstList = jdbcTemplate
 					.queryForList("select id,datasource_id,config_id,`key`,`values` from ds_config_detail where config_id=? and enable=1", config.getId());
@@ -140,7 +143,7 @@ public class ConfigCache extends BaseCache implements InitializingBean {
 		// 先清除
 		this.remove(id);
 		List<Map<String, Object>> configList = jdbcTemplate
-				.queryForList("select id,datasource_id,config_name,config_type,group_id from ds_config where enable=1 and id=?", id);
+				.queryForList("select id,datasource_id,config_name,config_type,group_id,is_interface,is_task from ds_config where enable=1 and id=?", id);
 		if (configList.size() == 0) {
 			logger.info("config is not found, id : " + id + ", init fail");
 			return;
@@ -159,6 +162,8 @@ public class ConfigCache extends BaseCache implements InitializingBean {
 		}
 		config.setConfigName(StringUtil.getStrEmpty(configList.get(0).get("config_name")));
 		config.setConfigType(StringUtil.getStrEmpty(configList.get(0).get("config_type")));
+		config.setInterface(BooleanUtil.getBool(configList.get(0).get("is_interface")));
+		config.setTask(BooleanUtil.getBool(configList.get(0).get("is_task")));
 		List<ConfigDetailModel> detailList = new ArrayList<ConfigDetailModel>();
 		List<Map<String, Object>> rstList = jdbcTemplate
 				.queryForList("select id,datasource_id,config_id,`key`,`values` from ds_config_detail where config_id=? and enable=1", config.getId());

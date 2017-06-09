@@ -63,9 +63,15 @@ public class DataServiceAction extends BaseAction {
 				throw new Exception("只支持查询mysql数据库,不允许查询[" + config.getDataSourceModel().getDatabase_name() + "]");
 			}
 
+			if (!config.isInterface()) {
+				throw new Exception("该配置不是一个接口。无法执行！");
+			}
+
 			cb.setId(config.getId());
 			cb.setConfigName(config.getConfigName());
 			cb.setConfigType(config.getConfigType());
+			cb.setIsInterface(config.isInterface() ? 1 : 0);
+			cb.setIsTask(config.isTask() ? 1 : 0);
 			cb.setDetails(new HashMap<String, ConfigDetailBody>());
 
 			List<ConfigDetailModel> detailList = config.getDetailList();
@@ -88,13 +94,19 @@ public class DataServiceAction extends BaseAction {
 				}
 
 				Dao dao = detail.getDataSource();
-				List<Map<String, Object>> values = null;
+				List<Map<String, Object>> values = new ArrayList<Map<String, Object>>();
 
 				String errorMessage = StringUtils.EMPTY;
 				try {
-					values = dao.find(sql);
+					String oldSql = detail.getValues().toLowerCase();
+					if (oldSql.contains("select")) {
+						values = dao.find(sql);
+					} else if (oldSql.contains("insert") || oldSql.contains("update") || oldSql.contains("delete") || oldSql.contains("create")) {
+						dao.update(sql);
+					} else {
+						values = dao.find(sql);
+					}
 				} catch (Exception e) {
-					values = new ArrayList<Map<String, Object>>();
 					logger.error(e.getMessage(), e);
 					errorMessage = e.getMessage();
 				}

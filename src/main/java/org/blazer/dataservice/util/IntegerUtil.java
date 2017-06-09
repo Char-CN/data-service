@@ -23,7 +23,7 @@ public class IntegerUtil {
 		}
 		return 0;
 	}
-	
+
 	public static Integer getInt1(Object o) {
 		if (o == null) {
 			return 1;
