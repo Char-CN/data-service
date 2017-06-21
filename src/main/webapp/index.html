@@ -30,8 +30,20 @@
 		var $isadmin = $userservice.checkurl('isadmin');
 		var $isuser = $userservice.checkurl('isuser');
 	} catch (e) {
-// 		alert("user-service服务器连接出现问题。请联系管理员。" + e);
+		// 		alert("user-service服务器连接出现问题。请联系管理员。" + e);
 	}
+	var _time = null;
+	$(window).resize(function() {
+		if (_time) {
+			clearTimeout(_time);
+		}
+		_time = setTimeout(function() {
+			// 初始化north
+			if ($.ds.commons.chooseTreeId != "") {
+				$.ds.commons.referCenterByMenuId($.ds.commons.chooseTreeId);
+			}
+		}, 500);
+	});
 	window.onload = function() {
 		// 初始化north
 		$("#north").panel('refresh', 'north.html');
@@ -42,6 +54,7 @@
 		var a_home = $('<a href="javascript:void(0)" title="管理首页" class="icon-adapter ' + $.ds.icon.home_cls + '"></a>');
 		$("#west_title").parent().find(" .panel-tool").prepend(a_home);
 		a_home.click(function() {
+			$.ds.commons.chooseTreeId = "";
 			$("#center").panel('refresh', 'manager.html');
 			$("#center").panel('setTitle', '管理首页');
 		});
@@ -59,18 +72,15 @@
 </head>
 <body>
 	<div id="main" class="easyui-layout" data-options="fit:true">
-		<div id="north" data-options="region:'north'" style="height: 100px; overflow: hidden;">
-		</div>
-		<div id="west_title" class="easyui-panel"
-			data-options="region:'west',split:false,collapsible:false"
-			title="目录" style="width: 200px;">
-				<div class="easyui-layout" data-options="fit:true">
-					<div id="west" data-options="region:'center'" style="border-bottom: 0px;"></div>
-					<div id="west_search" data-options="region:'south'" style="height:25px; border-top: 0px; border-bottom: 0px;"></div>
-				</div>
+		<div id="north" data-options="region:'north'" style="height: 100px; overflow: hidden;"></div>
+		<div id="west_title" class="easyui-panel" data-options="region:'west',split:false,collapsible:false" title="目录" style="width: 200px;">
+			<div class="easyui-layout" data-options="fit:true">
+				<div id="west" data-options="region:'center'" style="border-bottom: 0px;"></div>
+				<div id="west_search" data-options="region:'south'" style="height: 25px; border-top: 0px; border-bottom: 0px;"></div>
 			</div>
+		</div>
 		<div id="center" class="easyui-panel" data-options="region:'center',title:' '"></div>
-		<div id="foot" data-options="region:'south'" style="height: 31px; overflow:hidden;"></div>
+		<div id="foot" data-options="region:'south'" style="height: 31px; overflow: hidden;"></div>
 	</div>
 </body>
 </html>

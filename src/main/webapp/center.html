@@ -255,11 +255,28 @@
 			$.post(url, function(data) {
 				this_ul.empty();
 				var rst = eval(data);
+				var one_li_width = $.ds.getCenterWidth()/4 - 13;
+				var one_img_width = 39;
+				var one_title_width = one_li_width - one_img_width;
 				if (rst.length != 0) {
-					for ( var i in rst) {
+					// 这一行4个li的高度最大值
+					var li_max_height = 0;
+					var li4 = [];
+					rst.unshift(new Object());
+					for ( var i = 1; i < rst.length; i++) {
 						var li = $('<li class="dsli" ds_index="' + rst[i].id + '" ds_title="' + rst[i].configName + '" ds_author="' + rst[i].userName + '" ds_remark="' + rst[i].remark + '" >');
-						li.append($.ds.icon.cube3);
-						li.append('<span>' + rst[i].configName + '</span>');
+						li.css("width", one_li_width);
+// 						li.append($.ds.icon.cube3); // 默认39
+// 						li.append('<span style="width:' + one_title_width + 'px">' + rst[i].configName + '</span>');
+						var img = $($.ds.icon.cube3);
+						img.css("float", "left");
+						img.width(one_img_width);
+						var content = $('<span>' + rst[i].configName + '</span>');
+						content.css("float", "left");
+						content.css("margin-top", "10px");
+						content.width(one_title_width);
+						li.append(img);
+						li.append(content);
 						var _time = null;
 						li.bind('dblclick', {
 							id : rst[i].id,
@@ -292,6 +309,19 @@
 							$(this).tooltip('destroy');
 						});
 						this_ul.append(li);
+						// 计算这一行4个高度逻辑
+						li4.push(li);
+						if (li.height() > li_max_height) {
+							li_max_height = li.height();
+						}
+						if (i % 4 == 0) {
+							for (var j in li4) {
+								// 重置高度
+								li4[j].height(li_max_height);
+							}
+							li4 = [];
+							li_max_height = 0;
+						}
 					}
 				}
 				return $.ds.show('加载[' + rst.length + ']条配置。');
