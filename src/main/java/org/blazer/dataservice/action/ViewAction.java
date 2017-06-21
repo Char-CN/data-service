@@ -177,7 +177,7 @@ public class ViewAction extends BaseAction {
 	public List<UserModel> getAllUser(HttpServletRequest request, HttpServletResponse response) {
 		List<UserModel> list = null;
 		try {
-			list = PermissionsFilter.findAllUserBySystemNameAndUrl(PermissionsFilter.getSystemName(), "isuser");
+			list = PermissionsFilter.findAllUserBySystemNameAndUrl("isuser");
 		} catch (Exception e) {
 			list = new ArrayList<UserModel>();
 			logger.error(e.getMessage(), e);

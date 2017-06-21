@@ -110,6 +110,8 @@
 		search.appendTo("#west_search");
 		search.searchbox({
 			searcher : function(value) {
+				// 设置标题
+				$("#main").layout('panel', 'center').panel('setTitle', '根据[' + value + ']查询的配置');
 				$.ds.commons.referCenterByConfigName(value);
 			},
 			width : '100%',

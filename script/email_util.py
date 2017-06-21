@@ -12,7 +12,7 @@ import sys
 class EmailUtil():
 
     mail_host = "smtp.163.com"  # 设置服务器
-    mail_user = "blazerhehe"  # 用户名
+    mail_user = "blazerhehe@163.com"  # 用户名
     mail_pass = "blazer222"  # 口令
     mail_postfix = "163.com"  # 发件箱的后缀
     me = ("%s<%s>") % (Header('布雷泽何', 'utf-8'), mail_user)

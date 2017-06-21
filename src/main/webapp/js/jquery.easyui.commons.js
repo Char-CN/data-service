@@ -274,7 +274,9 @@ $(function() {
 			permission_cls : 'fa fa-th-list fa-1x',
 			permission : '<i class="fa fa-th-list fa-1x"></i>',
 			system_cls : 'fa fa-desktop fa-1x',
-			system : '<i class="fa fa-desktop fa-1x"></i>'
+			system : '<i class="fa fa-desktop fa-1x"></i>',
+			home_cls : 'fa fa-home fa-1x',
+			home : '<i class="fa fa-home fa-1x"></i>'
 		},
 		show : function(message) {
 			if (message == undefined || message == null || message == "") {

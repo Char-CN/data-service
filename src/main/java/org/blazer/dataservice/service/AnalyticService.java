@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.blazer.userservice.core.filter.PermissionsFilter;
 import org.blazer.userservice.core.model.UserModel;
+import org.eclipse.jetty.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,10 @@ public class AnalyticService {
 		List<UserModel> users = PermissionsFilter.findAllUserByUserIds(ids.toString());
 		logger.debug(users.toString());
 		for (int i = 0; i < list.size(); i++) {
+			String nameCn = users.get(i).getUserNameCn();
+			if (StringUtil.isBlank(nameCn)) {
+				nameCn = "该用户已被删除";
+			}
 			list.get(i).put("user_name", users.get(i).getUserNameCn());
 		}
 		logger.debug(list.toString());

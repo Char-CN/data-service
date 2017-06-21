@@ -16,14 +16,16 @@
 				});
 			});
 			this_window.find('.all_task_list').bind('click', function() {
-				$.ds.commons.openWindow("mytasklist", $.ds.icon.list_alt , "所有任务列表", "alltasklist.html").dialog('resize', {
+				$.ds.commons.openWindow("alltasklist", $.ds.icon.list_alt , "所有任务列表", "alltasklist.html").dialog('resize', {
 					height : 400,
 					top : 100
 				});
 			});
 			this_window.find('.my_task_list').bind('click', function() {
-				// 引用左边快捷按钮的点击事件
-				$("#titlebar").DSFind("mytasklist").click();
+				$.ds.commons.openWindow("mytasklist", $.ds.icon.list_alt , "我的任务列表", "mytasklist.html").dialog('resize', {
+					height : 400,
+					top : 100
+				});
 			});
 			this_window.find('.scheduler_list').bind('click', function() {
 				$.ds.commons.openWindow("schedulerlist", $.ds.icon.clock , "调度任务列表", "schedulerlist.html").dialog('resize', {
@@ -57,8 +59,8 @@
 		} else {
 			this_window.find(".dsmanager").css("display", "none");
 			this_window.find(".dsanalytic").css("display", "none");
-			this_window.find(".scheduler_list").css("display", "none");
-			this_window.find(".all_task_list").css("display", "none");
+			this_window.find(".dsscheduler").css("display", "none");
+			this_window.append("<h3 style='padding-left:10px;'>这家伙很聪明，什么也没有留下。<h3>");
 		}
 	});
 </script>
