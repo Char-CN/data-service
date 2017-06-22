@@ -32,18 +32,22 @@
 	} catch (e) {
 		// 		alert("user-service服务器连接出现问题。请联系管理员。" + e);
 	}
+	// 窗口改变大小的事件。自动刷新布局
 	var _time = null;
-	$(window).resize(function() {
+	window.onresize = function() {
 		if (_time) {
 			clearTimeout(_time);
 		}
 		_time = setTimeout(function() {
 			// 初始化north
-			if ($.ds.commons.chooseTreeId != "") {
+			if ($.ds.commons.chooseType == 1) {
 				$.ds.commons.referCenterByMenuId($.ds.commons.chooseTreeId);
 			}
+			if ($.ds.commons.chooseType == 2) {
+				$.ds.commons.referCenterByConfigName($.ds.commons.chooseConfigName);
+			}
 		}, 500);
-	});
+	};
 	window.onload = function() {
 		// 初始化north
 		$("#north").panel('refresh', 'north.html');
@@ -54,9 +58,7 @@
 		var a_home = $('<a href="javascript:void(0)" title="管理首页" class="icon-adapter ' + $.ds.icon.home_cls + '"></a>');
 		$("#west_title").parent().find(" .panel-tool").prepend(a_home);
 		a_home.click(function() {
-			$.ds.commons.chooseTreeId = "";
-			$("#center").panel('refresh', 'manager.html');
-			$("#center").panel('setTitle', '管理首页');
+			$.ds.commons.openHome();
 		});
 		a_home.click();
 		// 初始化foot

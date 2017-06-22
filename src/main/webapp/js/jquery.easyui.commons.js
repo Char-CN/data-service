@@ -57,8 +57,12 @@ $(function() {
 		commons : {
 			chooseTreeId : "",
 			chooseConfigName : "",
+			chooseType : 0,
 			referCenterByMenuId : function(id) {
 				$.ds.commons.chooseTreeId = id;
+				$.ds.commons.chooseConfigName = "";
+				$.ds.commons.chooseType = 1;
+				$("#west_search_input").searchbox('setValue', '');
 				var c = $("#center");
 				c.unbind('contextmenu');
 				c.bind('contextmenu', function(e) {
@@ -81,6 +85,7 @@ $(function() {
 			referCenterByConfigName : function(configName) {
 				$.ds.commons.chooseTreeId = "";
 				$.ds.commons.chooseConfigName = configName;
+				$.ds.commons.chooseType = 2;
 				var c = $("#center");
 				c.unbind('contextmenu');
 				c.bind('contextmenu', function(e) {
@@ -99,6 +104,15 @@ $(function() {
 						return data;
 					}
 				});
+			},
+			openHome : function() {
+				$.ds.commons.chooseTreeId = "";
+				$.ds.commons.chooseConfigName = "";
+				$.ds.commons.chooseType = 3;
+				$("#west_search_input").searchbox('setValue', '');
+				var c = $("#center");
+				c.panel('refresh', 'manager.html');
+				c.panel('setTitle', '管理首页');
 			},
 			getStatus : function(value) {
 				if (value == "WAIT")
