@@ -1,9 +1,22 @@
-用户列表：
-<select ds_index="user_list" class="easyui-combobox" style="width: 200px;" editable="false"></select>
-<br/>
-目录列表：
-<select ds_index="users_tree" class="easyui-combotree" style="width: 500px;height:160px;" multiple="true" multiline="true" editable="false">
-</select>
+<table>
+	<tr>
+		<td style="width:80px;">用户列表：</td>
+		<td style="width:500px;"><select ds_index="user_list" class="easyui-combobox" style="width: 200px;" editable="false"></select></td>
+	</tr>
+	<tr>
+		<td>目录列表：</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td></td>
+		<td>
+			<!-- <select ds_index="users_tree" class="easyui-combotree" style="width: 500px;" multiple="true" multiline="true" editable="false"> --> <!-- </select> -->
+			<ul ds_index="users_tree2" class="easyui-tree" style="width: 100%;">
+			</ul>
+		</td>
+	</tr>
+	<tr></tr>
+</table>
 <script>
 	$(function() {
 		// 初始化参数、定义参数
@@ -12,9 +25,19 @@
 		var this_window = $("#" + windowId);
 
 		var userId = -1;
-		
+		// 初始化绑定树形菜单，加载数据，展开树形菜单
+		this_window.DSFind("users_tree2").tree({
+			url : $.ds.url.treeAll,
+			checkbox : true,
+			onLoadSuccess : function(node, data) {
+				this_window.DSFind("users_tree2").tree("options").url = '';
+				this_window.DSFind("users_tree2").tree('expandAll');
+			}
+		});
 		this_window.DSFind("users_tree").combotree({
 			url : $.ds.url.treeAll,
+			hasDownArrow : false,
+			panelHeight : 200,
 			onLoadSuccess : function(node, data) {
 				this_window.DSFind("users_tree").combotree("tree").tree("options").url = '';
 				this_window.DSFind("users_tree").combotree("tree").tree('expandAll');
@@ -49,8 +72,14 @@
 		};
 
 		var refer = function() {
+			// 取消选中
+			var nodes = this_window.DSFind("users_tree2").tree('getChecked');
+			if (nodes != null) {
+				for ( var i in nodes) {
+					this_window.DSFind("users_tree2").tree('uncheck', nodes[i].target);
+				}
+			}
 			if (userId == -1 || userId == undefined || userId == null) {
-				this_window.DSFind("users_tree").combotree("setValues", []);
 				return;
 			}
 			$.ajax({
@@ -59,10 +88,13 @@
 				async : false,
 				success : function(data) {
 					if (data == undefined || data == null || data == "" || data == 0) {
-						this_window.DSFind("users_tree").combotree("setValues", []);
 						return;
 					}
-					this_window.DSFind("users_tree").combotree("setValues", data);
+					// 选中
+					for ( var i in data) {
+						var node = this_window.DSFind("users_tree2").tree('find', data[i]);
+						this_window.DSFind("users_tree2").tree('check', node.target);
+					}
 				},
 				fail : function() {
 					$.ds.show("出现莫名失败。");
@@ -71,14 +103,15 @@
 		};
 
 		// 刷新
-		var a_reload = $('<a href="javascript:void(0)" class="icon-reload"></a>');
+		var a_reload = $('<a href="javascript:void(0)" class="icon-adapter ' + $.ds.icon.refresh_cls + '"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_reload);
 		a_reload.click(function() {
 			refer();
+			$.ds.show("刷新用户树。");
 		});
 
 		// 保存
-		var a_save = $('<a href="javascript:void(0)" class="icon-save"></a>');
+		var a_save = $('<a href="javascript:void(0)" class="icon-adapter ' + $.ds.icon.save_cls + '"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_save);
 		a_save.click(function() {
 			if (userId == -1) {
@@ -86,18 +119,21 @@
 				return;
 			}
 			var group_ids = "";
-			var checks = this_window.DSFind("users_tree").combotree("tree").tree("getChecked", ['checked','indeterminate']);
-// 			alert(JSON.stringify(checks));
-			for (var i in checks) {
+			var checks = this_window.DSFind("users_tree2").tree("getChecked", [ 'checked', 'indeterminate' ]);
+			// 			alert(JSON.stringify(checks));
+			for ( var i in checks) {
 				group_ids += checks[i].id + ",";
 			}
 			if (group_ids != "") {
 				group_ids = group_ids.substring(0, group_ids.length - 1);
 			}
-// 			alert(group_ids);
+			// 			alert(group_ids);
 			$.ajax({
 				url : $.ds.url.save_user_group,
-				data : { id : userId, group_ids:group_ids },
+				data : {
+					id : userId,
+					group_ids : group_ids
+				},
 				type : 'post',
 				async : false,
 				success : function(data) {
@@ -108,7 +144,7 @@
 				}
 			});
 		});
-		
+
 		init();
 	});
 </script>
