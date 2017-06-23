@@ -62,7 +62,7 @@
 		});
 		a_home.click();
 		// 初始化foot
-		var logout = $('<a href="javascript:void(0);">登出</a>');
+		var logout = $('<i title="登出" class="hand icon_adapter ' + $.ds.icon.quit_cls + '"></i>');
 		logout.click(function() {
 			$userservice.logout();
 		});

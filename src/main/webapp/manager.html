@@ -8,10 +8,12 @@
 		});
 
 		if ($isadmin) {
+			var left = ($(window).width() - 600) / 2;
 			this_window.find('.permissions').bind('click', function() {
 				$.ds.commons.openWindow("center_add_user_tree", $.ds.icon.user , "分配用户目录权限", "addusertree.html").dialog('resize', {
-					height : 230,
+					height : 400,
 					width : 600,
+					left : left,
 					top: 100
 				});
 			});

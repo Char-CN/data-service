@@ -68,8 +68,10 @@ textarea, input {
 .panel-tool {
 	right: 5px;
 	width: auto;
+	height: 18px;
+	font-size: 16px;
 }
-
+/* 
 .panel-tool a {
 	display: inline-block;
 	width: 16px;
@@ -78,6 +80,24 @@ textarea, input {
 	filter: alpha(opacity = 60);
 	margin: 0 0 0 2px;
 	vertical-align: top;
+}
+ */
+.panel-tool a {
+	margin-left: 5px;
+	/* adapter */
+	color: #A67D3D;
+	padding: 1px;
+	/* fa */
+	display: inline-block;
+	font: normal normal normal 14px/1 FontAwesome;
+	font-size: inherit;
+	text-rendering: auto;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	/* fa-lg */
+	font-size: 1.11111111em;
+	line-height: 1.11111111em;
+	vertical-align: -15%;
 }
 
 .panel-tool a:hover {
@@ -109,10 +129,35 @@ textarea, input {
 	background: url('images/loading.gif') no-repeat 10px 10px;
 }
 
+.panel-tool-close:before {
+	content: "\f00d";
+}
+
+.panel-tool-min:before {
+	font-size: 0.75em;
+	content: "\f2d1";
+}
+
+.panel-tool-max:before {
+	content: "\f2d0";
+}
+
+.panel-tool-restore:before {
+	content: "\f2d2";
+}
+
+.panel-tool-collapse:before {
+	content: "\f0d8";
+}
+
+.panel-tool-expand:before {
+	content: "\f0d7";
+}
+
+/* 
 .panel-tool-close {
 	background: url('images/panel_tools.png') no-repeat -16px 0px;
 }
-
 .panel-tool-min {
 	background: url('images/panel_tools.png') no-repeat 0px 0px;
 }
@@ -132,7 +177,7 @@ textarea, input {
 .panel-tool-expand {
 	background: url('images/panel_tools.png') no-repeat -32px -16px;
 }
-
+ */
 .panel-header, .panel-body {
 	border-color: #D4D4D4;
 }
@@ -157,8 +202,8 @@ textarea, input {
 	font-size: 13px;
 	font-weight: bold;
 	color: #A67D3D;
-	height: 16px;
-	line-height: 16px;
+	height: 18px;
+	line-height: 18px;
 }
 
 .panel-footer {
@@ -851,8 +896,23 @@ textarea, input {
 	overflow: auto;
 }
 
-.combo-arrow {
-	background: url('images/combo_arrow.png') no-repeat center center;
+.combo-arrow:before {
+	margin-left: 4px;
+	/* adapter */
+	color: #A67D3D;
+	padding: 1px;
+	/* fa */
+	display: inline-block;
+	font: normal normal normal 14px/1 FontAwesome;
+	font-size: inherit;
+	text-rendering: auto;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	/* fa-lg */
+	font-size: 1.11111111em;
+	line-height: 1.11111111em;
+	vertical-align: -15%;
+	content: "\f0d7";
 }
 
 .combo-panel {
@@ -2260,11 +2320,11 @@ textarea, input {
 }
 
 .calendar-menu-month-inner {
-	background-color:white
+	background-color: white
 }
 
 .calendar-menu-year-inner {
-	background-color:white
+	background-color: white
 }
 
 .calendar-body th, .calendar-menu-month {
@@ -2529,9 +2589,28 @@ textarea, input {
 .searchbox .textbox-button-left {
 	border-width: 0 1px 0 0;
 }
-
-.searchbox-button {
+/* 
+.searchbox-button:before {
 	background: url('images/searchbox_button.png') no-repeat center center;
+}
+ */
+.searchbox-button:before {
+	/* adapter */
+	color: #A67D3D;
+	padding: 1px;
+	/* fa */
+	display: inline-block;
+	font: normal normal normal 14px/1 FontAwesome;
+	font-size: inherit;
+	text-rendering: auto;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	/* fa-lg */
+	font-size: 1.333333em;
+	line-height: 1.333333em;
+	vertical-align: -15%;
+	/* fa-search */
+	content: "\f002";
 }
 
 .searchbox .l-btn-plain {

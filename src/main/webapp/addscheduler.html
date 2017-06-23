@@ -39,7 +39,7 @@
 		var params_key = [];
 
 		// 帮助
-		var a_help = $('<a href="javascript:void(0)" class="icon-help"></a>');
+		var a_help = $('<a href="javascript:void(0)" class="icon-adapter ' + $.ds.icon.help_cls + '"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_help);
 		a_help.click(function() {
 			var msg = '<div style="font-family:Arial,Helvetica,sans-serif;-moz-user-select: text; -webkit-user-select: text; user-select: text;">系统参数：<br>';
@@ -50,7 +50,7 @@
 		});
 
 		// 刷新
-		var a_reload = $('<a href="javascript:void(0)" class="icon-reload"></a>');
+		var a_reload = $('<a href="javascript:void(0)" class="icon-adapter ' + $.ds.icon.refresh_cls + '"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_reload);
 		a_reload.click(function() {
 			$.ds.show('您正在刷新[' + this_window.window('options').title + ']');
@@ -58,7 +58,7 @@
 		});
 
 		// 保存
-		var a_save = $('<a href="javascript:void(0)" class="icon-save"></a>');
+		var a_save = $('<a href="javascript:void(0)" class="icon-adapter ' + $.ds.icon.save_cls + '"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_save);
 		a_save.click(function() {
 			var arr = [ ]; // mapping config job array
@@ -245,12 +245,12 @@
 				title : title,
 				width : details.width(),
 				tools : [ {
-					iconCls : 'icon-add',
+					iconCls : 'icon-adapter ' + $.ds.icon.add_cls,
 					handler : function() {
 						addSchedulerPanel();
 					}
 				}, {
-					iconCls : 'icon-remove',
+					iconCls : 'icon-adapter ' + $.ds.icon.minus_cls,
 					handler : function() {
 						var dom = $(this);
 						$.messager.confirm('确定', '您确定要删除该详情吗?', function(r) {

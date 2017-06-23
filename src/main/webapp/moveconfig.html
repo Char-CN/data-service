@@ -46,14 +46,14 @@
 		};
 
 		// 刷新
-		var a_reload = $('<a href="javascript:void(0)" class="icon-reload"></a>');
+		var a_reload = $('<a href="javascript:void(0)" class="icon-adapter ' + $.ds.icon.refresh_cls + '"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_reload);
 		a_reload.click(function() {
 			refer();
 		});
 
 		// 保存
-		var a_save = $('<a href="javascript:void(0)" class="icon-save"></a>');
+		var a_save = $('<a href="javascript:void(0)" class="icon-adapter ' + $.ds.icon.save_cls + '"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_save);
 		a_save.click(function() {
 			var target_name = this_window.DSFind("tree").tree('find', up_id).text;

@@ -27,7 +27,7 @@
 		var this_window = $("#" + windowId);
 
 		// 刷新
-		var a_reload = $('<a href="javascript:void(0)" class="icon-reload" title="刷新"></a>');
+		var a_reload = $('<a href="javascript:void(0)" class="icon-adapter ' + $.ds.icon.refresh_cls + '" title="刷新"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_reload);
 		a_reload.click(function() {
 			$.ds.show('您正在刷新[' + this_window.window('options').title + ']');
@@ -36,16 +36,22 @@
 		});
 
 		// 编辑
-		var a_edit = $('<a href="javascript:void(0)" class="icon-edit" title="修改备注"></a>');
+		var edit_flag = false;
+		var a_edit = $('<a href="javascript:void(0)" class="icon-adapter ' + $.ds.icon.edit_cls + '" title="修改备注"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_edit);
 		a_edit.click(function() {
 			this_window.DSFind("remark").textbox('readonly', false);
+			edit_flag = true;
 		});
 
 		// 保存
-		var a_save = $('<a href="javascript:void(0)" class="icon-save" title="保存"></a>');
+		var a_save = $('<a href="javascript:void(0)" class="icon-adapter ' + $.ds.icon.save_cls + '" title="保存"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_save);
 		a_save.click(function() {
+			if (!edit_flag) {
+				$.ds.show("请点击编辑按钮后，编辑内容再进行保存。");
+				return;
+			}
 			var configBody = { };
 			configBody.id = id;
 			configBody.remark = this_window.DSFind("remark").textbox("getValue");
@@ -58,6 +64,7 @@
 				success : function(data) {
 					$.ds.show(data.message);
 					this_window.DSFind("remark").textbox('readonly');
+					edit_flag = false;
 				},
 				error : function(XMLHttpRequest, textStatus, errorThrown) {
 					$.ds.show('保存失败！<br>status：' + XMLHttpRequest.status + '<br>state：' + XMLHttpRequest.readyState + '<br>text：' + (textStatus || errorThrown));
@@ -66,7 +73,7 @@
 		});
 
 		// 执行
-		var a_run = $('<a href="javascript:void(0)" class="icon-run"></a>');
+		var a_run = $('<a href="javascript:void(0)" class="icon-adapter ' + $.ds.icon.run_cls + '"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_run);
 		a_run.click(function() {
 			run();
