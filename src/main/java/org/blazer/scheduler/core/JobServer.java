@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.blazer.scheduler.entity.Job;
 import org.blazer.scheduler.expression.CronCalcTimeoutException;
+import org.blazer.scheduler.expression.CronException;
 import org.blazer.scheduler.model.ProcessModel;
 import org.blazer.scheduler.service.JobService;
 import org.blazer.scheduler.util.SpringContextUtil;
@@ -79,8 +80,6 @@ public class JobServer extends Thread {
 
 	@Override
 	public void run() {
-		Exception exception = null;
-		boolean error = false;
 		while (true) {
 			Integer jobId = null;
 			try {
@@ -91,24 +90,14 @@ public class JobServer extends Thread {
 				jobId = waitSpawnTaskJobIdQueue.element();
 				ProcessModel pm = TaskServer.spawnAutoCronTaskProcess(jobIdToJobMap.get(jobId));
 				logger.debug("spawn cron auto task process : " + pm);
-				waitSpawnTaskJobIdQueue.remove();
-				error = false;
 			} catch (CronCalcTimeoutException e) {
-				error = true;
-				exception = e;
-				waitSpawnTaskJobIdQueue.remove(jobId);
-				waitSpawnTaskJobIdQueue.add(jobId);
+				logger.error(e.getMessage(), e);
+			} catch (CronException e) {
+				logger.error(e.getMessage(), e);
 			} catch (Exception e) {
-				error = true;
-				exception = e;
-			}
-			// 在次可扩展，如果出现同一个错误，则不需要记录logger
-			if (error) {
-				try {
-					logger.error(exception.getMessage(), exception);
-					Thread.sleep(200);
-				} catch (Exception ee) {
-				}
+				logger.error(e.getMessage(), e);
+			} finally {
+				waitSpawnTaskJobIdQueue.remove(jobId);
 			}
 		}
 	}

@@ -16,6 +16,8 @@ import org.blazer.scheduler.util.DateUtil;
  * 
  * * * * * *
  * 
+ * [0-59] [0-23] [1-31] [1-12] [0-7]
+ * 
  * - - - - -
  * 
  * | | | | |
@@ -28,7 +30,7 @@ import org.blazer.scheduler.util.DateUtil;
  * 
  * | +-------- hour (0 - 23)
  * 
- * +---------- min (0 - 59)
+ * +---------- minute (0 - 59)
  * 
  * 每一位支持的语法：[*]或者[* / 2]或者[1,2,3]或者[1-3]或者[1]
  * 
@@ -47,7 +49,7 @@ public class CronParserHelper {
 	public static final String R4 = "\\d+[-]\\d+";
 
 	// public static final String ONE = "([*]|[*]/\\d+|[\\d,]*)";
-	public static final String ONE = "(" + R1 + "|" + R2 + "|" + R3 + "|" + R4 + ")";
+	public static final String ONE = "(" + R2 + "|" + R4 + "|" + R1 + "|" + R3 + ")";
 
 	public static final String BLANK = "\\s+";
 
@@ -84,91 +86,91 @@ public class CronParserHelper {
 		System.out.println("next time   : " + sdf.format(next));
 		System.out.println();
 
-		cron = "20,30,40 * * * *";
-		System.out.println(cron + "  : " + isValid(cron));
-		l1 = System.currentTimeMillis();
-		next = getNextDate(DateUtil.newDate(), cron);
-		l2 = System.currentTimeMillis();
-		System.out.println("waster time : " + (l2 - l1) + "ms");
-		System.out.println("next time   : " + sdf.format(next));
-		l1 = System.currentTimeMillis();
-		next = getNextDate(next, cron);
-		l2 = System.currentTimeMillis();
-		System.out.println("waster time : " + (l2 - l1) + "ms");
-		System.out.println("next time   : " + sdf.format(next));
-		l1 = System.currentTimeMillis();
-		next = getNextDate(next, cron);
-		l2 = System.currentTimeMillis();
-		System.out.println("waster time : " + (l2 - l1) + "ms");
-		System.out.println("next time   : " + sdf.format(next));
-		l1 = System.currentTimeMillis();
-		next = getNextDate(next, cron);
-		l2 = System.currentTimeMillis();
-		System.out.println("waster time : " + (l2 - l1) + "ms");
-		System.out.println("next time   : " + sdf.format(next));
-		l1 = System.currentTimeMillis();
-		next = getNextDate(next, cron);
-		l2 = System.currentTimeMillis();
-		System.out.println("waster time : " + (l2 - l1) + "ms");
-		System.out.println("next time   : " + sdf.format(next));
-		System.out.println();
-
-		cron = "*/5 * * * *";
-		System.out.println(cron + "  : " + isValid(cron));
-		l1 = System.currentTimeMillis();
-		next = getNextDate(DateUtil.newDate(), cron);
-		l2 = System.currentTimeMillis();
-		System.out.println("waster time : " + (l2 - l1) + "ms");
-		System.out.println("next time   : " + sdf.format(next));
-		l1 = System.currentTimeMillis();
-		next = getNextDate(next, cron);
-		l2 = System.currentTimeMillis();
-		System.out.println("waster time : " + (l2 - l1) + "ms");
-		System.out.println("next time   : " + sdf.format(next));
-		l1 = System.currentTimeMillis();
-		next = getNextDate(next, cron);
-		l2 = System.currentTimeMillis();
-		System.out.println("waster time : " + (l2 - l1) + "ms");
-		System.out.println("next time   : " + sdf.format(next));
-		System.out.println();
-
-		cron = "20 * * * *";
-		System.out.println(cron + "  : " + isValid(cron));
-		l1 = System.currentTimeMillis();
-		next = getNextDate(DateUtil.newDate(), cron);
-		l2 = System.currentTimeMillis();
-		System.out.println("waster time : " + (l2 - l1) + "ms");
-		System.out.println("next time   : " + sdf.format(next));
-		l1 = System.currentTimeMillis();
-		next = getNextDate(next, cron);
-		l2 = System.currentTimeMillis();
-		System.out.println("waster time : " + (l2 - l1) + "ms");
-		System.out.println("next time   : " + sdf.format(next));
-		l1 = System.currentTimeMillis();
-		next = getNextDate(next, cron);
-		l2 = System.currentTimeMillis();
-		System.out.println("waster time : " + (l2 - l1) + "ms");
-		System.out.println("next time   : " + sdf.format(next));
-		System.out.println();
-
-		cron = "15-20 * * * *";
-		System.out.println(cron + "  : " + isValid(cron));
-		l1 = System.currentTimeMillis();
-		next = getNextDate(DateUtil.newDate(), cron);
-		l2 = System.currentTimeMillis();
-		System.out.println("waster time : " + (l2 - l1) + "ms");
-		System.out.println("next time   : " + sdf.format(next));
-		l1 = System.currentTimeMillis();
-		next = getNextDate(next, cron);
-		l2 = System.currentTimeMillis();
-		System.out.println("waster time : " + (l2 - l1) + "ms");
-		System.out.println("next time   : " + sdf.format(next));
-		l1 = System.currentTimeMillis();
-		next = getNextDate(next, cron);
-		l2 = System.currentTimeMillis();
-		System.out.println("waster time : " + (l2 - l1) + "ms");
-		System.out.println("next time   : " + sdf.format(next));
-		System.out.println();
+//		cron = "20,30,40 * * * *";
+//		System.out.println(cron + "  : " + isValid(cron));
+//		l1 = System.currentTimeMillis();
+//		next = getNextDate(DateUtil.newDate(), cron);
+//		l2 = System.currentTimeMillis();
+//		System.out.println("waster time : " + (l2 - l1) + "ms");
+//		System.out.println("next time   : " + sdf.format(next));
+//		l1 = System.currentTimeMillis();
+//		next = getNextDate(next, cron);
+//		l2 = System.currentTimeMillis();
+//		System.out.println("waster time : " + (l2 - l1) + "ms");
+//		System.out.println("next time   : " + sdf.format(next));
+//		l1 = System.currentTimeMillis();
+//		next = getNextDate(next, cron);
+//		l2 = System.currentTimeMillis();
+//		System.out.println("waster time : " + (l2 - l1) + "ms");
+//		System.out.println("next time   : " + sdf.format(next));
+//		l1 = System.currentTimeMillis();
+//		next = getNextDate(next, cron);
+//		l2 = System.currentTimeMillis();
+//		System.out.println("waster time : " + (l2 - l1) + "ms");
+//		System.out.println("next time   : " + sdf.format(next));
+//		l1 = System.currentTimeMillis();
+//		next = getNextDate(next, cron);
+//		l2 = System.currentTimeMillis();
+//		System.out.println("waster time : " + (l2 - l1) + "ms");
+//		System.out.println("next time   : " + sdf.format(next));
+//		System.out.println();
+//
+//		cron = "*/5 * * * */2";
+//		System.out.println(cron + "  : " + isValid(cron));
+//		l1 = System.currentTimeMillis();
+//		next = getNextDate(DateUtil.newDate(), cron);
+//		l2 = System.currentTimeMillis();
+//		System.out.println("waster time : " + (l2 - l1) + "ms");
+//		System.out.println("next time   : " + sdf.format(next));
+//		l1 = System.currentTimeMillis();
+//		next = getNextDate(next, cron);
+//		l2 = System.currentTimeMillis();
+//		System.out.println("waster time : " + (l2 - l1) + "ms");
+//		System.out.println("next time   : " + sdf.format(next));
+//		l1 = System.currentTimeMillis();
+//		next = getNextDate(next, cron);
+//		l2 = System.currentTimeMillis();
+//		System.out.println("waster time : " + (l2 - l1) + "ms");
+//		System.out.println("next time   : " + sdf.format(next));
+//		System.out.println();
+//
+//		cron = "20 * * * *";
+//		System.out.println(cron + "  : " + isValid(cron));
+//		l1 = System.currentTimeMillis();
+//		next = getNextDate(DateUtil.newDate(), cron);
+//		l2 = System.currentTimeMillis();
+//		System.out.println("waster time : " + (l2 - l1) + "ms");
+//		System.out.println("next time   : " + sdf.format(next));
+//		l1 = System.currentTimeMillis();
+//		next = getNextDate(next, cron);
+//		l2 = System.currentTimeMillis();
+//		System.out.println("waster time : " + (l2 - l1) + "ms");
+//		System.out.println("next time   : " + sdf.format(next));
+//		l1 = System.currentTimeMillis();
+//		next = getNextDate(next, cron);
+//		l2 = System.currentTimeMillis();
+//		System.out.println("waster time : " + (l2 - l1) + "ms");
+//		System.out.println("next time   : " + sdf.format(next));
+//		System.out.println();
+//
+//		cron = "15-16 * * * *";
+//		System.out.println(cron + "  : " + isValid(cron));
+//		l1 = System.currentTimeMillis();
+//		next = getNextDate(DateUtil.newDate(), cron);
+//		l2 = System.currentTimeMillis();
+//		System.out.println("waster time : " + (l2 - l1) + "ms");
+//		System.out.println("next time   : " + sdf.format(next));
+//		l1 = System.currentTimeMillis();
+//		next = getNextDate(next, cron);
+//		l2 = System.currentTimeMillis();
+//		System.out.println("waster time : " + (l2 - l1) + "ms");
+//		System.out.println("next time   : " + sdf.format(next));
+//		l1 = System.currentTimeMillis();
+//		next = getNextDate(next, cron);
+//		l2 = System.currentTimeMillis();
+//		System.out.println("waster time : " + (l2 - l1) + "ms");
+//		System.out.println("next time   : " + sdf.format(next));
+//		System.out.println();
 
 		cron = "0 23 * * 6";
 		System.out.println(cron + "  : " + isValid(cron));
@@ -189,10 +191,39 @@ public class CronParserHelper {
 		System.out.println("next time   : " + sdf.format(next));
 		System.out.println();
 
-		cron = "1 1 1 1 0";
+//		cron = "1 1 1 1 0";
+//		System.out.println(cron + "  : " + isValid(cron));
+//		l1 = System.currentTimeMillis();
+//		next = getNextDate(DateUtil.newDate(), cron);
+//		l2 = System.currentTimeMillis();
+//		System.out.println("waster time : " + (l2 - l1) + "ms");
+//		System.out.println("next time   : " + sdf.format(next));
+//		l1 = System.currentTimeMillis();
+//		next = getNextDate(next, cron);
+//		l2 = System.currentTimeMillis();
+//		System.out.println("waster time : " + (l2 - l1) + "ms");
+//		System.out.println("next time   : " + sdf.format(next));
+//		l1 = System.currentTimeMillis();
+//		next = getNextDate(next, cron);
+//		l2 = System.currentTimeMillis();
+//		System.out.println("waster time : " + (l2 - l1) + "ms");
+//		System.out.println("next time   : " + sdf.format(next));
+//		System.out.println();
+
+		cron = "1 1 10,11,12 */3 2-4";
 		System.out.println(cron + "  : " + isValid(cron));
 		l1 = System.currentTimeMillis();
 		next = getNextDate(DateUtil.newDate(), cron);
+		l2 = System.currentTimeMillis();
+		System.out.println("waster time : " + (l2 - l1) + "ms");
+		System.out.println("next time   : " + sdf.format(next));
+		l1 = System.currentTimeMillis();
+		next = getNextDate(next, cron);
+		l2 = System.currentTimeMillis();
+		System.out.println("waster time : " + (l2 - l1) + "ms");
+		System.out.println("next time   : " + sdf.format(next));
+		l1 = System.currentTimeMillis();
+		next = getNextDate(next, cron);
 		l2 = System.currentTimeMillis();
 		System.out.println("waster time : " + (l2 - l1) + "ms");
 		System.out.println("next time   : " + sdf.format(next));
@@ -285,11 +316,16 @@ public class CronParserHelper {
 		_date = c.getTime();
 
 		int calcCount = 0;
+		// 默认如果大于n年的话算计算出错
+		int calcDays = 365 * 12;
+		// 循环获得下一个时间
 		while (true) {
-			if (calcCount >= 1000000) {
-				throw new CronCalcTimeoutException("calc count " + calcCount + " beyond 1000000 , please check the cron.");
+			int days = (int) ((_date.getTime() - date.getTime()) / (1000 * 3600 * 24));
+			if (days >= calcDays) {
+				throw new CronCalcTimeoutException("cron [" + cron + "] calc days " + days + "[" + sdf.format(_date) + "] beyond " + calcDays + ", please check the cron.");
 			}
 			calcCount++;
+
 			/**
 			 * 验证周几
 			 */
@@ -358,6 +394,7 @@ public class CronParserHelper {
 			 */
 			break;
 		}
+		System.out.println("calc count total : " + calcCount);
 		return _date;
 	}
 
@@ -372,6 +409,9 @@ public class CronParserHelper {
 		return arr;
 	}
 
+	/**
+	 * 验证分钟 minute (0 - 59)
+	 */
 	public static boolean checkMinute(Calendar c, String minute) {
 		if (minute.matches(R1)) {
 			// do nothing
@@ -392,10 +432,10 @@ public class CronParserHelper {
 			int currentMinute = c.get(Calendar.MINUTE);
 			// 当前第几天
 			boolean flag = false;
-			inner: for (String s : minutes) {
+			for (String s : minutes) {
 				if (IntegerUtil.getInt0(s) == currentMinute) {
 					flag = true;
-					break inner;
+					break;
 				}
 			}
 			if (!flag) {
@@ -410,10 +450,10 @@ public class CronParserHelper {
 			boolean flag = false;
 			int begin = IntegerUtil.getInt0(minutes[0]);
 			int end = IntegerUtil.getInt0(minutes[1]);
-			inner: for (int i = begin; i < end; i++) {
+			for (int i = begin; i <= end; i++) {
 				if (i == currentMinute) {
 					flag = true;
-					break inner;
+					break;
 				}
 			}
 			if (!flag) {
@@ -423,6 +463,9 @@ public class CronParserHelper {
 		return true;
 	}
 
+	/**
+	 * 验证小时 hour (0 - 23)
+	 */
 	public static boolean checkHour(Calendar c, String hour) {
 		if (hour.matches(R1)) {
 			// do nothing
@@ -443,10 +486,10 @@ public class CronParserHelper {
 			int currentHour = c.get(Calendar.HOUR_OF_DAY);
 			// 当前第几天
 			boolean flag = false;
-			inner: for (String s : hours) {
+			for (String s : hours) {
 				if (IntegerUtil.getInt0(s) == currentHour) {
 					flag = true;
-					break inner;
+					break;
 				}
 			}
 			if (!flag) {
@@ -461,10 +504,10 @@ public class CronParserHelper {
 			boolean flag = false;
 			int begin = IntegerUtil.getInt0(hours[0]);
 			int end = IntegerUtil.getInt0(hours[1]);
-			inner: for (int i = begin; i < end; i++) {
+			for (int i = begin; i <= end; i++) {
 				if (i == currentHour) {
 					flag = true;
-					break inner;
+					break;
 				}
 			}
 			if (!flag) {
@@ -475,7 +518,7 @@ public class CronParserHelper {
 	}
 
 	/**
-	 * 验证几天
+	 * 验证几天 day of month (1 - 31)
 	 */
 	public static boolean checkDay(Calendar c, String day) {
 		if (day.matches(R1)) {
@@ -496,10 +539,10 @@ public class CronParserHelper {
 			// 当前第几天
 			int currentDay = c.get(Calendar.DAY_OF_MONTH);
 			boolean flag = false;
-			inner: for (String s : days) {
+			for (String s : days) {
 				if (IntegerUtil.getInt0(s) == currentDay) {
 					flag = true;
-					break inner;
+					break;
 				}
 			}
 			if (!flag) {
@@ -514,10 +557,10 @@ public class CronParserHelper {
 			boolean flag = false;
 			int begin = IntegerUtil.getInt0(days[0]);
 			int end = IntegerUtil.getInt0(days[1]);
-			inner: for (int i = begin; i < end; i++) {
+			for (int i = begin; i <= end; i++) {
 				if (i == currentDay) {
 					flag = true;
-					break inner;
+					break;
 				}
 			}
 			if (!flag) {
@@ -528,7 +571,7 @@ public class CronParserHelper {
 	}
 
 	/**
-	 * 验证几月
+	 * 验证几月 month (1 - 12)
 	 */
 	public static boolean checkMonth(Calendar c, String month) {
 		if (month.matches(R1)) {
@@ -549,10 +592,10 @@ public class CronParserHelper {
 			// 当前第几月
 			int currentMonth = c.get(Calendar.MONTH) + 1;
 			boolean flag = false;
-			inner: for (String s : months) {
+			for (String s : months) {
 				if (IntegerUtil.getInt0(s) == currentMonth) {
 					flag = true;
-					break inner;
+					break;
 				}
 			}
 			if (!flag) {
@@ -567,10 +610,10 @@ public class CronParserHelper {
 			boolean flag = false;
 			int begin = IntegerUtil.getInt0(months[0]);
 			int end = IntegerUtil.getInt0(months[1]);
-			inner: for (int i = begin; i < end; i++) {
+			for (int i = begin; i <= end; i++) {
 				if (i == currentMonth) {
 					flag = true;
-					break inner;
+					break;
 				}
 			}
 			if (!flag) {
@@ -591,7 +634,7 @@ public class CronParserHelper {
 			String[] strs = weekday.split("/");
 			Integer step = IntegerUtil.getInt0(strs[1]);
 			// 当前星期几
-			int currentWeek = DateUtil.FIELD2WEEK.get(c.get(Calendar.DAY_OF_WEEK));
+			int currentWeek = DateUtil.getRealWeek(c.get(Calendar.DAY_OF_WEEK));
 			// 不通过验证
 			if (currentWeek % step != 0) {
 				return false;
@@ -600,12 +643,12 @@ public class CronParserHelper {
 		if (weekday.matches(R3)) {
 			String[] weeks = weekday.split(",");
 			// 当前星期几
-			int currentWeek = DateUtil.FIELD2WEEK.get(c.get(Calendar.DAY_OF_WEEK));
+			int currentWeek = c.get(Calendar.DAY_OF_WEEK);
 			boolean flag = false;
-			inner: for (String s : weeks) {
-				if (IntegerUtil.getInt0(s) == currentWeek) {
+			for (String s : weeks) {
+				if (DateUtil.realWeekEqualsWeek(IntegerUtil.getInt0(s), currentWeek)) {
 					flag = true;
-					break inner;
+					break;
 				}
 			}
 			if (!flag) {
@@ -615,14 +658,14 @@ public class CronParserHelper {
 		if (weekday.matches(R4)) {
 			String[] weeks = weekday.split("-");
 			// 当前星期几
-			int currentWeek = DateUtil.FIELD2WEEK.get(c.get(Calendar.DAY_OF_WEEK));
+			int currentWeek = c.get(Calendar.DAY_OF_WEEK);
 			boolean flag = false;
 			int begin = IntegerUtil.getInt0(weeks[0]);
 			int end = IntegerUtil.getInt0(weeks[1]);
-			inner: for (int i = begin; i < end; i++) {
-				if (i == currentWeek) {
+			for (int i = begin; i <= end; i++) {
+				if (DateUtil.realWeekEqualsWeek(i, currentWeek)) {
 					flag = true;
-					break inner;
+					break;
 				}
 			}
 			if (!flag) {
