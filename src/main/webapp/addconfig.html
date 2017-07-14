@@ -147,10 +147,12 @@
 								if (isAdd) {
 									this_window.window('close');
 								}
-								if ($.ds.commons.chooseTreeId == "") {
-									$.ds.commons.referCenterByConfigName($.ds.commons.chooseConfigName);
-								} else {
-									$.ds.commons.referCenterByMenuId(group_id);
+								if (group_id != null) {
+									if ($.ds.commons.chooseTreeId == "") {
+										$.ds.commons.referCenterByConfigName($.ds.commons.chooseConfigName);
+									} else {
+										$.ds.commons.referCenterByMenuId(group_id);
+									}
 								}
 							} 
 						},

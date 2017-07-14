@@ -28,7 +28,7 @@
 		//                 return date < tomorrow;
 		//             }
 		//         });
-		var a_reload = $('<a href="javascript:void(0)" class="icon-reload"></a>');
+		var a_reload = $('<a href="javascript:void(0)" class="icon-adapter ' + $.ds.icon.refresh_cls + '"></a>');
 		this_window.parent().find(" .panel-tool").prepend(a_reload);
 		a_reload.click(function() {
 			table.datagrid('reload');
@@ -44,31 +44,55 @@
 				hidden : true
 			}, {
 				field : 'configName',
-				width : "30%",
-				title : '名称'
+				width : "15%",
+				title : '配置名称'
 			}, {
-				field : 'email',
-				width : "30%",
-				title : '邮箱'
+				field : 'jobName',
+				width : "20%",
+				title : '调度名称',
+				formatter : function(value, mcj) {
+					return mcj.job.jobName;
+				}
 			}, {
 				field : 'cron',
-				width : "30%",
+				width : "10%",
 				title : 'cron表达式',
 				formatter : function(value, mcj) {
 					return mcj.job.cron;
+				}
+			}, {
+				field : 'email',
+				width : "20%",
+				title : '接收邮箱'
+			}, {
+				field : 'emailUserids',
+				width : "20%",
+				title : '接收人员'
+			}, {
+				field : '操作',
+				width : "10%",
+				title : '操作',
+				formatter : function(value, mcj){
+					var ret = '&nbsp;';
+					ret += '<span title="定时任务配置" style="cursor:pointer" onclick="$.ds.commons.openWindow(\'center_add_scheduler_' + mcj.configId + '\',$.ds.icon.clock,\'' + mcj.configName + '\',' + '\'addscheduler.html\', \'id=' + mcj.configId + '\')">' + $.ds.icon.clock + '</span>　';
+
+// 					$.ds.commons.openWindow("center_add_config_" + _id, $.ds.icon.edit, title, "addconfig.html", "id=" + _id + "&group_id=" + group_id);
+					ret += '<span title="编辑配置项" style="cursor:pointer" onclick="$.ds.commons.openWindow(\'center_add_config_' + mcj.configId + '\',$.ds.icon.edit,\'' + mcj.configName + '\',' + '\'addconfig.html\', \'id=' + mcj.configId + '\')">' + $.ds.icon.cube + '</span>　';
+					return ret;
 				}
 			} ] ],
 			rownumbers : true,
 			singleSelect : true,
 			autoRowHeight : false,
-			pagination : true,
+			pagination : false,
 			striped : true,
-			pageSize : 10,
+			pageSize : 1000,
+			pageList : [ 1000 ],
 			pagePosition : 'bottom'
 		}).datagrid('getPager').pagination({
-			pageList : [ 10, 20, 50, 100 ],
 			links : 5,
-			displayMsg : '当前显示　{from} - {to}　条记录,共　{total}　条记录',
+/* 			displayMsg : '当前显示　{from} - {to}　条记录,共　{total}　条记录', */
+			displayMsg : '共　{total}　条记录',
 			layout : [ 'list', 'sep', 'first', 'prev', 'sep', 'links', 'sep', 'next', 'last', 'sep', 'refresh' ]
 		});
 	});

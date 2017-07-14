@@ -267,6 +267,8 @@ $(function() {
 			clock : '<i class="fa fa-clock-o fa-lg"></i>',
 			cube3_cls : 'fa fa-cube fa-3x',
 			cube3 : '<i class="fa fa-cube fa-3x"></i>',
+			cube_cls : 'fa fa-cube fa-lg',
+			cube : '<i class="fa fa-cube fa-lg"></i>',
 			run_cls : 'fa fa-play-circle fa-lg',
 			run : '<i class="fa fa-play-circle fa-lg"></i>',
 			add_cls : 'fa fa-plus-circle fa-lg',

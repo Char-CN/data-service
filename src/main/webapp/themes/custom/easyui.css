@@ -68,8 +68,9 @@ textarea, input {
 .panel-tool {
 	right: 5px;
 	width: auto;
-	height: 18px;
+	height: 22px;
 	font-size: 16px;
+	margin-top: -13px;
 }
 /* 
 .panel-tool a {
@@ -95,9 +96,10 @@ textarea, input {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	/* fa-lg */
-	font-size: 1.11111111em;
-	line-height: 1.11111111em;
+	font-size: 0.95em;
+	line-height: 0.95em;
 	vertical-align: -15%;
+	text-decoration: none;
 }
 
 .panel-tool a:hover {
@@ -913,6 +915,7 @@ textarea, input {
 	line-height: 1.11111111em;
 	vertical-align: -15%;
 	content: "\f0d7";
+	text-decoration: none；
 }
 
 .combo-panel {

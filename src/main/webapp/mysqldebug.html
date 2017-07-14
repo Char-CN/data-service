@@ -128,6 +128,12 @@
 						$(this).append(p);
 						return;
 					}
+					if (values.length == 0) {
+						var p = $('<p>没有查询到任何数据。</p>').DSAdd('grid_message');
+						$(this).append(p);
+						return;
+					}
+					// 取第一行的key的内容
 					var keys = $.ds.getKeys(values[0]);
 					var columns = [];
 					var datas = [];
@@ -138,16 +144,28 @@
 						});
 					}
 					for ( var i in values) {
+						var _limit = 100;
+						if (columns.length < 5) {
+							// default, do nothing
+						} else if (columns.length < 10) {
+							_limit = 50;
+						} else if (columns.length < 20) {
+							_limit = 20;
+						} else if (columns.length < 30) {
+							_limit = 10;
+						} else {
+							_limit = 5;
+						}
+						if (i >= _limit) {
+							var p = $('<p>后台返回' + values.length + '条数据，' + columns.length + '列，只显示前' + _limit + '条。若返回太慢，请加limit限制。</p>').DSAdd('grid_message');
+							$(this).append(p);
+							break;
+						}
 						var data = {};
 						for ( var j in keys) {
 							data[keys[j]] = values[i][keys[j]];
 						}
 						datas.push(data);
-					}
-					if (datas.length == 0) {
-						var p = $('<p>没有查询到任何数据。</p>').DSAdd('grid_message');
-						$(this).append(p);
-						return;
 					}
 					var grid = $('<table></table>').DSAdd('grid');
 					$(this).append(grid);
