@@ -29,6 +29,7 @@ import org.blazer.dataservice.util.StringUtil;
 import org.blazer.scheduler.core.JobServer;
 import org.blazer.scheduler.core.ProcessHelper;
 import org.blazer.scheduler.core.TaskServer;
+import org.blazer.scheduler.entity.Job;
 import org.blazer.scheduler.entity.JobParam;
 import org.blazer.scheduler.entity.Status;
 import org.blazer.scheduler.entity.Task;
@@ -140,7 +141,12 @@ public class ViewService {
 		for (Task task : taskList) {
 			task.setStatus(Status.get(task.getStatusId()));
 			if (TaskType.cron_auto.toString().equals(task.getTypeName())) {
-				task.setRemark(JobServer.getJobById(task.getJobId()).getJobName());
+				String jobName = "已经删除的JOB";
+				Job job = JobServer.getJobById(task.getJobId());
+				if (job != null) {
+					jobName = job.getJobName();
+				}
+				task.setRemark(jobName);
 				task.setTypeName(TaskType.cron_auto.getCNName());
 			} else {
 				task.setTypeName(TaskType.right_now.getCNName());
@@ -223,7 +229,12 @@ public class ViewService {
 			list.get(i).put("email_usernames", userNames);
 			list.get(i).put("status", Status.get(IntegerUtil.getInt0(list.get(i).get("status_id"))));
 			if (TaskType.cron_auto.toString().equals(list.get(i).get("type_name"))) {
-				list.get(i).put("remark", JobServer.getJobById(IntegerUtil.getInt0(list.get(i).get("job_id"))).getJobName());
+				String jobName = "已经删除的JOB";
+				Job job = JobServer.getJobById(IntegerUtil.getInt0(list.get(i).get("job_id")));
+				if (job != null) {
+					jobName = job.getJobName();
+				}
+				list.get(i).put("remark", jobName);
 				list.get(i).put("type_name", TaskType.cron_auto.getCNName());
 			} else {
 				list.get(i).put("type_name", TaskType.right_now.getCNName());
@@ -312,11 +323,35 @@ public class ViewService {
 		String sql = "select mcj.* from mapping_config_job mcj inner join scheduler_job sj on sj.id=mcj.job_id where mcj.enable=1 and sj.enable=1";
 		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
 		List<MappingConfigJob> rst = HMap.toList(list, MappingConfigJob.class);
-		for (MappingConfigJob mcj : rst) {
-			// TODO
+		StringBuilder ids = new StringBuilder();
+		for (int i = 0; i < rst.size(); i++) {
+			MappingConfigJob mcj = rst.get(i);
+			ids.append(mcj.getEmailUserids() + ((i + 1) == rst.size() ? "" : ","));
+		}
+		System.out.println(ids.toString());
+		List<UserModel> users = PermissionsFilter.findAllUserByUserIds(ids.toString());
+		System.out.println(users.toString());
+		int index = 0;
+		for (int i = 0; i < rst.size(); i++) {
+			MappingConfigJob mcj = rst.get(i);
 			mcj.setJob(JobServer.getJobById(mcj.getJobId()));
 			mcj.setConfigName(configCache.get(mcj.getConfigId()).getConfigName());
+//			mcj.setConfigName(mcj.getJob().getJobName());
+			int userCount = StringUtils.splitByWholeSeparatorPreserveAllTokens(mcj.getEmailUserids(), ",").length;
+			String emails = "";
+			for (int j = 0; j == 0 || j < userCount; j++, index++) {
+				if (j != 0) {
+					emails += ",";
+				}
+				emails += users.get(index).getUserNameCn() == null ? "" : users.get(index).getUserNameCn();
+			}
+			mcj.setEmailUserids(emails);
 		}
+//		for (MappingConfigJob mcj : rst) {
+//			mcj.setJob(JobServer.getJobById(mcj.getJobId()));
+//			mcj.setConfigName(configCache.get(mcj.getConfigId()).getConfigName());
+//			// TODO
+//		}
 		return rst;
 	}
 
@@ -719,9 +754,17 @@ public class ViewService {
 	}
 
 	public void deleteConfig(HashMap<String, String> params) {
-		String updateConfig = "update ds_config set enable=0 where id=?";
-		int code = jdbcTemplate.update(updateConfig, IntegerUtil.getInt0(params.get("id")));
-		logger.debug("update code : " + code);
+		int configId = IntegerUtil.getInt0(params.get("id"));
+		logger.debug("delete config id : " + configId);
+		String sql = "update ds_config set enable=0 where id=?";
+		int code = jdbcTemplate.update(sql, configId);
+		logger.debug("sql [" + sql + "] result : " + code);
+		sql = "update mapping_config_job set enable=0 where config_id=?";
+		code = jdbcTemplate.update(sql, configId);
+		logger.debug("sql [" + sql + "] result : " + code);
+		sql = "UPDATE scheduler_job SET `enable`=0 WHERE id IN (SELECT job_id FROM mapping_config_job WHERE config_id=?)";
+		code = jdbcTemplate.update(sql, configId);
+		logger.debug("sql [" + sql + "] result : " + code);
 	}
 
 	public void saveConfigOrderAsc(List<ViewConfigBody> list) {
