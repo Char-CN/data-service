@@ -60,7 +60,7 @@ public class DataServiceAction extends BaseAction {
 			ConfigModel config = configCache.get(id);
 
 			if (!"mysql".equals(config.getDataSourceModel().getDatabase_name())) {
-				throw new Exception("只支持查询mysql数据库,不允许查询[" + config.getDataSourceModel().getDatabase_name() + "]");
+				throw new Exception("调试时只支持查询[mysql]类型数据库,不允许查询[" + config.getDataSourceModel().getDatabase_name() + "]类型数据库.请执行一个任务.");
 			}
 
 			if (!config.isInterface()) {
