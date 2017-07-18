@@ -111,7 +111,7 @@ public class ViewService {
 		sql += " SELECT st.* FROM scheduler_task st";
 		sql += " INNER JOIN scheduler_job sj ON st.job_id=sj.id";
 		sql += " INNER JOIN mapping_config_job mcj ON sj.id=mcj.job_id";
-		sql += "  WHERE LOCATE(CONCAT(?), CONCAT(',',mcj.email_userids,',')) ";
+		sql += "  WHERE LOCATE(CONCAT(',',?,','), CONCAT(',',mcj.email_userids,',')) ";
 		sql += "   and st.execute_time>=?";
 		sql += "   and st.execute_time<=?";
 		sql += "   and st.job_id>=0";
@@ -157,7 +157,7 @@ public class ViewService {
 		sql += " SELECT st.* FROM scheduler_task st";
 		sql += " INNER JOIN scheduler_job sj ON st.job_id=sj.id";
 		sql += " INNER JOIN mapping_config_job mcj ON sj.id=mcj.job_id";
-		sql += "  WHERE LOCATE(CONCAT(?), CONCAT(',',mcj.email_userids,',')) ";
+		sql += "  WHERE LOCATE(CONCAT(',',?,','), CONCAT(',',mcj.email_userids,',')) ";
 		sql += "   and st.execute_time>=?";
 		sql += "   and st.execute_time<=?";
 		sql += "   and st.job_id>=0";
