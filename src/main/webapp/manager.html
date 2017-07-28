@@ -47,6 +47,12 @@
 					top : 100
 				});
 			});
+			this_window.find('.cache_list').bind('click', function() {
+				$.ds.commons.openWindow("cache_list", $.ds.icon.cache , "缓存信息列表", "cache_manager.html").dialog('resize', {
+					height : 200,
+					top : 100
+				});
+			});
 		} else if ($isuser) {
 			this_window.find(".dsmanager").css("display", "none");
 			this_window.find(".dsanalytic").css("display", "none");
@@ -87,6 +93,7 @@
 		<ul class="dsul">
 			<li class="dsli run_task_list"><i class="fa fa-table fa-3x" aria-hidden="true"></i>执行任务次数列表</li>
 			<li class="dsli add_task_list"><i class="fa fa-table fa-3x" aria-hidden="true"></i>创建任务次数列表</li>
+			<li class="dsli cache_list"><i class="fa fa-diamond fa-3x" aria-hidden="true"></i>缓存信息列表</li>
 		</ul>
 	</fieldset>
 </div>

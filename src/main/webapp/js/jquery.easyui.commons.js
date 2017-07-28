@@ -52,7 +52,8 @@ $(function() {
 			find_system_by_id : "user/findSystemById.do",
 			save_system : "user/saveSystem.do",
 			del_system : "user/delSystem.do",
-			find_system_all : "user/findSystemAll.do"
+			find_system_all : "user/findSystemAll.do",
+			cache_space : "cache/space.do"
 		},
 		commons : {
 			chooseTreeId : "",
@@ -300,7 +301,9 @@ $(function() {
 			system_cls : 'fa fa-desktop fa-lg',
 			system : '<i class="fa fa-desktop fa-lg"></i>',
 			home_cls : 'fa fa-home fa-lg',
-			home : '<i class="fa fa-home fa-lg"></i>'
+			home : '<i class="fa fa-home fa-lg"></i>',
+			cache_cls : 'fa fa-diamond fa-lg',
+			cache : '<i class="fa fa-diamond fa-lg"></i>'
 		},
 		show : function(message) {
 			if (message == undefined || message == null || message == "") {

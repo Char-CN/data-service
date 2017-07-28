@@ -4,11 +4,15 @@ import java.io.Serializable;
 
 import org.blazer.dataservice.dao.Dao;
 
+import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
+
 public class ConfigDetailModel implements Serializable {
 
 	private static final long serialVersionUID = -5812714497821525878L;
 	private Integer id;
+	@IgnoreSizeOf
 	private Dao dataSource;
+	@IgnoreSizeOf
 	private ConfigModel config;
 	private String key;
 	private String values;

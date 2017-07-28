@@ -19,6 +19,8 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import net.sf.ehcache.Element;
+
 /**
  * memory cache
  * 
@@ -41,7 +43,8 @@ public class ConfigCache extends BaseCache implements InitializingBean {
 	 * 清空所有配置
 	 */
 	public void clear() {
-		getCache().clear();
+//		getCache().clear();
+		getCache().removeAll();
 	}
 
 	/**
@@ -50,14 +53,16 @@ public class ConfigCache extends BaseCache implements InitializingBean {
 	 * @param id
 	 */
 	public void remove(Integer id) {
-		getCache().evict(id);
+//		getCache().evict(id);
+		getCache().remove(id);
 	}
 
 	/**
 	 * 新增一个配置，如果存在则覆盖。
 	 */
 	public void add(ConfigModel config) {
-		getCache().put(config.getId(), config);
+//		getCache().put(config.getId(), config);
+		getCache().put(new Element(config.getId(), config));
 	}
 
 	/**
@@ -77,7 +82,8 @@ public class ConfigCache extends BaseCache implements InitializingBean {
 		} else {
 			logger.debug("config in cache ... id : " + id);
 		}
-		return (ConfigModel) getCache().get(id).get();
+//		return (ConfigModel) getCache().get(id).get();
+		return (ConfigModel) getCache().get(id).getObjectValue();
 	}
 
 	public boolean contains(Integer id) {

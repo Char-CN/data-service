@@ -1,0 +1,53 @@
+<table ds_index="cache_table" style="width: 100%;"></table>
+<script>
+	$(function() {
+		var windowId = '$windowId';
+		var this_window = $("#" + windowId);
+
+		var table = this_window.DSFind("cache_table");
+		// 刷新
+		var a_reload = $('<a href="javascript:void(0)" class="icon-adapter ' + $.ds.icon.refresh_cls + '"></a>');
+		this_window.parent().find(" .panel-tool").prepend(a_reload);
+		a_reload.click(function() {
+			refer();
+		});
+
+		var refer = function() {
+			this_window.DSFind("cache_table").datagrid({
+				url : $.ds.url.cache_space,
+				rownumbers : true,
+				columns : [ [ {
+					title : 'id',
+					field : 'id',
+					hidden : true
+				}, {
+					title : '名称',
+					field : 'cacheName',
+					width : "30%"
+				}, {
+					title : '堆内存',
+					field : 'inMemorySize',
+					width : "20%",
+					formatter : function(value, row){
+						return value + " " + row.unit;
+					}
+				}, {
+					title : '非堆内存',
+					field : 'offHeapSize',
+					width : "20%",
+					formatter : function(value, row){
+						return value + " " + row.unit;
+					}
+				}, {
+					title : '磁盘存储',
+					field : 'onDiskSize',
+					width : "20%",
+					formatter : function(value, row){
+						return value + " " + row.unit;
+					}
+				} ] ]
+			});
+		};
+		refer();
+	});
+</script>
