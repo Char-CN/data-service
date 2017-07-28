@@ -125,12 +125,16 @@
 					configBody.list = [ ];
 					
 					this_window.DSFind('details').find('li').each(function(i, o){
-						var key = $(this).DSFind('key').textbox('getValue');
-						var values = $(this).DSFind('values').textbox('getValue');
-						var detail = { };
-						detail.key = key;
-						detail.values = values;
-						configBody.list.push(detail);
+						try {
+							var key = $(this).DSFind('key').textbox('getValue');
+							var values = $(this).DSFind('values').textbox('getValue');
+							var detail = { };
+							detail.key = key;
+							detail.values = values;
+							configBody.list.push(detail);
+						} catch (e) {
+							alert(e);
+						}
 					});
 					$.ajax({
 						type : "post", // 请求方式
@@ -298,7 +302,7 @@
 						var dom = $(this);
 						$.messager.confirm('确定', '您确定要删除该详情吗?', function(r) {
 							if (r) {
-								pan.panel('destroy');
+								details.DSFind(index).remove();
 							}
 						});
 					}
