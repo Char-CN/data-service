@@ -22,7 +22,8 @@ CREATE TABLE `ds_config` (
   PRIMARY KEY (`id`),
   KEY `IDX_DATASOURCE_ID` (`datasource_id`),
   KEY `IDX_GROUP_ID` (`group_id`),
-  KEY `IDX_USER_ID` (`user_id`)
+  KEY `IDX_USER_ID` (`user_id`),
+  KEY `IDX_CONFIG_NAME` (`config_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=155 DEFAULT CHARSET=utf8;
 
 /*Table structure for table `ds_config_detail` */
@@ -41,7 +42,8 @@ CREATE TABLE `ds_config_detail` (
   `ctime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `IDX_DATASOURCE_ID` (`datasource_id`),
-  KEY `IDX_CONFIG_ID` (`config_id`)
+  KEY `IDX_CONFIG_ID` (`config_id`),
+  KEY `IDX_ENABLE` (`enable`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1060 DEFAULT CHARSET=utf8;
 
 /*Table structure for table `ds_datasource` */
