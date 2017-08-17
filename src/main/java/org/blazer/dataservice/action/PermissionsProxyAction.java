@@ -4,6 +4,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+/**
+ * 此Action用户区分admin和user的权限，固不可以删除。
+ * 
+ * @author hyy
+ *
+ */
 @Controller
 public class PermissionsProxyAction {
 
