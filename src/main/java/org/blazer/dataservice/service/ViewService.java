@@ -276,7 +276,9 @@ public class ViewService {
 				// 则需要检查数据库
 				if (!checkUserOnGroup(sm.getUserId(), configCache.get(configId).getGroupId())) {
 					logger.error("UserId=" + sm.getUserId());
+					logger.error("ConfigId=" + configId);
 					logger.error("GroupId=" + configCache.get(configId).getGroupId());
+					logger.error("Config=" + configCache.get(configId));
 					throw new NoPermissionsException("该用户无权执行该配置。无法执行！");
 				}
 			}

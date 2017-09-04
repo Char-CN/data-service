@@ -7,6 +7,7 @@
 	<packaging>war</packaging>
 
 	<dependencies>
+		<!-- import the project : https://github.com/Char-CN/user-service-core -->
 		<dependency>
 			<groupId>org.blazer</groupId>
 			<artifactId>user-service-core</artifactId>
@@ -128,6 +129,14 @@
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
 			<version>1.3.2</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/junit/junit -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
 		</dependency>
 
 		<!-- <dependency> -->

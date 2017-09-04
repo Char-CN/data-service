@@ -94,4 +94,10 @@ public class ConfigModel implements Serializable {
 		this.detailList = detailList;
 	}
 
+	@Override
+	public String toString() {
+		return "ConfigModel [id=" + id + ", groupId=" + groupId + ", configName=" + configName + ", configType=" + configType + ", isInterface=" + isInterface
+				+ ", isTask=" + isTask + "]";
+	}
+
 }
