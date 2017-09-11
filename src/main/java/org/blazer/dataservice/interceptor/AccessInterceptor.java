@@ -1,5 +1,6 @@
 package org.blazer.dataservice.interceptor;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -14,7 +15,16 @@ public class AccessInterceptor extends HandlerInterceptorAdapter {
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-		logger.debug("IP:" + IPUtil.getIpAddr(request) + ",URL:" + request.getRequestURL() + "?" + request.getQueryString());
+		String sessionStr = null;
+		if (request.getCookies() != null)
+		for (Cookie cookie : request.getCookies()) {
+			if ("US_SESSION_ID".equals(cookie.getName())) {
+				sessionStr = cookie.getValue();
+				break;
+			}
+		}
+		logger.debug("IP:" + IPUtil.getIpAddr(request) + "|^_^|US_SESSION_ID:" + sessionStr + "|^_^|URL:" + request.getRequestURL() + "|^_^|QueryString:"
+				+ request.getQueryString());
 		return super.preHandle(request, response, handler);
 	}
 
