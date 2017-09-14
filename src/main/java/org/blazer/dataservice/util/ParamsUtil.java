@@ -13,7 +13,7 @@ public class ParamsUtil {
 	/**
 	 * 该Set是系统保留参数，当任务执行时候，还会传入参数SYS_TASK_NAME。由于SYS_TASK_NAME是系统允许的参数，不在该列表内。
 	 */
-	public static final HashSet<String> Set = new HashSet<String>() {
+	private static final HashSet<String> reservedMap = new HashSet<String>() {
 		private static final long serialVersionUID = -2212280133747455803L;
 		{
 			add("${result_path}");
@@ -22,6 +22,10 @@ public class ParamsUtil {
 			add("${emails}");
 		}
 	};
+
+	public static boolean isSysReserved(String param) {
+		return reservedMap.contains(param);
+	}
 
 	/**
 	 * 参数是否是Excel类型的

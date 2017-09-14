@@ -718,7 +718,8 @@ public class ViewService {
 			// 验证参数是否有系统保留参数
 			for (ViewConfigDetailBody detail : config.getList()) {
 				for (String param : SqlUtil.ExtractParams(detail.getValues())) {
-					if (ParamsUtil.Set.contains(param)) {
+					// 是系统保留参数
+					if (ParamsUtil.isSysReserved(param)) {
 						throw new RuntimeException("有系统保留参数[" + param + "],请更换参数名称!");
 					}
 					// 是一个Excel参数
