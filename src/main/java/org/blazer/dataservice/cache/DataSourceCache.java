@@ -44,6 +44,9 @@ public class DataSourceCache implements InitializingBean {
 	@Value("#{dataSourceProperties.url}")
 	public String url;
 
+	@Value("#{dataSourceProperties.host}")
+	public String host;
+
 	@Value("#{dataSourceProperties.username}")
 	public String username;
 
@@ -60,32 +63,33 @@ public class DataSourceCache implements InitializingBean {
 		String host = StringUtil.findOneStrByReg(url, ".*://(.*):.*");
 		String port = StringUtil.findOneStrByReg(url, ".*:(\\d*).*");
 		String dbName = StringUtil.findOneStrByReg(url, ".*/([A-Za-z0-9_]*)[?]*.*");
-		jdbcTemplate.update(sql, 1, "mysql", "default", url, host, port, dbName, username, password, "当前数据源，也就是当前库的数据源，由系统启动时初始化配置。该数据不可删除！", 1, "mysql", "default", url, host, port,
-				dbName, username, password, "当前数据源，也就是当前库的数据源，由系统启动时初始化配置。该数据不可删除！", 1);
+		jdbcTemplate.update(sql, 1, "mysql", "default", url, host, port, dbName, username, password, "当前数据源，也就是当前库的数据源，由系统启动时初始化配置。该数据不可删除！", 1, "mysql", "default", url,
+				host, port, dbName, username, password, "当前数据源，也就是当前库的数据源，由系统启动时初始化配置。该数据不可删除！", 1);
 		initDataSource();
-		logger.debug("执行sql: " + SqlUtil.Show(sql, 1, "mysql", "default", url, host, port, dbName, username, password, "当前数据源，也就是当前库的数据源，由系统启动时初始化配置。该数据不可删除！", 1, "mysql", "default", url, host, port,
-				dbName, username, password, "当前数据源，也就是当前库的数据源，由系统启动时初始化配置。该数据不可删除！", 1));
+		logger.debug("执行sql: " + SqlUtil.Show(sql, 1, "mysql", "default", url, host, port, dbName, username, password, "当前数据源，也就是当前库的数据源，由系统启动时初始化配置。该数据不可删除！", 1,
+				"mysql", "default", url, host, port, dbName, username, password, "当前数据源，也就是当前库的数据源，由系统启动时初始化配置。该数据不可删除！", 1));
 		timeUtil.printMs("加载数据源");
 	}
 
 	public void initDataSource() {
-		List<Map<String, Object>> dataSourceList = jdbcTemplate.queryForList("select id,database_name,title,url,username,password,remark from ds_datasource");
+		List<Map<String, Object>> dataSourceList = jdbcTemplate.queryForList("select id,database_name,title,url,host,username,password,remark from ds_datasource");
 		for (Map<String, Object> map : dataSourceList) {
 			Integer id = IntegerUtil.getInt0(map.get("id"));
 			// id为1是系统默认的连接，如果有则覆盖
 			String database_name = StringUtil.getStrEmpty(map.get("database_name"));
 			String title = StringUtil.getStrEmpty(map.get("title"));
 			String url = StringUtil.getStrEmpty(map.get("url"));
+			String host = StringUtil.getStrEmpty(map.get("host"));
 			String username = StringUtil.getStrEmpty(map.get("username"));
 			String password = StringUtil.getStrEmpty(map.get("password"));
 			String remark = StringUtil.getStrEmpty(map.get("remark"));
 			if (id == 1) {
 				if (StringUtils.isNotBlank(url) || StringUtils.isNotBlank(username) || StringUtils.isNotBlank(password)) {
-					logger.info("检测到配置默认数据源中url、username、password不为空，系统将强行覆盖该数据源为系统配置的datasource.properties里的数据源。");
+					logger.info("检测到配置默认数据源中url、username、password不为空，系统将强行覆盖该数据源为系统配置的datasource.properties里的数据源。并覆盖数据库中ID为1的数据源。");
 				}
 				continue;
 			}
-			this.addDataSource(id, database_name, title, url, username, password, remark);
+			this.addDataSource(id, database_name, title, url, host, username, password, remark);
 		}
 		this.addDefaultDataSource();
 		logger.info("init sucess datasource ids : {}", this.getKeySet());
@@ -110,11 +114,18 @@ public class DataSourceCache implements InitializingBean {
 	 * @param password
 	 * @param remark
 	 */
-	public void addDataSource(Integer id, String database_name, String title, String url, String username, String password, String remark) {
+	public void addDataSource(Integer id, String database_name, String title, String url, String host, String username, String password, String remark) {
 		DataSourceModel dataSourceModel = new DataSourceModel();
 		dataSourceModel.setId(id);
 		dataSourceModel.setDatabase_name(database_name);
-		dataSourceModel.setTitle(title);
+		// 自定义标题，用于展示
+		if ("mysql".equalsIgnoreCase(database_name)) {
+			dataSourceModel.setTitle(host + "_" + username);
+		} else if ("hive".equalsIgnoreCase(database_name)) {
+			dataSourceModel.setTitle("hive");
+		} else {
+			dataSourceModel.setTitle(title);
+		}
 		dataSourceModel.setUrl(url);
 		dataSourceModel.setUsername(username);
 		dataSourceModel.setPassword(password);
@@ -157,7 +168,7 @@ public class DataSourceCache implements InitializingBean {
 	}
 
 	public void addDefaultDataSource() {
-		addDataSource(DEFAULT_DATASOURCE_ID, "mysql", "default", url, username, password, "系统默认数据源，即datasource.properties里的数据源。");
+		addDataSource(DEFAULT_DATASOURCE_ID, "mysql", "default", url, host, username, password, "系统默认数据源，即datasource.properties里的数据源。");
 	}
 
 	public DataSourceModel getDefaultDataSource() {
