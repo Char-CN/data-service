@@ -256,10 +256,12 @@ then
   then
     result_file_path=${result_path}/${SYS_TASK_NAME}.zip
   fi
-  echo $(log "${python_path} ${email_util} ${emails} ${email_title} ${email_content} ${result_file_path}");
-  ${python_path} ${email_util} "${emails}" "${email_title}" "${email_content}" "${result_file_path}"
+  # remove on 2017-09-15
+  # echo $(log "${python_path} ${email_util} ${emails} ${email_title} ${email_content} ${result_file_path}");
+  # ${python_path} ${email_util} "${emails}" "${email_title}" "${email_content}" "${result_file_path}"
+  echo ${java_path} -jar ${data_service_util_jar} "org.blazer.util.EmailUtil_Csv2HtmlTable" "${emails}" "${email_title}" "${email_content}" "${result_path}/${SYS_TASK_NAME}.csv" "${result_file_path}"
+  ${java_path} -jar ${data_service_util_jar} "org.blazer.util.EmailUtil_Csv2HtmlTable" "${emails}" "${email_title}" "${email_content}" "${result_path}/${SYS_TASK_NAME}.csv" "${result_file_path}"
 else
   echo "查询失败.";
   exit 1
 fi
-
