@@ -269,6 +269,9 @@ public class ViewService {
 		Task task = null;
 		try {
 			Integer configId = IntegerUtil.getInt0(params.get("config_id"));
+			if (!configCache.contains(configId)) {
+				throw new RuntimeException("没有找到该config_id:" + configId);
+			}
 			// 判断权限
 			CheckUrlStatus cus = PermissionsFilter.checkUrl(sm, "isadmin");
 			// 如果不是管理员
@@ -289,13 +292,18 @@ public class ViewService {
 			// 增加参数
 			StringBuilder cmdParams = new StringBuilder();
 			List<JobParam> paramList = new ArrayList<JobParam>();
-			cmdParams.append(" emails=").append(sm.getEmail());
-			cmdParams.append(" result_path=").append(resultPath);
-			// paramList.add(new JobParam("emails", sm.getEmail()));
-			// paramList.add(new JobParam("result_path", resultPath));
+//			cmdParams.append(" emails=").append(sm.getEmail());
+//			cmdParams.append(" result_path=").append(resultPath);
+			// 系统参数：允许传入emails参数，默认为调用者email
+			if (!params.containsKey("emails")) {
+				params.put("emails", sm.getEmail());
+			}
+			// 系统参数：结果路径
+			params.put("result_path", resultPath);
 			for (String key : params.keySet()) {
 				cmdParams.append(" ").append(key).append("=").append(params.get(key));
-				if ("config_id".equals(key)) {
+				// 系统参数
+				if ("config_id".equalsIgnoreCase(key) || "emails".equalsIgnoreCase(key) || "result_path".equalsIgnoreCase(key)) {
 					continue;
 				}
 				paramList.add(new JobParam(key, params.get(key)));
