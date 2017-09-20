@@ -58,9 +58,7 @@ function get() {
 function log() {
   if [ $debug == true ];
   then
-    echo "$1"
-  else
-    echo ""
+    echo "echo $1"
   fi
 }
 ############################################################################# 获取传入参数
@@ -69,13 +67,14 @@ mapping_config_job_id=$(get mapping_config_job_id)
 config_id=$(get config_id)
 emails=$(get emails)
 
+echo "################## 传入参数"
 echo "SYS_TASK_NAME         : ${SYS_TASK_NAME}";
 echo "result_path           : ${result_path}";
 echo "mapping_config_job_id : ${mapping_config_job_id}";
 echo "config_id             : ${config_id}";
 echo "emails                : ${emails}";
 ############################################################################# 获取数据源信息
-echo "################## config_id存在表示即时查询的任务";
+$(log "################## config_id存在表示即时查询的任务");
 if [ "${config_id}" == "" ];
 then
   # 根据mappingid查询实际数据源
@@ -99,9 +98,8 @@ else
   "
 fi
 
-echo "################## 获取datasource信息。用户生成实际执行命令";
+$(log "################## 获取datasource信息。用户生成实际执行命令");
 rst=`${conn} "${sql}"`
-echo $(log "$rst");
 db_type=`echo $rst | awk -F ' ' '{print $1}'`;
 url=`echo $rst | awk -F ' ' '{print $2}'`;
 host=`echo $rst | awk -F ' ' '{print $3}'`;
@@ -110,6 +108,14 @@ dbname=`echo $rst | awk -F ' ' '{print $5}'`;
 username=`echo $rst | awk -F ' ' '{print $6}'`;
 password=`echo $rst | awk -F ' ' '{print $7}'`;
 config_name=`echo $rst | awk -F ' ' '{print $8}'`;
+# 隐藏密码的显示
+$(log "db_type     : $db_type");
+$(log "url         : $url");
+$(log "host        : $host");
+$(log "port        : $port");
+$(log "dbname      : $dbname");
+$(log "username    : $username");
+$(log "config_name : $config_name");
 
 ############################################################################# 获取实际查询的SQL
 if [ "${config_id}" == "" ];
@@ -137,13 +143,15 @@ else
   "
 fi
 
-echo $(log "${sql}");
-echo "################## 实际查询的sql";
+$(log "################## 获得实际查询sql的语句");
+$(log "${sql}");
+
 query_sql=`${conn} "${sql}"`;
 
-echo "${query_sql}";
+# $(log "################## 实际查询的sql");
+# $(log "${query_sql}");
 
-echo $(log "################## 实际查询的sql参数替换处理");
+$(log "################## 实际查询的sql参数替换处理");
 # 强制替换系统任务名称参数
 query_sql=${query_sql//\$\{SYS_TASK_NAME\}/${SYS_TASK_NAME}};
 arr=(${params_sh_sys_maps//${params_sh_sys_split}/ })
@@ -171,34 +179,36 @@ else
   query_sql="SET NAMES utf8; ${query_sql}"
 fi
 
-echo "################## 处理后的实际查询的sql";
-echo "${query_sql}";
-
 ############################################################################# 拼接实际执行的命令
-echo $(log "################## 判断是mysql类型还是hive类型");
+$(log "################## 判断是mysql类型还是hive类型");
 exec_cmd=""
 if [ ${db_type} == "mysql" ];
 then
+  # 隐藏密码的显示
+  exec_cmd_show="${mysql_path} -h${host} -u${username} -p -P${port} -D${dbname} -n -e"
   exec_cmd="${mysql_path} -h${host} -u${username} -p${password} -P${port} -D${dbname} -n -e"
 else
+  exec_cmd_show="${hive_path} -e"
   exec_cmd="${hive_path} -e"
 fi
 
 echo "################## 执行的命令"
-echo "${exec_cmd} \"${query_sql}\" > ${result_path}/${SYS_TASK_NAME}.csv";
+echo "${exec_cmd_show} \"${query_sql}\" > ${result_path}/${SYS_TASK_NAME}.csv";
 
 ############################################################################# 执行命令
-echo "开始执行查询任务......";
+echo "################## 开始执行查询任务......";
 ${exec_cmd} "${query_sql}" > ${result_path}/${SYS_TASK_NAME}.csv
 
 if [ "$?" = "0" ];
 then
-  echo "查询成功,开始发送邮件.";
+  echo "################## 查询成功.";
   ########################################################################### email信息来自2个字段，需要拼接
   if [ "${emails}" == "" ];
   then
     emails=`${conn} "select ifnull(email,'') from mapping_config_job where id=${mapping_config_job_id}"`
     user_ids=`${conn} "select ifnull(email_userids,'') from mapping_config_job where id=${mapping_config_job_id}"`
+    $(log "################## 查询email的命令");
+    $(log "curl -d \"userids=${user_ids}\" ${get_mails_url}");
     emails2=`curl -d "userids=${user_ids}" ${get_mails_url}`
     if [[ "${emails}" == "" && "${emails2}" != "" ]];
     then
@@ -210,7 +220,7 @@ then
     then
       emails="${emails},${emails2}"
     else
-      echo "没有填写邮箱.";
+      echo "################## 没有填写邮箱.";
       exit 1
     fi
   fi
@@ -238,30 +248,40 @@ then
       and dc.id=${config_id}
     "
   fi
-  echo $(log "查询备注信息 begin");
+  $(log "################## 查询备注信息的sql");
+  $(log "${sql}");
   email_content=`${conn} "${sql}"`;
-  echo $(log "查询备注信息 end");
   email_title="${config_name}_报表_${SYS_TASK_NAME}"
   email_content="您好，请查收本次任务的附件。</br>备注信息：${email_content}"
   result_file_path="${result_path}/${SYS_TASK_NAME}.csv"
-  echo ${java_path} -jar ${data_service_util_jar} "org.blazer.util.Csv2Excel" "${result_path}/${SYS_TASK_NAME}.csv"
+  $(log "################## 将csv转excel命令");
+  $(log "${java_path} -jar ${data_service_util_jar} org.blazer.util.Csv2Excel ${result_path}/${SYS_TASK_NAME}.csv");
   ${java_path} -jar ${data_service_util_jar} "org.blazer.util.Csv2Excel" "${result_path}/${SYS_TASK_NAME}.csv"
   if [ "$?" = "0" ];
   then
     result_file_path=${result_path}/${SYS_TASK_NAME}.csv.xlsx
   fi
-  echo "${zip_path} -j ${result_path}/${SYS_TASK_NAME}.zip ${result_file_path}"
+  $(log "################## 将csv或excel压缩命令");
+  $(log "${zip_path} -j ${result_path}/${SYS_TASK_NAME}.zip ${result_file_path}");
   ${zip_path} -j ${result_path}/${SYS_TASK_NAME}.zip ${result_file_path}
   if [ "$?" = "0" ];
   then
     result_file_path=${result_path}/${SYS_TASK_NAME}.zip
   fi
   # remove on 2017-09-15
-  # echo $(log "${python_path} ${email_util} ${emails} ${email_title} ${email_content} ${result_file_path}");
+  # $(log "${python_path} ${email_util} ${emails} ${email_title} ${email_content} ${result_file_path}");
   # ${python_path} ${email_util} "${emails}" "${email_title}" "${email_content}" "${result_file_path}"
-  echo ${java_path} -jar ${data_service_util_jar} "org.blazer.util.EmailUtil_Csv2HtmlTable" "${emails}" "${email_title}" "${email_content}" "${result_path}/${SYS_TASK_NAME}.csv" "${result_file_path}"
+  $(log "################## 发送邮件命令（支持将csv转换成html）");
+  $(log "${java_path} -jar ${data_service_util_jar} org.blazer.util.EmailUtil_Csv2HtmlTable ${emails} ${email_title} ${email_content} ${result_path}/${SYS_TASK_NAME}.csv ${result_file_path}");
+  $(log "################## 开始发送邮件");
   ${java_path} -jar ${data_service_util_jar} "org.blazer.util.EmailUtil_Csv2HtmlTable" "${emails}" "${email_title}" "${email_content}" "${result_path}/${SYS_TASK_NAME}.csv" "${result_file_path}"
-else
-  echo "查询失败.";
-  exit 1
+  if [ "$?" = "0" ];
+  then
+    echo "执行完毕."
+    exit 0
+  fi
 fi
+
+echo "查询失败.";
+echo "执行完毕.";
+exit 1
