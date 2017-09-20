@@ -35,7 +35,7 @@ public class SchedulerAction extends BaseAction {
 
 	@Autowired
 	SchedulerServer schedulerServer;
-	
+
 	@Autowired
 	TaskService taskService;
 
@@ -80,6 +80,8 @@ public class SchedulerAction extends BaseAction {
 	@ResponseBody
 	@RequestMapping("/find")
 	public void find(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		response.setContentType("text/html;charset=UTF-8");
+		response.setCharacterEncoding("UTF-8");
 		PrintWriter out = response.getWriter();
 		out.println("indexTaskNameToTask        size : " + TaskServer.taskSize());
 		for (ProcessModel pm : TaskServer.tasks()) {
