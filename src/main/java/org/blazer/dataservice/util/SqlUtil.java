@@ -48,13 +48,13 @@ public class SqlUtil {
 	}
 
 	/**
-	 * 支持三种注释:
+	 * 删除SQL中的注释 支持三种注释:
 	 * 
-	 * # 注释
+	 * #  单行注释
 	 * 
-	 * -- 注释
+	 * -- 单行注释
 	 * 
-	 * /* 注释 * /
+	 * /* 多行注释 * /
 	 * 
 	 * @param sql字符串
 	 * @return
@@ -72,6 +72,7 @@ public class SqlUtil {
 		boolean beginCommentC = false;
 		boolean endCommentC = false;
 		for (int i = 0; i < sql.length(); i++) {
+			// 循环获取每一个字符
 			char c = sql.charAt(i);
 			// 遇见换行
 			if (c == '\r' || c == '\n') {
@@ -155,18 +156,48 @@ public class SqlUtil {
 		List<String> list = new ArrayList<String>();
 		// 先获得每个正确;符号的位置
 		List<Integer> splitList = new ArrayList<Integer>();
+		// 是否在单引号内
 		boolean inString = false;
+		// 是否在转义
+		boolean inEscape = false;
+		int index = 0;
 		for (int i = 0; i < sql.length(); i++) {
 			char c = sql.charAt(i);
+			if (inString) {
+				if (c == '\'') {
+					if (inEscape) {
+						inEscape = false;
+						continue;
+					}
+					// 在单引号内
+					if (inString) {
+						inString = !inString;
+					}
+				}
+				continue;
+			}
 			// 遇见 单引号
 			if (c == '\'') {
-				if (inString) {
+				if (inEscape) {
+					inEscape = false;
+					continue;
 				}
+				// 在单引号内
+				if (inString) {
+					inString = !inString;
+				}
+			} else if (c == '\\') {
+				if (inString) {
+					inEscape = true;
+				}
+			} else if (c == ';') {
+				list.add(sql.substring(index == 0 ? index : index + 1, i));
+				splitList.add(i);
+				index = i;
 			}
 		}
-
-		list.add("asd");
-		return null;
+		list.add(sql.substring(index == 0 ? index : index + 1));
+		return list;
 	}
 
 	public static void main(String[] args) {
@@ -181,6 +212,11 @@ public class SqlUtil {
 		sql += "and /* here */ a='${aaa};' \n ";
 		sql += "and b='${hyy}';";
 		System.out.println(removeComment(sql));
+		
+		sql = "select * from hyy1 where name=';' ; select * from hyy2; select * from hyy3;";
+		for (String str : splitSql(sql)) {
+			System.out.println(str);
+		}
 	}
 
 }
