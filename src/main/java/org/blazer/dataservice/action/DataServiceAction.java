@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +32,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class DataServiceAction extends BaseAction {
 
 	private static Logger logger = LoggerFactory.getLogger(DataServiceAction.class);
+
+	public static void main(String[] args) {
+
+		String[] strs = StringUtils.splitByWholeSeparator("asdasd;;;;;;  ;;;;        ".trim(), ";");
+		int i = strs.length;
+		for (String str : strs) {
+			System.out.println(str);
+		}
+		System.out.println("count:" + i);
+	}
 
 	@Autowired
 	ConfigCache configCache;
@@ -87,6 +98,22 @@ public class DataServiceAction extends BaseAction {
 				ConfigDetailBody cdb = new ConfigDetailBody();
 				String sql = detail.getValues();
 
+				// begin : append to 2017-09-22
+				// int sqlCount = sql.trim().split(";").length;
+				int sqlCount = 0;
+				for (String oneSql : StringUtils.splitByWholeSeparator(sql, ";")) {
+					if (StringUtils.isBlank(oneSql)) {
+						continue;
+					}
+					sqlCount++;
+				}
+				logger.debug("SQL条数:" + sqlCount);
+				// 替换系统参数
+				if (sql.contains("${SYS_TASK_NAME}")) {
+					String uuid = "tmp_" + UUID.randomUUID().toString().replace("-", "");
+					sql = sql.replace("${SYS_TASK_NAME}", uuid);
+				}
+				// end
 				// 替换参数
 				for (String key : paramMap.keySet()) {
 					// 防止SQL注入
@@ -98,14 +125,30 @@ public class DataServiceAction extends BaseAction {
 
 				String errorMessage = StringUtils.EMPTY;
 				try {
-					String oldSql = detail.getValues().toLowerCase();
-					if (oldSql.contains("select")) {
-						values = dao.find(sql);
-					} else if (oldSql.contains("insert") || oldSql.contains("update") || oldSql.contains("delete") || oldSql.contains("create")) {
-						dao.update(sql);
-					} else {
-						values = dao.find(sql);
+					for (String oneSql : sql.split(";")) {
+						if ("".equals(oneSql.trim())) {
+							continue;
+						}
+						String oneSqlLower = oneSql.toLowerCase();
+						// logger.debug("单条SQL:" + oneSql);
+						if (oneSqlLower.contains("select")) {
+							values = dao.find(oneSql);
+						} else if (oneSqlLower.contains("insert") || oneSqlLower.contains("update") || oneSqlLower.contains("delete") || oneSqlLower.contains("create")) {
+							dao.update(oneSql);
+						} else {
+							values = dao.find(oneSql);
+						}
 					}
+					// String oldSql = detail.getValues().toLowerCase();
+					// if (oldSql.contains("select")) {
+					// values = dao.find(sql);
+					// } else if (oldSql.contains("insert") ||
+					// oldSql.contains("update") || oldSql.contains("delete") ||
+					// oldSql.contains("create")) {
+					// dao.update(sql);
+					// } else {
+					// values = dao.find(sql);
+					// }
 				} catch (Exception e) {
 					logger.error(e.getMessage(), e);
 					errorMessage = e.getMessage();
