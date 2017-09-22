@@ -39,7 +39,7 @@
 			<Pattern>%d{HH:mm:ss} %-5level - [%thread] - [%method] %message%n</Pattern>
 		</encoder>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<FileNamePattern>${LOG_HOME}/%d{yyyy-MM-dd}.log</FileNamePattern>
+			<FileNamePattern>${LOG_HOME}/web/%d{yyyy-MM-dd}.log</FileNamePattern>
 			<MaxHistory>31</MaxHistory>
 		</rollingPolicy>
 	</appender>
