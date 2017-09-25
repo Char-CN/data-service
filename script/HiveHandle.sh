@@ -19,7 +19,7 @@ then
   echo "加载配置文件: ${WORKSPACE}/${config_file_name}"
   source ${WORKSPACE}/${config_file_name}
 else
-  echo "找不到配置文件：${WORKSPACE}/${config_file_name}，请检查！"
+  echo "找不到配置文件：${WORKSPACE}/${config_file_name},请检查!"
   exit 1
 fi
 echo "debug模式是否打开：$debug"
@@ -98,7 +98,7 @@ else
   "
 fi
 
-$(log "################## 获取datasource信息。用户生成实际执行命令");
+$(log "################## 获取datasource信息, 用户生成实际执行命令");
 rst=`${conn} "${sql}"`
 db_type=`echo $rst | awk -F ' ' '{print $1}'`;
 url=`echo $rst | awk -F ' ' '{print $2}'`;
@@ -202,7 +202,7 @@ ${exec_cmd} "${query_sql}" > ${result_path}/${SYS_TASK_NAME}.csv
 if [ "$?" = "0" ];
 then
   echo "################## 查询成功.";
-  ########################################################################### email信息来自2个字段，需要拼接
+  ########################################################################### email信息来自2个字段,需要拼接
   if [ "${emails}" == "" ];
   then
     emails=`${conn} "select ifnull(email,'') from mapping_config_job where id=${mapping_config_job_id}"`
@@ -252,7 +252,7 @@ then
   $(log "${sql}");
   email_content=`${conn} "${sql}"`;
   email_title="${config_name}_报表_${SYS_TASK_NAME}"
-  email_content="您好，请查收本次任务的附件。</br>备注信息：${email_content}"
+  email_content="您好,请查收本次任务的附件!</br>备注信息：${email_content}"
   result_file_path="${result_path}/${SYS_TASK_NAME}.csv"
   $(log "################## 将csv转excel命令");
   $(log "${java_path} -jar ${data_service_util_jar} org.blazer.util.Csv2Excel ${result_path}/${SYS_TASK_NAME}.csv");
