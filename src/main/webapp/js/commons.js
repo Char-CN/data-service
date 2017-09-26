@@ -87,6 +87,17 @@ var data_service_commons_util = function() {
 		return this.toFixed(num, 0, true);
 	};
 
+	// 自定义获取keys
+	// old details:[{'key1':'val1','key2':'val2'},{'key1':'val3','key2':'val4'}]
+	// rstKeys:['key1', 'key2']
+	this.GetDetailsKeys = function(details) {
+		if (details.length > 0) {
+			// 获得所有 结果表头
+			return Object.keys(details[0]);
+		}
+		return [];
+	};
+
 	// 自定义格式转换
 	// old details:[{'key1':'val1','key2':'val2'},{'key1':'val3','key2':'val4'}]
 	// new rstMap:{'key1':['val1', 'val2'],'key2':['val3', 'val4']}
