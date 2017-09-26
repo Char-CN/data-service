@@ -131,9 +131,11 @@ public class DataServiceAction extends BaseAction {
 						}
 						String oneSqlLower = oneSql.toLowerCase();
 						// logger.debug("单条SQL:" + oneSql);
-						if (oneSqlLower.contains("select")) {
+						if (oneSqlLower.contains("create table") && oneSqlLower.contains("as") && oneSqlLower.contains("select")) {
+							dao.update(oneSql);
+						} else if (oneSqlLower.contains("select")) {
 							values = dao.find(oneSql);
-						} else if (oneSqlLower.contains("insert") || oneSqlLower.contains("update") || oneSqlLower.contains("delete") || oneSqlLower.contains("create")) {
+						} else if (oneSqlLower.contains("insert") || oneSqlLower.contains("update") || oneSqlLower.contains("delete") || oneSqlLower.contains("create") || oneSqlLower.contains("drop")) {
 							dao.update(oneSql);
 						} else {
 							values = dao.find(oneSql);
