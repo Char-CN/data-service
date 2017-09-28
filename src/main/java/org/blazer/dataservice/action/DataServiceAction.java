@@ -18,6 +18,7 @@ import org.blazer.dataservice.dao.Dao;
 import org.blazer.dataservice.model.ConfigDetailModel;
 import org.blazer.dataservice.model.ConfigModel;
 import org.blazer.dataservice.util.IntegerUtil;
+import org.blazer.dataservice.util.ParamsUtil;
 import org.blazer.dataservice.util.SqlUtil;
 import org.blazer.dataservice.util.StringUtil;
 import org.slf4j.Logger;
@@ -116,15 +117,27 @@ public class DataServiceAction extends BaseAction {
 				// end
 				// 替换参数
 				for (String key : paramMap.keySet()) {
+					String param = "${" + key + "}";
+					String value = SqlUtil.TransactSQLInjection(paramMap.get(key));
+					// 如果key是以${wherein.arr}开头
+					if (ParamsUtil.isWhereIn(param)) {
+						// 防止SQL注入, 先替换${arr}的参数
+						// 不需要处理的key
+						String notHandleKey = param.replace("wherein.", "");
+						sql = sql.replace(notHandleKey, value);
+						// 处理a,b,c 转换成a','b','c 因为在SQL中必须写where fild in('${wherein.arr}')
+						value = value.replace(",", "','");
+					}
 					// 防止SQL注入
-					sql = sql.replace("${" + key + "}", SqlUtil.TransactSQLInjection(paramMap.get(key)));
+					sql = sql.replace(param, value);
 				}
-
 				Dao dao = detail.getDataSource();
 				List<Map<String, Object>> values = new ArrayList<Map<String, Object>>();
 
+				// 错误消息
 				String errorMessage = StringUtils.EMPTY;
 				try {
+					// 用分号切分
 					for (String oneSql : sql.split(";")) {
 						if ("".equals(oneSql.trim())) {
 							continue;

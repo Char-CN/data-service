@@ -28,6 +28,18 @@ public class ParamsUtil {
 	}
 
 	/**
+	 * 参数是否是Where In类型的 (where in ('a', 'b'))
+	 * 
+	 * @return
+	 */
+	public static boolean isWhereIn(String param) {
+		if (param != null && !"".equals(param) && !param.toLowerCase().startsWith("${wherein.")) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 * 参数是否是Excel类型的
 	 * 
 	 * @return
