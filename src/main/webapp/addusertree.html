@@ -29,15 +29,15 @@
 				this_window.DSFind("users_tree2").tree('expandAll');
 			}
 		});
-		this_window.DSFind("users_tree").combotree({
-			url : $.ds.url.treeAll,
-			hasDownArrow : false,
-			panelHeight : 200,
-			onLoadSuccess : function(node, data) {
-				this_window.DSFind("users_tree").combotree("tree").tree("options").url = '';
-				this_window.DSFind("users_tree").combotree("tree").tree('expandAll');
-			}
-		});
+// 		this_window.DSFind("users_tree").combotree({
+// 			url : $.ds.url.treeAll,
+// 			hasDownArrow : false,
+// 			panelHeight : 200,
+// 			onLoadSuccess : function(node, data) {
+// 				this_window.DSFind("users_tree").combotree("tree").tree("options").url = '';
+// 				this_window.DSFind("users_tree").combotree("tree").tree('expandAll');
+// 			}
+// 		});
 
 		var init = function() {
 			var select = this_window.DSFind("user_list");
