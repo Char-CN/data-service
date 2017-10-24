@@ -580,7 +580,8 @@ public class ViewService {
 	public List<ViewConfigBody> getConfigsByConfigNameAndAdmin(HashMap<String, String> params) throws Exception {
 		logger.debug("qeury config name " + params.get("configName"));
 		StringBuilder sbSql = new StringBuilder();
-		sbSql.append("select * from ds_config where enable=1 and config_name like '%" + SqlUtil.TransactSQLInjection(params.get("configName")) + "%' order by order_asc, id");
+		String queryParam = SqlUtil.TransactSQLInjection(params.get("configName"));
+		sbSql.append("select * from ds_config where enable=1 and (config_name like '%" + queryParam + "%' or id = " + queryParam + ") order by order_asc, id");
 		List<Map<String, Object>> list = jdbcTemplate.queryForList(sbSql.toString());
 		List<ViewConfigBody> rst = new ArrayList<ViewConfigBody>();
 		StringBuilder ids = new StringBuilder();
@@ -611,9 +612,10 @@ public class ViewService {
 	public List<ViewConfigBody> getConfigsByConfigNameAndUser(SessionModel sm, HashMap<String, String> params) throws Exception {
 		logger.debug("qeury config name " + params.get("configName"));
 		StringBuilder sbSql = new StringBuilder();
+		String queryParam = SqlUtil.TransactSQLInjection(params.get("configName"));
 		sbSql.append("select ds.* from (select * from ds_user_group where user_id=?) dug");
 		sbSql.append(" inner join ds_config ds on dug.group_id=ds.group_id");
-		sbSql.append(" where enable=1 and config_name like '%" + SqlUtil.TransactSQLInjection(params.get("configName")) + "%' order by order_asc, id");
+		sbSql.append(" where enable=1 and (config_name like '%" + queryParam + "%' or id = " + queryParam + ") order by order_asc, id");
 		List<Map<String, Object>> list = jdbcTemplate.queryForList(sbSql.toString(), sm.getUserId());
 		List<ViewConfigBody> rst = new ArrayList<ViewConfigBody>();
 		StringBuilder ids = new StringBuilder();
