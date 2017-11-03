@@ -54,7 +54,7 @@ $(function() {
 					return false;
 				return /^([*]|[*]\/\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\/\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\/\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\/\d+|[\d,]*|\d+[-]\d+)\s+([*]|[*]\/[0-9]|[0-9,]*|[0-9]+[-][0-9]+)$/gi.test(value);
 			},
-			message : '格式[ minite(0-59) hour(0-24) day(1-31) month(1-12) week(1-7) ] *表示任意时间!'
+			message : '格式[ minute(0-59) hour(0-24) day(1-31) month(1-12) week(1-7) ] *表示任意时间!'
 		},
 		multiEmail : {
 			validator : function(value) {
