@@ -1,6 +1,7 @@
 package org.blazer.dataservice.util;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,10 @@ public class HMap<K, V> extends HashMap<K, V> {
 	public static <T> T to(@SuppressWarnings("rawtypes") Map map, Class<T> cls) throws Exception {
 		T rst = cls.newInstance();
 		for (Field f : cls.getDeclaredFields()) {
+			// 过滤静态属性
+			if (Modifier.isStatic(f.getModifiers())) {
+				continue;
+			}
 			f.setAccessible(true);
 			try {
 				Object value = null;
