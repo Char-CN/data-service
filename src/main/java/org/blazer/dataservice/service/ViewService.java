@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.blazer.dataservice.body.Body;
 import org.blazer.dataservice.body.GroupBody;
 import org.blazer.dataservice.body.PageBody;
 import org.blazer.dataservice.body.TreeBody;
@@ -81,6 +82,11 @@ public class ViewService {
 
 	@Value("#{reportProperties.read_row_number}")
 	private Integer readRowNumber;
+
+	public void cancelTaskByName(HashMap<String, String> params) {
+		String taskName = StringUtil.getStrEmpty(params.get("taskName"));
+		TaskServer.cancelTaskByName(taskName);
+	}
 
 	public ResultModel findReportByTaskName(HashMap<String, String> params) throws Exception {
 		// 为了减小服务器压力，每次均只允许读取100行

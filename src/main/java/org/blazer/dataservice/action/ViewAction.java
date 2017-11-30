@@ -53,6 +53,18 @@ public class ViewAction extends BaseAction {
 	ConfigCache configCache;
 
 	@ResponseBody
+	@RequestMapping("/cancelTaskByName")
+	public Body cancelTaskByName(HttpServletRequest request, HttpServletResponse response) {
+		try {
+			viewService.cancelTaskByName(getParamMap(request));
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return new Body().error().setMessage(e.getMessage());
+		}
+		return new Body().success();
+	}
+
+	@ResponseBody
 	@RequestMapping("/findReportByTaskName")
 	public ResultModel findReportByTaskName(HttpServletRequest request, HttpServletResponse response) {
 		try {
