@@ -123,7 +123,7 @@ then
   # 根据mappingid查询实际执行sql
   sql="
   SET NAMES utf8;
-  select REPLACE(dcd.values, '\n', '\r') from mapping_config_job mcj
+  select REPLACE(REPLACE(dcd.values, '\n', '\r'), '\t', ' ') from mapping_config_job mcj
     inner join ds_config dc on mcj.config_id=dc.id
     inner join ds_config_detail dcd on dcd.config_id=dc.id
     where dc.enable=1
@@ -135,7 +135,7 @@ else
   # 根据config查询实际执行sql
   sql="
   SET NAMES utf8;
-  select REPLACE(dcd.values, '\n', '\r') from ds_config dc
+  select REPLACE(REPLACE(dcd.values, '\n', '\r'), '\t', ' ') from ds_config dc
     inner join ds_config_detail dcd on dcd.config_id=dc.id
     where dc.enable=1
     and dcd.enable=1
