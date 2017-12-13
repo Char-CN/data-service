@@ -65,6 +65,12 @@ public class JobServer extends Thread {
 		jobIdToJobMap.remove(jobId);
 	}
 
+	public static void removeJob(List<Integer> jobIds) {
+		for (Integer jobId : jobIds) {
+			removeJob(jobId);
+		}
+	}
+
 	public static void initJob(Job job) throws Exception {
 		if (job == null || job.getId() == null) {
 			throw new NullPointerException("job or job id is null.");

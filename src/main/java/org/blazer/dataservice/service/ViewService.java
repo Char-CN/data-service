@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.blazer.dataservice.body.Body;
 import org.blazer.dataservice.body.GroupBody;
 import org.blazer.dataservice.body.PageBody;
 import org.blazer.dataservice.body.TreeBody;
@@ -778,10 +777,20 @@ public class ViewService {
 		String sql = "update ds_config set enable=0 where id=?";
 		int code = jdbcTemplate.update(sql, configId);
 		logger.debug("sql [" + sql + "] result : " + code);
-		sql = "update mapping_config_job set enable=0 where config_id=?";
+		// fix bug 删除配置项的时候没有删除调度任务
+		// 查询配置对应的JobIds
+		List<Map<String, Object>> list = jdbcTemplate.queryForList("SELECT job_id FROM mapping_config_job WHERE config_id=? and enable=1", configId);
+		List<Integer> jobIds = new ArrayList<Integer>();
+		for (Map<String, Object> map : list) {
+			jobIds.add(IntegerUtil.getInt0(map.get("job_id")));
+		}
+		// 删除一组job，并且会删除待执行的任务，并不会删除正在执行任务，（如需删除正在执行任务，需要查询对应TaskName，进行删除）
+		JobServer.removeJob(jobIds);
+		logger.debug("list size : " + list.size());
+		sql = "UPDATE scheduler_job SET `enable`=0 WHERE id IN (SELECT job_id FROM mapping_config_job WHERE config_id=? and enable=1)";
 		code = jdbcTemplate.update(sql, configId);
 		logger.debug("sql [" + sql + "] result : " + code);
-		sql = "UPDATE scheduler_job SET `enable`=0 WHERE id IN (SELECT job_id FROM mapping_config_job WHERE config_id=?)";
+		sql = "update mapping_config_job set enable=0 where config_id=?";
 		code = jdbcTemplate.update(sql, configId);
 		logger.debug("sql [" + sql + "] result : " + code);
 	}
